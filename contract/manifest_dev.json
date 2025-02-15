@@ -1,7 +1,7 @@
 {
   "world": {
-    "class_hash": "0x45575a88cc5cef1e444c77ce60b7b4c9e73a01cbbe20926d5a4c72a94011410",
-    "address": "0x525177c8afe8680d7ad1da30ca183e482cfcd6404c1e09d83fd3fa2994fd4b8",
+    "class_hash": "0x2361c106e790c1d1bff8c9f73c9d84e9e3ac94b2d8df6db4ddd55e82c33a9b4",
+    "address": "0x190386ce184452b6fed8ff0b17b4d42ea47cdf8a2d1f0a98be083f53b41662f",
     "seed": "dojo_starter",
     "name": "Dojo starter",
     "entrypoints": [
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x73a20bf1f5ebe9caf16bc08fb07434618300a55a764395a22f4fdde8237a547",
-      "class_hash": "0x6cbb5ab40ad7b48dff70edeacc4902a9eeae63a9e36456f9f908aedb904fbd2",
+      "address": "0x4d453a739c7fc75d226ff81d39e7a7393350aa92bc335a64d040b56648d864b",
+      "class_hash": "0x7e929027a6456c78b98bd4b54a4ab5db0058fae29e5c3a35d87aae49655236",
       "abi": [
         {
           "type": "impl",
@@ -1485,19 +1485,19 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x3f52c6cf17db224f4e7f88629adf7e907ff110baa0616c7e8ef17c5aecf1b1b",
+      "class_hash": "0x449e5d11765b7073a5218f7e265ff843dcd587fcfb0700b02a7feb86c95060",
       "tag": "dojo_starter-DirectionsAvailable",
       "selector": "0x77844f1facb51e60e546a9832d56c6bd04fa23be4fd5b57290caae5e9a3c1e4"
     },
     {
       "members": [],
-      "class_hash": "0x5f79e21312b142fc289d3bd1e0f4c65ac3c4e532252c6fb1ad48b718d892dc",
+      "class_hash": "0x2ea06b43e0a82f96db4be6a5d67d42a53cc759d47e7bc5a239527ab04dc416d",
       "tag": "dojo_starter-Moves",
       "selector": "0x2a29373f1af8348bd366a990eb3a342ef2cbe5e85160539eaca3441a673f468"
     },
     {
       "members": [],
-      "class_hash": "0x2283c68ecba5c60bbbbd3b00659808a02244468e41a1d2cdba1312d65b83594",
+      "class_hash": "0x50a7d14206d193bf8bfb96ac7c685028be06edab7f98cc33c8c1f3d73832e68",
       "tag": "dojo_starter-Position",
       "selector": "0x2ac8b4c190f7031b9fc44312e6b047a1dce0b3f2957c33a935ca7846a46dd5b"
     }
@@ -1505,7 +1505,7 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x3dca5564f84050b20e66a2e5e7619201502d241b223ea73cfc05f29e6e20ea1",
+      "class_hash": "0x7325d819e25ff4d94ee090cce8ea3349781728a742de59ee32b2821f989524",
       "tag": "dojo_starter-Moved",
       "selector": "0x504403e5c02b6442527721fc464d9ea5fc8f1ee600ab5ccd5c0845d36fd45f1"
     }
