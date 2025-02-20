@@ -1,0 +1,38 @@
+/* CoverScreen Styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: black;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+  }
+  
+  .container {
+    text-align: center;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  button {
+    padding: 0.5rem 1.5rem;
+    background-color: white;
+    color: black;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #cccccc;
+  }
+  
