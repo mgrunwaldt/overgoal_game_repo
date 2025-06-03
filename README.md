@@ -86,8 +86,6 @@ dojo-game-starter/
 
 **[🎮 Play Demo](https://your-demo-url.com)** • **[📋 View Contract](https://sepolia.starkscan.co/contract/0x...)** • **[📚 Documentation](./docs/)**
 
-## 🤝🏽 Contributing
+## 🤝🏼 Contributing
 
 Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-*Built for the Starknet gaming community ❤️*
