@@ -15,16 +15,6 @@ npm install && npm run dev
 
 **That's it!** Your onchain game is running locally with wallet integration, game mechanics, and achievement system.
 
-## 📖 Key Features
-
-- Implement Cartridge Controller ✅<br>
-- Achievement Initialization and Progress ✅<br>
-- Hooks to organize the integration among client/contracts ✅<br>
-- Production deployment Sepolia/Mainnet ready ✅<br>
-- Gitub Action to verify sozo build and sozo test ✅ <br>
-- Comprehensive test suite ✅ <br>
-- Developer documentation ✅
-
 ## ✨ What's Included
 
 **🎨 Frontend Ready**
