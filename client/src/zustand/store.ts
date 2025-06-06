@@ -57,7 +57,7 @@ const initialState: AppState = {
 // Create the store
 const useAppStore = create<AppStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       // Initial state
       ...initialState,
 
