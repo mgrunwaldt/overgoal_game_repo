@@ -4,17 +4,11 @@
 > From zero to deployed in 5 minutes ⚡
 
 <div align="center">
-  <a href="https://starknet.io" target="_blank">
-    <img src="./client/src/assets/SN-Linear-Gradient.svg" alt="Starknet" height="60"/>
-  </a>
+  <img src="./client/src/assets/Dojo-Logo-Stylized-Red.svg" alt="Dojo Engine" height="60"/>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://dojoengine.org" target="_blank">
-    <img src="./client/src/assets/DojoByExample_logo.svg" alt="Dojo by Example" height="60"/>
-  </a>
+  <img src="./client/src/assets/DojoByExample_logo.svg" alt="Dojo by Example" height="60"/>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://dojoengine.org" target="_blank">
-    <img src="./client/src/assets/Dojo-Logo-Stylized-Red.svg" alt="Dojo Engine" height="60"/>
-  </a>
+  <img src="./client/src/assets/SN-Linear-Gradient.svg" alt="Starknet" height="60"/>
 </div>
 
 ## ✨ What's Included
