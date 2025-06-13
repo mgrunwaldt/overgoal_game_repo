@@ -21,27 +21,12 @@ npm install && npm run dev
 - React + Vite + TypeScript
 - Wallet integration Cartridge Controller
 - Real-time game UI
-- Achievement Progress
 
 **⚙️ Backend Complete**
 - Cairo - smart contracts
 - Dojo Engine architecture
 - Player progression system
 - Achievement tracking
-
-**🚀 DevOps Setup**
-- One-click Sepolia deployment
-- GitHub Actions CI/CD
-
-## 🎮 Game Mechanics
-
-| Action | Effect | Description |
-|--------|--------|-------------|
-| 🏋️ Train | +10 EXP | Gain experience points |
-| ⛏️ Mine | +5 Coins, -5 Health | Earn currency, lose health |
-| 💤 Rest | +20 Health | Recover health points |
-
-**🏆 Achievements unlock automatically** as players progress through the game.
 
 ## 🛠️ Tech Stack
 
@@ -71,10 +56,6 @@ dojo-game-starter/
 - 🎮 **Game developers** entering web3
 - 🏢 **Studios** prototyping onchain games
 - 📚 **Developers** learning Starknet + Dojo
-
-## 🌐 Live Demo
-
-**[🎮 Play Demo](https://your-demo-url.com)** • **[📋 View Contract](https://sepolia.starkscan.co/contract/0x...)** • **[📚 Documentation](./docs/)**
 
 ## 🤝🏼 Contributing
 
