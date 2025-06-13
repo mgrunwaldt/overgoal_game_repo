@@ -15,7 +15,7 @@ export function LinksSection() {
       icon: BookOpen,
       title: "Documentation",
       description: "Complete setup and development guide",
-      href: "https://dojo-by-example.vercel.app/",
+      href: "https://github.com/AkatsukiLabs/Dojo-Game-Starter/blob/main/client/docs/01-overview.md",
       target: "_blank",
       color: "from-blue-500 to-blue-600",
     },
