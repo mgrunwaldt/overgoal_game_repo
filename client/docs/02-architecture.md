@@ -342,4 +342,4 @@ const { player, coins } = useAppStore(state => ({
 
 This architecture provides a robust foundation for building complex onchain games while maintaining clean code organization and excellent developer experience. The layered approach ensures that each component has a single responsibility while working together seamlessly to create a smooth user experience.
 
-**Next**: We'll dive into the **Core Files** to understand the implementation details of each architectural component.
+**Next**: We'll dive into [**Core Files**](./03-core-files.md) to understand the implementation details of each architectural component.

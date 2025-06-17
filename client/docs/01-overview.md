@@ -128,3 +128,5 @@ This overview provides the foundation. In the following READMEs, we'll dive deep
 ---
 
 > **🎮 Ready to build onchain games?** This integration provides the complete foundation for creating engaging blockchain-based gaming experiences on Starknet!
+
+**Next:** Get started with the overview of the system [**Architecture**](./02-architecture.md)

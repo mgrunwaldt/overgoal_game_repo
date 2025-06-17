@@ -129,7 +129,7 @@ VITE_PUBLIC_MASTER_PRIVATE_KEY=0x...
 
 ```typescript
 export function setupWorld(provider: DojoProvider) {
-  
+
   // Build calldata for game actions
   const build_game_train_calldata = (): DojoCall => {
     return {
@@ -160,7 +160,7 @@ export function setupWorld(provider: DojoProvider) {
       mine: game_mine,
       rest: game_rest,
       spawnPlayer: game_spawnPlayer,
-      
+
       // Calldata builders for advanced usage
       buildTrainCalldata: build_game_train_calldata,
       buildMineCalldata: build_game_mine_calldata,
@@ -193,7 +193,7 @@ export function setupWorld(provider: DojoProvider) {
 ```typescript
 export default function StarknetProvider({ children }: PropsWithChildren) {
   const { VITE_PUBLIC_DEPLOY_TYPE } = import.meta.env;
-  
+
   // Dynamic RPC URL based on environment
   const getRpcUrl = () => {
     switch (VITE_PUBLIC_DEPLOY_TYPE) {
@@ -209,8 +209,8 @@ export default function StarknetProvider({ children }: PropsWithChildren) {
   });
 
   // Select appropriate chain
-  const chains = VITE_PUBLIC_DEPLOY_TYPE === "mainnet" 
-    ? [mainnet] 
+  const chains = VITE_PUBLIC_DEPLOY_TYPE === "mainnet"
+    ? [mainnet]
     : [sepolia];
 
   return (
@@ -245,7 +245,7 @@ export default function StarknetProvider({ children }: PropsWithChildren) {
 async function main() {
   try {
     console.log("🚀 Initializing Dojo SDK...");
-    
+
     // Initialize Dojo SDK with configuration
     const sdk = await init<SchemaType>({
       client: {
@@ -273,10 +273,10 @@ async function main() {
         </DojoSdkProvider>
       </StrictMode>
     );
-    
+
   } catch (error) {
     console.error("❌ Failed to initialize Dojo:", error);
-    
+
     // Graceful error handling with fallback UI
     renderErrorFallback(error);
   }
@@ -310,7 +310,7 @@ export function useStarknetConnect() {
       console.error("No connector found");
       return;
     }
-    
+
     try {
       setIsConnecting(true);
       console.log("🔗 Attempting to connect controller...");
@@ -323,7 +323,7 @@ export function useStarknetConnect() {
     }
   }, [connect, connectors]);
 
-  return { 
+  return {
     status,           // 'connected' | 'disconnected' | 'connecting'
     address,          // Wallet address when connected
     isConnecting,     // Loading state
@@ -359,7 +359,7 @@ export const usePlayer = (): UsePlayerReturn => {
   const { account } = useAccount();
   const { player: storePlayer, setPlayer } = useAppStore();
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // GraphQL query to Torii indexer
   const PLAYER_QUERY = `
     query GetPlayer($playerAddress: ContractAddress!) {
@@ -379,7 +379,7 @@ export const usePlayer = (): UsePlayerReturn => {
 
   const refetch = useCallback(async () => {
     if (!account?.address) return;
-    
+
     try {
       setIsLoading(true);
       const response = await fetch(TORII_URL, {
@@ -390,10 +390,10 @@ export const usePlayer = (): UsePlayerReturn => {
           variables: { playerAddress: addAddressPadding(account.address) }
         }),
       });
-      
+
       const result = await response.json();
       const playerData = result.data?.playerModels?.edges?.[0]?.node;
-      
+
       if (playerData) {
         setPlayer(playerData);
       }
@@ -433,7 +433,7 @@ export const useSpawnPlayer = () => {
     try {
       // Check if player already exists
       await refetchPlayer();
-      
+
       if (player) {
         console.log("✅ Player already exists");
         return { success: true, playerExists: true };
@@ -442,24 +442,24 @@ export const useSpawnPlayer = () => {
       // Create new player
       console.log("🎮 Creating new player...");
       const txResult = await client.game.spawnPlayer(account);
-      
+
       console.log("✅ Player created:", txResult.transaction_hash);
-      
+
       // Refresh player data
       await refetchPlayer();
-      
-      return { 
-        success: true, 
-        playerExists: false, 
-        transactionHash: txResult.transaction_hash 
+
+      return {
+        success: true,
+        playerExists: false,
+        transactionHash: txResult.transaction_hash
       };
-        
+
     } catch (error) {
       console.error("❌ Player initialization failed:", error);
-      return { 
-        success: false, 
-        playerExists: false, 
-        error: error.message 
+      return {
+        success: false,
+        playerExists: false,
+        error: error.message
       };
     } finally {
       setIsInitializing(false);
@@ -479,7 +479,7 @@ export const useSpawnPlayer = () => {
 ```
 1. main.tsx
    ↓ (initializes)
-2. dojoConfig.ts 
+2. dojoConfig.ts
    ↓ (configures)
 3. contracts.gen.ts
    ↓ (provides API to)
@@ -506,4 +506,4 @@ starknet-provider.tsx → useStarknetConnect.tsx → Game Components
 
 These 8 core files work together to create a seamless bridge between your React frontend and Dojo smart contracts. Each file has a single responsibility but collectively they provide a complete, type-safe, and robust integration layer.
 
-**Next**: We'll explore how **Zustand State Management** powers the reactive UI updates and optimistic user experience.
+**Next**: We'll explore how [**Zustand State Management**](./04-zustand-state-management.md) powers the reactive UI updates and optimistic user experience.

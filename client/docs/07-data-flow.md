@@ -158,7 +158,7 @@ export const usePlayer = () => {
     });
 
     const result = await response.json();
-    
+
     if (result.data?.fullStarterReactPlayerModels?.edges?.length) {
       const rawData = result.data.fullStarterReactPlayerModels.edges[0].node;
       return {
@@ -253,7 +253,7 @@ export function GameActions() {
   const { executeTrain, trainState, canTrain } = useTrainAction();
 
   return (
-    <Button 
+    <Button
       onClick={executeTrain}
       disabled={!canTrain || trainState.isLoading}
     >
@@ -288,7 +288,7 @@ const executeTrain = useCallback(async () => {
     // ⚡ 2. OPTIMISTIC UPDATE
     setTrainState({ isLoading: true, txStatus: 'PENDING' });
     updatePlayerExperience((player?.experience || 0) + 10);
-    
+
     // 🔗 3. BLOCKCHAIN TRANSACTION
     console.log("📤 Executing train transaction...");
     const tx = await client.game.train(account);
@@ -296,7 +296,7 @@ const executeTrain = useCallback(async () => {
     // ✅ 4. SUCCESS HANDLING
     if (tx && tx.code === "SUCCESS") {
       setTrainState({ txStatus: 'SUCCESS', isLoading: false });
-      
+
       // Auto-clear success state
       setTimeout(() => {
         setTrainState({ isLoading: false, error: null, txStatus: null });
@@ -309,7 +309,7 @@ const executeTrain = useCallback(async () => {
     // ❌ 5. ROLLBACK ON FAILURE
     console.error("❌ Training failed:", error);
     updatePlayerExperience((player?.experience || 0) - 10); // Revert!
-    
+
     setTrainState({
       isLoading: false,
       error: error.message,
@@ -391,10 +391,10 @@ try {
   // Optimistic update
   updatePlayerCoins(player.coins + 5);
   updatePlayerHealth(player.health - 5);
-  
+
   // Blockchain transaction
   const tx = await client.game.mine(account);
-  
+
   if (tx.code !== "SUCCESS") {
     throw new Error("Transaction failed");
   }
@@ -402,7 +402,7 @@ try {
   // Rollback optimistic changes
   updatePlayerCoins(player.coins - 5);    // Revert coins
   updatePlayerHealth(player.health + 5);  // Revert health
-  
+
   // Show error to user
   setMineState({ error: error.message, txStatus: 'REJECTED' });
 }
@@ -471,4 +471,4 @@ Let's trace a complete user action from click to final state:
 
 The data flow architecture ensures that users get **instant feedback** while maintaining **data consistency** with the blockchain. This pattern can be extended to any new game mechanics by following the same optimistic update → blockchain transaction → confirmation/rollback flow.
 
-**Next**: We'll explore how to Extend the System with new game mechanics and features.
+**Next**: We'll explore how to [**Extend the System**](./08-extending-system.md) with new game mechanics and features.

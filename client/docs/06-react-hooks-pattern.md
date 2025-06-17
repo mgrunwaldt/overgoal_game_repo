@@ -46,14 +46,14 @@ This hook manages the **fundamental connection** to Starknet via Cartridge Contr
 ```typescript
 const handleConnect = useCallback(async () => {
   const connector = connectors[0]; // Cartridge Controller
-  
+
   try {
     setIsConnecting(true);
     console.log("🔗 Attempting to connect controller...");
-    
+
     // Opens Cartridge Controller interface
     await connect({ connector });
-    
+
     console.log("✅ Controller connected successfully");
   } catch (error) {
     console.error("❌ Connection failed:", error);
@@ -65,7 +65,7 @@ const handleConnect = useCallback(async () => {
 
 **📤 Return Interface:**
 ```typescript
-return { 
+return {
   status,           // 'connected' | 'disconnected' | 'connecting'
   address,          // Wallet address when connected
   isConnecting,     // Connection loading state
@@ -120,7 +120,7 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
   });
 
   const result = await response.json();
-  
+
   if (!result.data?.fullStarterReactPlayerModels?.edges?.length) {
     return null; // Player not found
   }
@@ -217,11 +217,11 @@ const txResult = await client.game.spawnPlayer(account);
 if (txResult && txResult.code === "SUCCESS") {
   // Refresh player data after creation
   await refetchPlayer();
-  
-  return { 
-    success: true, 
-    playerExists: false, 
-    transactionHash: txResult.transaction_hash 
+
+  return {
+    success: true,
+    playerExists: false,
+    transactionHash: txResult.transaction_hash
   };
 }
 ```
@@ -349,26 +349,26 @@ export function GameActions() {
     },
     {
       icon: Hammer,
-      label: "Mine", 
+      label: "Mine",
       description: "+5 Coins, -5 Health",
       onClick: executeMine,
       state: mineState,
       canExecute: canMine,
       color: "from-yellow-500 to-yellow-600",
-      disabledReason: !canMine && player && (player.health || 0) <= 5 
-        ? "Low Health!" 
+      disabledReason: !canMine && player && (player.health || 0) <= 5
+        ? "Low Health!"
         : undefined,
     },
     {
       icon: Bed,
       label: "Rest",
-      description: "+20 Health", 
+      description: "+20 Health",
       onClick: executeRest,
       state: restState,
       canExecute: canRest,
       color: "from-green-500 to-green-600",
-      disabledReason: !canRest && player && (player.health || 0) >= 100 
-        ? "Full Health!" 
+      disabledReason: !canRest && player && (player.health || 0) >= 100
+        ? "Full Health!"
         : undefined,
     },
   ];
@@ -378,7 +378,7 @@ export function GameActions() {
       {actions.map((action) => {
         const Icon = action.icon;
         const isLoading = action.state.isLoading;
-        
+
         return (
           <Button
             key={action.label}
@@ -483,4 +483,4 @@ export function StatusBar() {
 
 The React hooks pattern in Dojo Game Starter provides a clean, reusable, and maintainable way to manage complex blockchain interactions while maintaining excellent user experience through optimistic updates and comprehensive error handling.
 
-**Next**: We'll explore the complete **Data Flow** to understand how all these pieces work together in real-time gameplay scenarios.
+**Next**: We'll explore the complete [**Data Flow**](./07-data-flow.md) to understand how all these pieces work together in real-time gameplay scenarios.

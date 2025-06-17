@@ -74,10 +74,10 @@ const options: ControllerOptions = {
       rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
     },
   ],
-  defaultChainId: VITE_PUBLIC_DEPLOY_TYPE === 'mainnet' 
-    ? constants.StarknetChainId.SN_MAIN 
+  defaultChainId: VITE_PUBLIC_DEPLOY_TYPE === 'mainnet'
+    ? constants.StarknetChainId.SN_MAIN
     : constants.StarknetChainId.SN_SEPOLIA,
-  
+
   // 🎯 Core Configuration
   policies,                                              // Pre-approved actions
   theme,                                                 // Visual branding
@@ -174,12 +174,12 @@ const options: ControllerOptions = {
       rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
     },
   ],
-  
+
   // Automatic network selection based on deployment
-  defaultChainId: VITE_PUBLIC_DEPLOY_TYPE === 'mainnet' 
+  defaultChainId: VITE_PUBLIC_DEPLOY_TYPE === 'mainnet'
     ? constants.StarknetChainId.SN_MAIN      // Mainnet for production
     : constants.StarknetChainId.SN_SEPOLIA,  // Sepolia for testing
-  
+
   namespace: "full_starter_react",           // Unique identifier
   slot: "full-starter-react",               // Session storage key
 };
@@ -241,14 +241,14 @@ export function useStarknetConnect() {
       console.error("No connector found");
       return;
     }
-    
+
     try {
       setIsConnecting(true);
       console.log("🔗 Attempting to connect controller...");
-      
+
       // This opens the Cartridge Controller interface
       await connect({ connector });
-      
+
       console.log("✅ Controller connected successfully");
     } catch (error) {
       console.error("❌ Connection failed:", error);
@@ -257,7 +257,7 @@ export function useStarknetConnect() {
     }
   }, [connect, connectors]);
 
-  return { 
+  return {
     status,           // 'connected' | 'disconnected' | 'connecting'
     address,          // Player's wallet address
     isConnecting,     // Loading state
@@ -300,7 +300,7 @@ const handlePlayerReady = useCallback(() => {
     console.error("Connector not initialized");
     return;
   }
-  
+
   // Open player profile with achievements
   if (connector.controller && 'openProfile' in connector.controller) {
     connector.controller.openProfile("achievements");
@@ -347,7 +347,7 @@ export default function StarknetProvider({ children }: PropsWithChildren) {
 useEffect(() => {
   if (isConnected && !player && !isInitializing) {
     console.log("🎮 Controller connected, auto-initializing player...");
-    
+
     // Automatically create player if needed
     setTimeout(() => {
       initializePlayer().then(result => {
@@ -370,17 +370,17 @@ const executeTrain = useCallback(async () => {
   try {
     // 1. ⚡ Optimistic update (instant UI feedback)
     updatePlayerExperience((player?.experience || 0) + 10);
-    
+
     // 2. 🎮 Execute via Controller (no popup)
     console.log("📤 Executing train transaction...");
     const tx = await client.game.train(account); // Seamless!
-    
+
     // 3. ✅ Handle confirmation
     if (tx && tx.code === "SUCCESS") {
       console.log("✅ Train successful!");
       // UI already updated optimistically
     }
-    
+
   } catch (error) {
     // 4. ❌ Rollback on error
     updatePlayerExperience((player?.experience || 0) - 10);
@@ -419,4 +419,4 @@ User clicks "Train" → UI updates instantly → Transaction processes in backgr
 
 The Cartridge Controller transforms blockchain gaming from a friction-filled experience into something that feels like traditional gaming. By eliminating constant wallet popups and providing gaming-specific features, it enables developers to create truly engaging onchain games.
 
-**Next**: We'll explore the **React Hooks Pattern** that powers the seamless integration between Controller, Dojo contracts, and React components.
+**Next**: We'll explore the [**React Hooks Pattern**](./06-react-hooks-pattern.md) that powers the seamless integration between Controller, Dojo contracts, and React components.

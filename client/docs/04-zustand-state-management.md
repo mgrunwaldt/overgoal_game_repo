@@ -52,11 +52,11 @@ export interface Player {
 interface AppState {
   // 👤 Player Data
   player: Player | null;
-  
+
   // ⚡ UI State
   isLoading: boolean;     // Global loading state
   error: string | null;   // Error messages
-  
+
   // 🎮 Game State
   gameStarted: boolean;   // Whether game session is active
 }
@@ -68,11 +68,11 @@ interface AppActions {
   updatePlayerCoins: (coins: number) => void;
   updatePlayerExperience: (experience: number) => void;
   updatePlayerHealth: (health: number) => void;
-  
+
   // UI management
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  
+
   // Game management
   startGame: () => void;
   endGame: () => void;
@@ -94,11 +94,11 @@ const useAppStore = create<AppStore>()(
 
       // Player actions - immutable updates
       setPlayer: (player) => set({ player }),
-      
+
       updatePlayerCoins: (coins) => set((state) => ({
         player: state.player ? { ...state.player, coins } : null
       })),
-      
+
       updatePlayerExperience: (experience) => set((state) => ({
         player: state.player ? { ...state.player, experience } : null
       })),
@@ -146,51 +146,51 @@ export const useTrainAction = (): UseTrainActionReturn => {
   const { account } = useAccount();
   const { client } = useDojoSDK();
   const { player, updatePlayerExperience } = useAppStore();
-  
+
   const [trainState, setTrainState] = useState<TrainActionState>({
     isLoading: false,
     error: null,
     txHash: null,
     txStatus: null
   });
-  
+
   const executeTrain = useCallback(async () => {
     try {
       // 1. ⚡ OPTIMISTIC UPDATE - Instant UI feedback
       setTrainState({ isLoading: true, txStatus: 'PENDING', ... });
       updatePlayerExperience((player?.experience || 0) + 10);
-      
+
       // 2. 🔗 BLOCKCHAIN TRANSACTION - Send to network
       console.log("📤 Executing train transaction...");
       const tx = await client.game.train(account);
-      
+
       if (tx?.transaction_hash) {
         setTrainState(prev => ({ ...prev, txHash: tx.transaction_hash }));
       }
-      
+
       // 3. ✅ CONFIRMATION - Transaction succeeded
       if (tx && tx.code === "SUCCESS") {
         console.log("✅ Train transaction successful!");
         setTrainState(prev => ({ ...prev, txStatus: 'SUCCESS' }));
-        
+
         // Auto-clear success state after 3 seconds
         setTimeout(() => resetTrainState(), 3000);
       } else {
         throw new Error(`Transaction failed: ${tx?.code}`);
       }
-      
+
     } catch (error) {
       // 4. ❌ ROLLBACK - Revert optimistic update on failure
       console.error("❌ Training failed:", error);
       updatePlayerExperience((player?.experience || 0) - 10); // Rollback
-      setTrainState({ 
-        isLoading: false, 
-        error: error.message, 
-        txStatus: 'REJECTED' 
+      setTrainState({
+        isLoading: false,
+        error: error.message,
+        txStatus: 'REJECTED'
       });
     }
   }, [account, client, player, updatePlayerExperience]);
-  
+
   return { trainState, executeTrain, canTrain: !trainState.isLoading };
 };
 ```
@@ -215,9 +215,9 @@ const executeMine = useCallback(async () => {
   // Validation - check if player has enough health
   const hasEnoughHealth = (player?.health || 0) > 5;
   if (!hasEnoughHealth) {
-    setMineState(prev => ({ 
-      ...prev, 
-      error: "Not enough health to mine (need >5 HP)" 
+    setMineState(prev => ({
+      ...prev,
+      error: "Not enough health to mine (need >5 HP)"
     }));
     return;
   }
@@ -226,10 +226,10 @@ const executeMine = useCallback(async () => {
     // Optimistic update: +5 coins, -5 health
     updatePlayerCoins((player?.coins || 0) + 5);
     updatePlayerHealth(Math.max(0, (player?.health || 100) - 5));
-    
+
     // Execute blockchain transaction
     const tx = await client.game.mine(account);
-    
+
     // Handle success/failure...
   } catch (error) {
     // Rollback both changes on failure
@@ -246,9 +246,9 @@ const executeRest = useCallback(async () => {
   // Validation - only rest if health < 100
   const needsHealth = (player?.health || 0) < 100;
   if (!needsHealth) {
-    setRestState(prev => ({ 
-      ...prev, 
-      error: "Health is already full" 
+    setRestState(prev => ({
+      ...prev,
+      error: "Health is already full"
     }));
     return;
   }
@@ -256,10 +256,10 @@ const executeRest = useCallback(async () => {
   try {
     // Optimistic update: +20 health (max 100)
     updatePlayerHealth(Math.min(100, (player?.health || 100) + 20));
-    
+
     // Execute blockchain transaction
     const tx = await client.game.rest(account);
-    
+
     // Handle success/failure...
   } catch (error) {
     // Rollback health change on failure
@@ -289,7 +289,7 @@ function PlayerStats() {
     experience: state.player?.experience || 0,
     health: state.player?.health || 100,
   }));
-  
+
   return (
     <div>
       <div>EXP: {experience}</div>
@@ -312,19 +312,19 @@ function BadComponent() {
 const usePlayerStats = () => {
   return useAppStore(state => {
     if (!state.player) return null;
-    
+
     return {
       // Raw values
       experience: state.player.experience,
       health: state.player.health,
       coins: state.player.coins,
-      
+
       // Computed values
       level: Math.floor(state.player.experience / 100) + 1,
       healthPercentage: (state.player.health / 100) * 100,
       isLowHealth: state.player.health < 20,
       canAfford: (price: number) => state.player.coins >= price,
-      
+
       // Status indicators
       status: state.player.health <= 0 ? 'dead' :
               state.player.health < 20 ? 'critical' :
@@ -336,9 +336,9 @@ const usePlayerStats = () => {
 // Usage in components
 function AdvancedPlayerDisplay() {
   const stats = usePlayerStats();
-  
+
   if (!stats) return <div>No player data</div>;
-  
+
   return (
     <div className={stats.isLowHealth ? 'text-red-500' : 'text-green-500'}>
       <div>Level {stats.level}</div>
@@ -362,7 +362,7 @@ The store uses strategic persistence to balance performance with UX:
     // ✅ Persist - Critical user data
     player: state.player,
     gameStarted: state.gameStarted,
-    
+
     // ❌ Don't persist - Transient UI state
     // isLoading: state.isLoading,    // Should reset on page load
     // error: state.error,            // Errors should not persist
@@ -390,30 +390,30 @@ The store uses strategic persistence to balance performance with UX:
 // GameActions.tsx - Uses multiple action hooks
 function GameActions() {
   const player = useAppStore(state => state.player);
-  
+
   // Each action has its own hook with optimistic updates
   const { trainState, executeTrain, canTrain } = useTrainAction();
   const { mineState, executeMine, canMine } = useMineAction();
   const { restState, executeRest, canRest } = useRestAction();
-  
+
   return (
     <div>
-      <Button 
+      <Button
         onClick={executeTrain}
         disabled={!canTrain || trainState.isLoading}
         className={trainState.txStatus === 'SUCCESS' ? 'border-green-500' : ''}
       >
         {trainState.isLoading ? 'Training...' : 'Train (+10 EXP)'}
       </Button>
-      
-      <Button 
+
+      <Button
         onClick={executeMine}
         disabled={!canMine || mineState.isLoading}
       >
         {mineState.isLoading ? 'Mining...' : 'Mine (+5 Coins, -5 HP)'}
       </Button>
-      
-      <Button 
+
+      <Button
         onClick={executeRest}
         disabled={!canRest || restState.isLoading}
       >
@@ -472,7 +472,7 @@ const executeAction = async () => {
   } catch (error) {
     // Set error state
     setActionState({ error: error.message, txStatus: 'REJECTED' });
-    
+
     // Auto-clear error after 5 seconds
     setTimeout(() => {
       setActionState({ error: null, txStatus: null });
@@ -504,4 +504,4 @@ const recoverFromFailedTransaction = () => {
 
 Zustand provides the perfect foundation for onchain game state management, combining simplicity with powerful features needed for blockchain interactions. The optimistic update pattern ensures users get immediate feedback while maintaining data consistency with the blockchain.
 
-**Next**: We'll explore how **Cartridge Controller Integration** provides seamless wallet connectivity and gaming-focused user experience.
+**Next**: We'll explore how the [**Cartridge Controller Integration**](./05-cartridge-controller.md) provides seamless wallet connectivity and gaming-focused user experience.
