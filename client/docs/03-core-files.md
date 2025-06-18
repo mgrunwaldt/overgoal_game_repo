@@ -27,7 +27,7 @@ src/
 **🎯 Purpose**: Provides TypeScript interfaces that mirror Cairo contract structures, ensuring type safety across the entire application.
 
 ```typescript
-// Auto-generated from Cairo contracts
+// Auto-generated from Cairo contracts (via `sozo build --typescript`)
 export interface Player {
   owner: string;          // Player's wallet address
   experience: number;     // Game experience points
