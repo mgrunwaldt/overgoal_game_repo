@@ -197,7 +197,7 @@ sozo test
 
 ### 1️⃣ Start Katana (Local Blockchain)
 ```bash
-katana --dev --dev.no-fee
+katana --config katana.toml
 ```
 
 ### 2️⃣ Local Deployment
