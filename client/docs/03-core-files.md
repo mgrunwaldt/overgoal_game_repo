@@ -114,7 +114,7 @@ export const dojoConfig = createDojoConfig({
 ```bash
 # .env.local
 VITE_PUBLIC_NODE_URL=https://api.cartridge.gg/x/starknet/sepolia
-VITE_PUBLIC_TORII=https://api.cartridge.gg/x/myproject/torii
+VITE_PUBLIC_TORII=https://api.cartridge.gg/x/full-starter-react/torii
 VITE_PUBLIC_MASTER_ADDRESS=0x...
 VITE_PUBLIC_MASTER_PRIVATE_KEY=0x...
 ```

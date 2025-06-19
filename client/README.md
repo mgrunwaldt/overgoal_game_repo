@@ -15,7 +15,9 @@ cd dojo-game-starter/client
 npm install && npm run mkcert && npm run dev:https
 ```
 
-**That's it!** Your onchain game is running locally with wallet integration, optimistic updates, and seamless blockchain connectivity.
+**That's it!** Your client is running locally with wallet integration, optimistic updates, and seamless blockchain connectivity.
+
+> Note: this quickstart will connect your client to the existing Sepolia deployment, not your local version!
 
 ---
 

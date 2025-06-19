@@ -84,17 +84,21 @@ export DEPLOYER_PRIVATE_KEY="<tu_clave_privada>"
 ```
 
 ### 3️⃣ Update Seed
-In `dojo_sepolia.toml`, increase the seed number:
+In `dojo_sepolia.toml`, set a new seed:
 ```toml
-seed = "full_starter_react2"  # Increase number
+seed = "seed456"  # Update the seed to create a new deployment
 ```
 
 ### 4️⃣ Clear old state
 ```bash
 # Delete old manifest
 rm manifest_sepolia.json
+```
 
-# Clean world address in torii_config.toml
+In `torii_config.toml`, clear the previous world address:
+
+```toml
+world_address = ""
 ```
 
 ### 5️⃣ Execute Deploy
@@ -103,7 +107,9 @@ cd contract
 scarb run sepolia
 ```
 
-✅ **The deploy will return the `world_address` you will need for the client.
+✅ **The deploy will return the `world_address` you will need for the client.**
+
+> Note: if you are using a new account and receive an "account does not exist error" please ensure your account has been fully deployed
 
 ## 📊 Deploy Torii with Achievements
 
@@ -163,9 +169,9 @@ let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID;
 while achievement_id <= constants::ACHIEVEMENTS_COUNT {
     let task: Achievement = achievement_id.into();
     achievement_store.progress(
-        player.owner.into(), 
-        task.identifier(), 
-        1, 
+        player.owner.into(),
+        task.identifier(),
+        1,
         get_block_timestamp()
     );
     achievement_id += 1;

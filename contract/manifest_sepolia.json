@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x7c9469d45a9cdbab775035afb48e1fa73fb35ab059fcb9dfb0a301aa973e783",
-    "address": "0x5a15193daf70b6dfcbf7260c7323791e7a5fd3b90ef95150fe810d98199ca70",
-    "seed": "full_starter_react1",
+    "address": "0x5516189bb610e29f63833042eda4a7e5357569c094c1b8eed499930dd51da9",
+    "seed": "seed123",
     "name": "Full-Starter-React",
     "entrypoints": [
       "uuid",
@@ -1312,7 +1312,7 @@
   },
   "contracts": [
     {
-      "address": "0x31b119987eeb1a6c0d13b029ad9a3c64856369dcdfd6e69d9af4c9fba6f507f",
+      "address": "0x77caaa4b20ff379234a40c945b397aebbff866d623e31c7c1e44df6fc63f9ce",
       "class_hash": "0x67b9e060cb1caebf64f45a92c40028de885535c4ced3178656c4e5c3c171286",
       "abi": [
         {
