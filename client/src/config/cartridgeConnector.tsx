@@ -50,6 +50,8 @@ const policies = {
         { name: "train", entrypoint: "train" },
         { name: "mine", entrypoint: "mine" },
         { name: "rest", entrypoint: "rest" },
+        { name: "train_dribbling", entrypoint: "train_dribbling" },
+        { name: "train_shooting", entrypoint: "train_shooting" },
       ],
     },
   },

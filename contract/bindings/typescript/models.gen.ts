@@ -1,37 +1,39 @@
 import type { SchemaType as ISchemaType } from "@dojoengine/sdk";
 
+import { BigNumberish } from 'starknet';
+
 // Type definition for `full_starter_react::models::player::Player` struct
 export interface Player {
 	owner: string;
-	experience: number;
-	health: number;
-	coins: number;
-	creation_day: number;
-	shoot: number;
-	dribble: number;
+	experience: BigNumberish;
+	health: BigNumberish;
+	coins: BigNumberish;
+	creation_day: BigNumberish;
+	shoot: BigNumberish;
+	dribble: BigNumberish;
 }
 
 // Type definition for `full_starter_react::models::player::PlayerValue` struct
 export interface PlayerValue {
-	experience: number;
-	health: number;
-	coins: number;
-	creation_day: number;
-	shoot: number;
-	dribble: number;
+	experience: BigNumberish;
+	health: BigNumberish;
+	coins: BigNumberish;
+	creation_day: BigNumberish;
+	shoot: BigNumberish;
+	dribble: BigNumberish;
 }
 
 // Type definition for `achievement::events::index::TrophyCreation` struct
 export interface TrophyCreation {
-	id: number;
+	id: BigNumberish;
 	hidden: boolean;
-	index: number;
-	points: number;
-	start: number;
-	end: number;
-	group: number;
-	icon: number;
-	title: number;
+	index: BigNumberish;
+	points: BigNumberish;
+	start: BigNumberish;
+	end: BigNumberish;
+	group: BigNumberish;
+	icon: BigNumberish;
+	title: BigNumberish;
 	description: string;
 	tasks: Array<Task>;
 	data: string;
@@ -40,13 +42,13 @@ export interface TrophyCreation {
 // Type definition for `achievement::events::index::TrophyCreationValue` struct
 export interface TrophyCreationValue {
 	hidden: boolean;
-	index: number;
-	points: number;
-	start: number;
-	end: number;
-	group: number;
-	icon: number;
-	title: number;
+	index: BigNumberish;
+	points: BigNumberish;
+	start: BigNumberish;
+	end: BigNumberish;
+	group: BigNumberish;
+	icon: BigNumberish;
+	title: BigNumberish;
 	description: string;
 	tasks: Array<Task>;
 	data: string;
@@ -54,22 +56,22 @@ export interface TrophyCreationValue {
 
 // Type definition for `achievement::events::index::TrophyProgression` struct
 export interface TrophyProgression {
-	player_id: number;
-	task_id: number;
-	count: number;
-	time: number;
+	player_id: BigNumberish;
+	task_id: BigNumberish;
+	count: BigNumberish;
+	time: BigNumberish;
 }
 
 // Type definition for `achievement::events::index::TrophyProgressionValue` struct
 export interface TrophyProgressionValue {
-	count: number;
-	time: number;
+	count: BigNumberish;
+	time: BigNumberish;
 }
 
 // Type definition for `achievement::types::index::Task` struct
 export interface Task {
-	id: number;
-	total: number;
+	id: BigNumberish;
+	total: BigNumberish;
 	description: string;
 }
 
@@ -105,8 +107,6 @@ export const schema: SchemaType = {
 			shoot: 0,
 			dribble: 0,
 		},
-	},
-	achievement: {
 		TrophyCreation: {
 			id: 0,
 			hidden: false,
@@ -117,9 +117,9 @@ export const schema: SchemaType = {
 			group: 0,
 			icon: 0,
 			title: 0,
-			description: "",
+		description: "",
 			tasks: [{ id: 0, total: 0, description: "", }],
-			data: "",
+		data: "",
 		},
 		TrophyCreationValue: {
 			hidden: false,
@@ -130,9 +130,9 @@ export const schema: SchemaType = {
 			group: 0,
 			icon: 0,
 			title: 0,
-			description: "",
+		description: "",
 			tasks: [{ id: 0, total: 0, description: "", }],
-			data: "",
+		data: "",
 		},
 		TrophyProgression: {
 			player_id: 0,
@@ -147,9 +147,9 @@ export const schema: SchemaType = {
 		Task: {
 			id: 0,
 			total: 0,
-			description: "",
+		description: "",
 		},
-	}
+	},
 };
 export enum ModelsMapping {
 	Player = 'full_starter_react-Player',

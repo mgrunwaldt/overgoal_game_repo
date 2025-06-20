@@ -51,6 +51,8 @@ pub impl StoreImpl of StoreTrait {
             100, // health
             0,   // coins
             Timestamp::unix_timestamp_to_day(current_timestamp), // creation_day
+            10,  // shoot - starting skill level
+            10,  // dribble - starting skill level
         );
 
         self.world.write_model(@new_player);
@@ -87,6 +89,26 @@ pub impl StoreImpl of StoreTrait {
         
         // Add health from resting
         player.add_health(20);
+        
+        self.world.write_model(@player);
+    }
+
+    fn train_shooting(mut self: Store) {
+        let mut player = self.read_player();
+        
+        // Improve shooting skill (+5) and add some experience (+5)
+        player.add_shoot(5);
+        player.add_experience(5);
+        
+        self.world.write_model(@player);
+    }
+
+    fn train_dribbling(mut self: Store) {
+        let mut player = self.read_player();
+        
+        // Improve dribbling skill (+5) and add some experience (+5)
+        player.add_dribble(5);
+        player.add_experience(5);
         
         self.world.write_model(@player);
     }

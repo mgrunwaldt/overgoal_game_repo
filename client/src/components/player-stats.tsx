@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Progress } from "./ui/progress"
 import { useAccount } from "@starknet-react/core"
 import useAppStore from "../zustand/store"
-import { Coins, Zap, Heart, Loader2, AlertTriangle } from "lucide-react"
+import { Coins, Zap, Heart, Loader2, AlertTriangle, Target, Gamepad2 } from "lucide-react"
 
 export function PlayerStats() {
   const { status } = useAccount();
@@ -31,6 +31,18 @@ export function PlayerStats() {
       value: player?.coins || 0,
       color: "text-yellow-400",
       icon: Coins
+    },
+    {
+      label: "Shooting",
+      value: player?.shoot || 10,
+      color: "text-red-400",
+      icon: Target
+    },
+    {
+      label: "Dribbling",
+      value: player?.dribble || 10,
+      color: "text-purple-400",
+      icon: Gamepad2
     },
   ];
 

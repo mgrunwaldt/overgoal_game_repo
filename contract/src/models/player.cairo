@@ -18,6 +18,8 @@ pub struct Player {
     pub health: u32,
     pub coins: u32,
     pub creation_day: u32,
+    pub shoot: u32,
+    pub dribble: u32,
 }
 
 // Traits Implementations
@@ -29,6 +31,8 @@ pub impl PlayerImpl of PlayerTrait {
         health: u32,
         coins: u32,
         creation_day: u32,
+        shoot: u32,
+        dribble: u32,
     ) -> Player {
         Player {
             owner: owner,
@@ -36,6 +40,8 @@ pub impl PlayerImpl of PlayerTrait {
             health: health,
             coins: coins,
             creation_day: creation_day,
+            shoot: shoot,
+            dribble: dribble,
         }
     }
 
@@ -49,6 +55,14 @@ pub impl PlayerImpl of PlayerTrait {
 
     fn add_health(ref self: Player, health_amount: u32) { 
         self.health += health_amount;
+    }
+
+    fn add_shoot(ref self: Player, shoot_amount: u32) {
+        self.shoot += shoot_amount;
+    }
+
+    fn add_dribble(ref self: Player, dribble_amount: u32) {
+        self.dribble += dribble_amount;
     }
 
 }
@@ -75,6 +89,8 @@ pub impl ZeroablePlayerTrait of Zero<Player> {
             health: 0,
             coins: 0,
             creation_day: 0,
+            shoot: 0,
+            dribble: 0,
         }
     }
 
@@ -109,6 +125,8 @@ mod tests {
             100,  // health
             25,   // coins
             42,   // creation_day
+            30,   // shoot
+            35,   // dribble
         );
 
         assert_eq!(
@@ -120,6 +138,8 @@ mod tests {
         assert_eq!(player.health, 100, "Health should be initialized to 100");
         assert_eq!(player.coins, 25, "Coins should be initialized to 25");
         assert_eq!(player.creation_day, 42, "Creation day should be initialized to 42");
+        assert_eq!(player.shoot, 30, "Shoot should be initialized to 30");
+        assert_eq!(player.dribble, 35, "Dribble should be initialized to 35");
     }
 
     #[test]
@@ -134,6 +154,8 @@ mod tests {
             health: 100,
             coins: 0,
             creation_day: 1,
+            shoot: 10,
+            dribble: 15,
         };
 
         assert_eq!(
@@ -155,6 +177,16 @@ mod tests {
             player.experience, 
             0, 
             "Initial experience should be 0"
+        );
+        assert_eq!(
+            player.shoot, 
+            10, 
+            "Initial shoot should be 10"
+        );
+        assert_eq!(
+            player.dribble, 
+            15, 
+            "Initial dribble should be 15"
         );
     }
 
@@ -183,6 +215,16 @@ mod tests {
             0, 
             "Zero player coins should be 0"
         );
+        assert_eq!(
+            player.shoot, 
+            0, 
+            "Zero player shoot should be 0"
+        );
+        assert_eq!(
+            player.dribble, 
+            0, 
+            "Zero player dribble should be 0"
+        );
     }
 
     #[test]
@@ -197,6 +239,8 @@ mod tests {
             100,  // health
             0,    // coins
             1,    // creation_day
+            10,   // shoot
+            15,   // dribble
         );
 
         player.add_coins(50);
@@ -225,6 +269,8 @@ mod tests {
             100,  // health
             0,    // coins
             1,    // creation_day
+            10,   // shoot
+            15,   // dribble
         );
 
         player.add_experience(25);
@@ -244,6 +290,38 @@ mod tests {
 
     #[test]
     #[available_gas(1000000)]
+    fn test_player_add_shoot_and_dribble() {
+        let mock_address: ContractAddress = contract_address_const::<0x123>();
+        
+        let mut player = PlayerTrait::new(
+            mock_address,
+            0,    // experience
+            100,  // health
+            0,    // coins
+            1,    // creation_day
+            10,   // shoot
+            15,   // dribble
+        );
+
+        // Test adding shoot
+        player.add_shoot(20);
+        assert_eq!(
+            player.shoot, 
+            30, 
+            "Player should have 30 shoot after adding 20"
+        );
+
+        // Test adding dribble
+        player.add_dribble(25);
+        assert_eq!(
+            player.dribble, 
+            40, 
+            "Player should have 40 dribble after adding 25"
+        );
+    }
+
+    #[test]
+    #[available_gas(1000000)]
     fn test_player_health_management() {
         let mock_address: ContractAddress = contract_address_const::<0x123>();
         
@@ -253,6 +331,8 @@ mod tests {
             100,  // health
             0,    // coins
             1,    // creation_day
+            10,   // shoot
+            15,   // dribble
         );
 
         // Test adding health
@@ -277,6 +357,8 @@ mod tests {
             100,  // health
             5,    // coins
             1,    // creation_day
+            20,   // shoot
+            25,   // dribble
         );
 
         existing_player.assert_exists(); // Should not panic
@@ -301,20 +383,24 @@ mod tests {
             80,   // health
             50,   // coins
             10,   // creation_day
+            20,   // shoot
+            25,   // dribble
         );
         
         // Simulate a game session
         player.add_coins(75);        // Collected coins during gameplay
         player.add_experience(100);  // Gained experience
         player.add_health(10);       // Restored some health
+        player.add_shoot(15);        // Improved shooting skills
+        player.add_dribble(10);      // Improved dribbling skills
         
         // Verify final state
         assert_eq!(player.coins, 125, "Player should have 125 coins total");
         assert_eq!(player.experience, 115, "Player should have 115 total experience");
         assert_eq!(player.health, 90, "Player should have 90 health after damage and healing");
+        assert_eq!(player.shoot, 35, "Player should have 35 shoot after training");
+        assert_eq!(player.dribble, 35, "Player should have 35 dribble after training");
         assert_eq!(player.creation_day, 10, "Creation day should remain unchanged");
         assert_eq!(player.owner, mock_address, "Owner should remain unchanged");
     }
-
-    
 }

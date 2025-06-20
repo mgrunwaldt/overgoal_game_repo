@@ -4,6 +4,8 @@ import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
 import fs from "fs";
 import path from "path";
+import mkcert from 'vite-plugin-mkcert'
+
 
 export default defineConfig(({ command }) => {
   const isDev = command === 'serve';
@@ -32,7 +34,7 @@ export default defineConfig(({ command }) => {
   };
 
   return {
-    plugins: [react(), wasm(), topLevelAwait()],
+    plugins: [react(), wasm(), topLevelAwait(), mkcert()],
     server: {
       port: 3002,
       ...getHttpsConfig(),

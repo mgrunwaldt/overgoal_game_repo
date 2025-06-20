@@ -1,9 +1,11 @@
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Dumbbell, Hammer, Bed, Loader2, ExternalLink } from "lucide-react";
+import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2 } from "lucide-react";
 import { useTrainAction } from "../dojo/hooks/useTrainAction";
 import { useMineAction } from "../dojo/hooks/useMineAction";
 import { useRestAction } from "../dojo/hooks/useRestAction";
+import { useTrainShootingAction } from "../dojo/hooks/useTrainShootingAction";
+import { useTrainDribblingAction } from "../dojo/hooks/useTrainDribblingAction";
 import useAppStore from "../zustand/store";
 
 export function GameActions() {
@@ -13,6 +15,8 @@ export function GameActions() {
   const { trainState, executeTrain, canTrain } = useTrainAction();
   const { mineState, executeMine, canMine } = useMineAction();
   const { restState, executeRest, canRest } = useRestAction();
+  const { trainShootingState, executeTrainShooting, canTrainShooting } = useTrainShootingAction();
+  const { trainDribblingState, executeTrainDribbling, canTrainDribbling } = useTrainDribblingAction();
 
   const actions = [
     {
@@ -23,6 +27,24 @@ export function GameActions() {
       color: "from-blue-500 to-blue-600",
       state: trainState,
       canExecute: canTrain,
+    },
+    {
+      icon: Target,
+      label: "Train Shooting",
+      description: "+5 Shooting, +5 EXP",
+      onClick: executeTrainShooting,
+      color: "from-red-500 to-red-600",
+      state: trainShootingState,
+      canExecute: canTrainShooting,
+    },
+    {
+      icon: Gamepad2,
+      label: "Train Dribbling",
+      description: "+5 Dribbling, +5 EXP",
+      onClick: executeTrainDribbling,
+      color: "from-purple-500 to-purple-600",
+      state: trainDribblingState,
+      canExecute: canTrainDribbling,
     },
     {
       icon: Hammer,

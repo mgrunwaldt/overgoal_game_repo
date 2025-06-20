@@ -24,6 +24,8 @@ const PLAYER_QUERY = `
                     health
                     coins
                     creation_day
+                    shoot
+                    dribble
                 }
             }
             totalCount
@@ -72,13 +74,15 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
     const rawPlayerData = result.data.fullStarterReactPlayerModels.edges[0].node;
     console.log("📄 Raw player data:", rawPlayerData);
 
-    // Convert hex values to numbers - using your structure
+    // Convert hex values to numbers - including new fields
     const playerData: Player = {
       owner: rawPlayerData.owner,
       experience: hexToNumber(rawPlayerData.experience),
       health: hexToNumber(rawPlayerData.health),
       coins: hexToNumber(rawPlayerData.coins),
-      creation_day: hexToNumber(rawPlayerData.creation_day)
+      creation_day: hexToNumber(rawPlayerData.creation_day),
+      shoot: hexToNumber(rawPlayerData.shoot || 10), // Default to 10 if not found
+      dribble: hexToNumber(rawPlayerData.dribble || 10), // Default to 10 if not found
     };
 
     console.log("✅ Player data after conversion:", playerData);

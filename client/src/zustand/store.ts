@@ -8,6 +8,8 @@ export interface Player {
   health: number;
   coins: number;
   creation_day: number;
+  shoot: number;
+  dribble: number;
 }
 
 // Application state
@@ -30,6 +32,8 @@ interface AppActions {
   updatePlayerCoins: (coins: number) => void;
   updatePlayerExperience: (experience: number) => void;
   updatePlayerHealth: (health: number) => void;
+  updatePlayerShooting: (shoot: number) => void;
+  updatePlayerDribbling: (dribble: number) => void;
   
   // UI actions
   setLoading: (loading: boolean) => void;
@@ -74,6 +78,14 @@ const useAppStore = create<AppStore>()(
 
       updatePlayerHealth: (health) => set((state) => ({
         player: state.player ? { ...state.player, health } : null
+      })),
+
+      updatePlayerShooting: (shoot) => set((state) => ({
+        player: state.player ? { ...state.player, shoot } : null
+      })),
+
+      updatePlayerDribbling: (dribble) => set((state) => ({
+        player: state.player ? { ...state.player, dribble } : null
       })),
 
       // UI actions

@@ -1,5 +1,6 @@
 import { DojoProvider, DojoCall } from "@dojoengine/core";
-import { Account, AccountInterface } from "starknet";
+import { Account, AccountInterface, BigNumberish, CairoOption, CairoCustomEnum, ByteArray } from "starknet";
+import * as models from "./models.gen";
 
 export function setupWorld(provider: DojoProvider) {
 
@@ -14,7 +15,7 @@ export function setupWorld(provider: DojoProvider) {
 	const game_mine = async (snAccount: Account | AccountInterface) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_game_mine_calldata(),
 				"full_starter_react",
 			);
@@ -35,7 +36,7 @@ export function setupWorld(provider: DojoProvider) {
 	const game_rest = async (snAccount: Account | AccountInterface) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_game_rest_calldata(),
 				"full_starter_react",
 			);
@@ -56,7 +57,7 @@ export function setupWorld(provider: DojoProvider) {
 	const game_spawnPlayer = async (snAccount: Account | AccountInterface) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_game_spawnPlayer_calldata(),
 				"full_starter_react",
 			);
@@ -77,29 +78,8 @@ export function setupWorld(provider: DojoProvider) {
 	const game_train = async (snAccount: Account | AccountInterface) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_game_train_calldata(),
-				"full_starter_react",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
-	const build_game_trainShooting_calldata = (): DojoCall => {
-		return {
-			contractName: "game",
-			entrypoint: "train_shooting",
-			calldata: [],
-		};
-	};
-
-	const game_trainShooting = async (snAccount: Account | AccountInterface) => {
-		try {
-			return await provider.execute(
-				snAccount as any,
-				build_game_trainShooting_calldata(),
 				"full_starter_react",
 			);
 		} catch (error) {
@@ -119,7 +99,7 @@ export function setupWorld(provider: DojoProvider) {
 	const game_trainDribbling = async (snAccount: Account | AccountInterface) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_game_trainDribbling_calldata(),
 				"full_starter_react",
 			);
@@ -128,6 +108,29 @@ export function setupWorld(provider: DojoProvider) {
 			throw error;
 		}
 	};
+
+	const build_game_trainShooting_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "train_shooting",
+			calldata: [],
+		};
+	};
+
+	const game_trainShooting = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_game_trainShooting_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+
 
 	return {
 		game: {
@@ -139,10 +142,10 @@ export function setupWorld(provider: DojoProvider) {
 			buildSpawnPlayerCalldata: build_game_spawnPlayer_calldata,
 			train: game_train,
 			buildTrainCalldata: build_game_train_calldata,
-			trainShooting: game_trainShooting,
-			buildTrainShootingCalldata: build_game_trainShooting_calldata,
 			trainDribbling: game_trainDribbling,
 			buildTrainDribblingCalldata: build_game_trainDribbling_calldata,
+			trainShooting: game_trainShooting,
+			buildTrainShootingCalldata: build_game_trainShooting_calldata,
 		},
 	};
 }

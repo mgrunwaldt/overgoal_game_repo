@@ -6,6 +6,8 @@ pub trait IGame<T> {
     fn train(ref self: T);
     fn mine(ref self: T);
     fn rest(ref self: T);
+    fn train_shooting(ref self: T);
+    fn train_dribbling(ref self: T);
 }
 
 #[dojo::contract]
@@ -151,6 +153,52 @@ pub mod game {
 
             // Rest player
             store.rest_player();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        // Method to train shooting skills (+5 shoot, +5 experience)
+        fn train_shooting(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Train shooting
+            store.train_shooting();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        // Method to train dribbling skills (+5 dribble, +5 experience)
+        fn train_dribbling(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Train dribbling
+            store.train_dribbling();
 
             // Emit events for achievements progression
             let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1

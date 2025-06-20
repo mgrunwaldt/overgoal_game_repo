@@ -4,7 +4,7 @@ import { useSpawnPlayer } from "../dojo/hooks/useSpawnPlayer";
 import { usePlayer } from "../dojo/hooks/usePlayer";
 import { useAccount } from "@starknet-react/core"
 import { Loader2, Wallet, CheckCircle, LogOut, UserPlus, ExternalLink } from "lucide-react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 
 export function StatusBar() {
   const {
@@ -29,17 +29,34 @@ export function StatusBar() {
   const isConnected = status === "connected";
   const isLoading = isConnecting || status === "connecting" || isInitializing || playerLoading;
 
+  // Ref to track if we've already initiated player creation
+  const hasInitiatedCreation = useRef(false);
+
   // 🎮 Auto-initialize player after connecting controller
   useEffect(() => {
-    if (isConnected && !player && !isInitializing && !playerLoading) {
+    if (isConnected && !player && !isInitializing && !playerLoading && !hasInitiatedCreation.current) {
       console.log("🎮 Controller connected but no player found, auto-initializing...");
+      hasInitiatedCreation.current = true;
+      
       setTimeout(() => {
         initializePlayer().then(result => {
           console.log("🎮 Auto-initialization result:", result);
+          // Reset the ref if initialization failed so we can retry
+          if (!result.success) {
+            hasInitiatedCreation.current = false;
+          }
+        }).catch(() => {
+          // Reset the ref on error so we can retry
+          hasInitiatedCreation.current = false;
         });
       }, 500);
     }
-  }, [isConnected, player, isInitializing, playerLoading, initializePlayer]);
+    
+    // Reset the ref if we lose connection or player is found
+    if (!isConnected || player) {
+      hasInitiatedCreation.current = false;
+    }
+  }, [isConnected, player, isInitializing, playerLoading]); // Removed initializePlayer from dependencies
 
   const formatAddress = (addr: string) => {
     if (!addr) return "";

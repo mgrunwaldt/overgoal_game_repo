@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x19d9e6beac2177d4f48014861f4eead47192b9c450431cf31908f5359f49562",
-      "class_hash": "0x701ef74c653b7c3eacadf65d7186be46dbc25b4959575dc25ff5ef24643a801",
+      "address": "0x5086190f962446f4a4a001068ba567991154213faabd3dba26182ddf93c0a5b",
+      "class_hash": "0x1a743f3127e5750d9c4bdc0abf771b3d2bff570b9d4339ea43f0931f6d8c7bd",
       "abi": [
         {
           "type": "impl",
@@ -1421,6 +1421,20 @@
             {
               "type": "function",
               "name": "rest",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "train_shooting",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "train_dribbling",
               "inputs": [],
               "outputs": [],
               "state_mutability": "external"
@@ -1555,6 +1569,8 @@
         "train",
         "mine",
         "rest",
+        "train_shooting",
+        "train_dribbling",
         "upgrade"
       ]
     }
@@ -1563,7 +1579,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x252e99793931b5225530b751c1246f47f4db7b2eed99bd5c3e6bbad9268668a",
+      "class_hash": "0x2be621f94d246f7e868dd7ccbb3274cc53abbff71d125fccb70b1de2cb9cbd7",
       "tag": "full_starter_react-Player",
       "selector": "0x13986cc36a0f8437378d1efa3068103f37b22361ff3cc31be99d50ddf2e4187"
     }
