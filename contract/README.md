@@ -68,6 +68,38 @@ pub enum Achievement {
 }
 ```
 
+## 🛠️ Local Development
+
+> The next three steps assume you are in the `contract/` directory.
+
+### 1️⃣ Start Katana (Local Blockchain)
+```bash
+katana --config katana.toml
+```
+
+### 2️⃣ Local Deployment
+```bash
+sozo build
+sozo migrate
+```
+
+### 3️⃣ Start Local Torii
+```bash
+torii --world <WORLD_ADDRESS> --http.cors_origins "*"
+```
+
+### 4️⃣ Configure the Client for local development
+
+In the `client/` directory, create an `.env.development.local` file with the following contents:
+
+```bash
+VITE_PUBLIC_DEPLOY_TYPE=localhost
+VITE_PUBLIC_NODE_URL=http://localhost:5050
+VITE_PUBLIC_TORII=http://localhost:8080
+```
+
+Now run `npm run dev:https` and you should be ready to go!
+
 ## 🚀 Deploy to Sepolia
 
 ### 1️⃣ Prepare Deploy Account
@@ -192,25 +224,6 @@ sozo test
 - **`test_mine_coins()`**: Mining system
 - **`test_rest_player()`**: Rest system
 - **`test_complete_game_flow()`**: Complete flow of the game
-
-## 🛠️ Local Development
-
-### 1️⃣ Start Katana (Local Blockchain)
-```bash
-katana --dev --dev.no-fee
-```
-
-### 2️⃣ Local Deployment
-```bash
-cd contract
-sozo build
-sozo migrate
-```
-
-### 3️⃣ Start Local Torii
-```bash
-torii --world <WORLD_ADDRESS> --http.cors_origins "*"
-```
 
 ## 📝 Configs
 
