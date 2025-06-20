@@ -65,7 +65,20 @@ export function StatusBar() {
     return { color: "bg-yellow-500", text: "Loading..." };
   };
 
-  // function to open the Controller Profile 
+  const getDeploymentType = () => {
+    switch (import.meta.env.VITE_PUBLIC_DEPLOY_TYPE) {
+      case "localhost":
+        return "Localhost";
+      case "mainnet":
+        return "Mainnet";
+      case "sepolia":
+        return "Sepolia";
+      default:
+        return "Sepolia";
+    }
+  };
+
+  // function to open the Controller Profile
   const handlePlayerReady = useCallback(() => {
     if (!connector || !('controller' in connector)) {
       console.error("Connector not initialized");
@@ -79,6 +92,7 @@ export function StatusBar() {
   }, [connector]);
 
   const playerStatus = getPlayerStatus();
+  const deploymentType = getDeploymentType();
 
   return (
     <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8">
@@ -107,7 +121,7 @@ export function StatusBar() {
               <Button
                 onClick={player ? handlePlayerReady : undefined}
                 className={`px-6 py-3 font-semibold transition-all duration-300 shadow-lg ${
-                  player 
+                  player
                     ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-500/40 cursor-pointer hover:scale-105 active:scale-95"
                     : "bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-yellow-500/30 cursor-default"
                 }`}
@@ -158,7 +172,7 @@ export function StatusBar() {
           <div className="flex items-center gap-2 text-sm mb-1">
             <div className={`w-2 h-2 rounded-full animate-pulse ${playerStatus.color}`}></div>
             <span className="text-slate-300">
-              {playerStatus.text} • Sepolia
+              {playerStatus.text} • {deploymentType}
             </span>
           </div>
           <div className="text-xs text-slate-400">
