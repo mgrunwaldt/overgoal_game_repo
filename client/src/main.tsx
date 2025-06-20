@@ -17,11 +17,10 @@ import "./index.css";
 async function main() {
   try {
     console.log("🚀 Initializing Dojo SDK...");
-    
+
     const sdk = await init<SchemaType>({
       client: {
         toriiUrl: dojoConfig.toriiUrl,
-        relayUrl: dojoConfig.relayUrl,
         worldAddress: dojoConfig.manifest.world.address,
       },
       domain: {
@@ -48,7 +47,7 @@ async function main() {
     );
   } catch (error) {
     console.error("❌ Failed to initialize Dojo:", error);
-    
+
     // Fallback: render without Dojo if it fails
     const rootElement = document.getElementById("root");
     if (rootElement) {
