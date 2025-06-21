@@ -17,10 +17,23 @@ export interface Player {
   is_player_created: boolean;
 }
 
+export interface Team {
+  team_id: number;
+  name: string;
+  offense: number;
+  defense: number;
+  intensity: number;
+  current_league_points: number;
+}
+
 // Application state
 interface AppState {
   // Player data
   player: Player | null;
+  
+  // Team data
+  teams: Team[];
+  selectedTeam: Team | null;
   
   // UI state
   isLoading: boolean;
@@ -45,6 +58,13 @@ interface AppActions {
   updatePlayerFame: (fame: number) => void;
   updatePlayerCreationStatus: (is_player_created: boolean) => void;
   
+  // Team management actions
+  setTeams: (teams: Team[]) => void;
+  addTeam: (team: Team) => void;
+  updateTeam: (teamId: number, updates: Partial<Team>) => void;
+  setSelectedTeam: (team: Team | null) => void;
+  updateTeamPoints: (teamId: number, points: number) => void;
+  
   // UI actions
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -63,6 +83,8 @@ type AppStore = AppState & AppActions;
 // Initial state
 const initialState: AppState = {
   player: null,
+  teams: [],
+  selectedTeam: null,
   isLoading: false,
   error: null,
   gameStarted: false,
@@ -118,6 +140,33 @@ const useAppStore = create<AppStore>()(
         player: state.player ? { ...state.player, is_player_created } : null
       })),
 
+      // Team actions
+      setTeams: (teams) => set({ teams }),
+
+      addTeam: (team) => set((state) => ({
+        teams: [...state.teams, team]
+      })),
+
+      updateTeam: (teamId, updates) => set((state) => ({
+        teams: state.teams.map(team => 
+          team.team_id === teamId ? { ...team, ...updates } : team
+        ),
+        selectedTeam: state.selectedTeam?.team_id === teamId 
+          ? { ...state.selectedTeam, ...updates } 
+          : state.selectedTeam
+      })),
+
+      setSelectedTeam: (team) => set({ selectedTeam: team }),
+
+      updateTeamPoints: (teamId, points) => set((state) => ({
+        teams: state.teams.map(team => 
+          team.team_id === teamId ? { ...team, current_league_points: points } : team
+        ),
+        selectedTeam: state.selectedTeam?.team_id === teamId 
+          ? { ...state.selectedTeam, current_league_points: points }
+          : state.selectedTeam
+      })),
+
       // UI actions
       setLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
@@ -133,6 +182,8 @@ const useAppStore = create<AppStore>()(
       name: 'dojo-starter-store',
       partialize: (state) => ({
         player: state.player,
+        teams: state.teams,
+        selectedTeam: state.selectedTeam,
         gameStarted: state.gameStarted,
       }),
     }

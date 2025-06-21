@@ -15,6 +15,11 @@ pub trait IGame<T> {
     fn spawn_striker(ref self: T);
     fn spawn_dribbler(ref self: T);
     fn spawn_playmaker(ref self: T);
+    // --------- Team management methods ---------
+    fn create_team(ref self: T, team_id: u32, name: felt252, offense: u8, defense: u8, intensity: u8);
+    fn add_team_points(ref self: T, team_id: u32, points: u8);
+    fn remove_team_points(ref self: T, team_id: u32, points: u8);
+    fn update_team_points(ref self: T, team_id: u32, points_delta: i8);
 }
 
 #[dojo::contract]
@@ -127,7 +132,7 @@ pub mod game {
             let player = store.read_player();
            
             // Mine coins
-            store.mine_coins();
+         //   store.mine_coins();
 
             // Emit events for achievements progression
             let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
@@ -150,7 +155,7 @@ pub mod game {
             let player = store.read_player();
 
             // Rest player
-            store.rest_player();
+            store.rest();
 
             // Emit events for achievements progression
             let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
@@ -353,6 +358,95 @@ pub mod game {
             store.create_playmaker();
 
             let player = store.read_player();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        // --------- Team management methods ---------
+        fn create_team(ref self: ContractState, team_id: u32, name: felt252, offense: u8, defense: u8, intensity: u8) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            // Create team
+            store.create_team(team_id, name, offense, defense, intensity);
+
+            let player = store.read_player();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn add_team_points(ref self: ContractState, team_id: u32, points: u8) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Add team points
+            store.add_team_points(team_id, points);
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn remove_team_points(ref self: ContractState, team_id: u32, points: u8) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Remove team points
+            store.remove_team_points(team_id, points);
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn update_team_points(ref self: ContractState, team_id: u32, points_delta: i8) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Update team points
+            store.update_team_points(team_id, points_delta);
 
             // Emit events for achievements progression
             let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1

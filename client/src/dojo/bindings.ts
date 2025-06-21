@@ -83,10 +83,20 @@ export interface Task {
 	description: string;
 }
 
+export interface Team {
+	team_id: number;
+	name: string;
+	offense: number;
+	defense: number;
+	intensity: number;
+	current_league_points: number;
+}
+
 export interface SchemaType extends ISchemaType {
 	full_starter_react: {
 		Player: Player,
 		PlayerValue: PlayerValue,
+		Team: Team,
 	},
 	achievement: {
 		TrophyCreation: TrophyCreation,
@@ -124,6 +134,14 @@ export const schema: SchemaType = {
 			stamina: 0,
 			charisma: 0,
 			fame: 0,
+		},
+		Team: {
+			team_id: 0,
+			name: "",
+			offense: 0,
+			defense: 0,
+			intensity: 0,
+			current_league_points: 0,
 		},
 	},
 	achievement: {

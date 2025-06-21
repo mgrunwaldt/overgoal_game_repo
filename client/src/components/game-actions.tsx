@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2, Zap, Battery, Heart, Star } from "lucide-react";
+import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2, Zap, Battery, Heart, Star, Pickaxe, Trophy, Users } from "lucide-react";
 
 import { useMineAction } from "../dojo/hooks/useMineAction";
 import { useRestAction } from "../dojo/hooks/useRestAction";
@@ -11,9 +11,12 @@ import { useRestoreStaminaAction } from "../dojo/hooks/useRestoreStaminaAction";
 import { useImproveCharismaAction } from "../dojo/hooks/useImproveCharismaAction";
 import { useImproveFameAction } from "../dojo/hooks/useImproveFameAction";
 import useAppStore from "../zustand/store";
+import { useState } from "react";
+import TeamManagement from "./team-management";
 
-export function GameActions() {
-  const player = useAppStore((state) => state.player);
+export default function GameActions() {
+  const { player } = useAppStore();
+  const [showTeamManagement, setShowTeamManagement] = useState(false);
 
   // Separate hooks for each action
 
@@ -27,100 +30,92 @@ export function GameActions() {
   const { improveFameState, executeImproveFame, canImproveFame } = useImproveFameAction();
 
   const actions = [
-
+    {
+      icon: Pickaxe,
+      label: "Mine",
+      description: "+10 Coins",
+      onClick: executeMine,
+      color: "from-yellow-500 to-yellow-600",
+      state: mineState,
+      canExecute: canMine,
+      disabledReason: !canMine && player && (player.health || 0) <= 10 
+        ? "Health too low!" 
+        : undefined,
+    },
+    {
+      icon: Heart,
+      label: "Rest",
+      description: "+10 Health",
+      onClick: executeRest,
+      color: "from-green-500 to-green-600",
+      state: restState,
+      canExecute: canRest,
+      disabledReason: !canRest && player && (player.health || 0) >= 100 
+        ? "Full Health!" 
+        : undefined,
+    },
     {
       icon: Target,
       label: "Train Shooting",
-      description: "+5 Shooting, +5 EXP",
+      description: "+5 Shooting, +5 EXP, -10 Stamina",
       onClick: executeTrainShooting,
       color: "from-red-500 to-red-600",
       state: trainShootingState,
       canExecute: canTrainShooting,
+      disabledReason: !canTrainShooting && player && (player.stamina || 0) < 10
+        ? "Not enough stamina!"
+        : undefined,
+    },
+    {
+      icon: Zap,
+      label: "Train Dribbling", 
+      description: "+5 Dribbling, +5 EXP",
+      onClick: executeTrainDribbling,
+      color: "from-blue-500 to-blue-600",
+      state: trainDribblingState,
+      canExecute: canTrainDribbling,
     },
     {
       icon: Zap,
       label: "Train Energy",
       description: "+5 Energy, -10 Stamina",
       onClick: executeTrainEnergy,
-      color: "from-yellow-500 to-yellow-600",
+      color: "from-purple-500 to-purple-600",
       state: trainEnergyState,
       canExecute: canTrainEnergy,
-    },
-    {
-      icon: Gamepad2,
-      label: "Train Dribbling",
-      description: "+5 Dribbling, +5 EXP",
-      onClick: executeTrainDribbling,
-      color: "from-purple-500 to-purple-600",
-      state: trainDribblingState,
-      canExecute: canTrainDribbling,
-    },
-    {
-      icon: Hammer,
-      label: "Mine",
-      description: "+5 Coins, -5 Health",
-      onClick: executeMine,
-      color: "from-yellow-500 to-yellow-600",
-      state: mineState,
-      canExecute: canMine,
-      disabledReason:
-        !canMine && player && (player.health || 0) <= 5
-          ? "Low Health!"
-          : undefined,
-    },
-    {
-      icon: Bed,
-      label: "Rest",
-      description: "+20 Health",
-      onClick: executeRest,
-      color: "from-green-500 to-green-600",
-      state: restState,
-      canExecute: canRest,
-      disabledReason:
-        !canRest && player && (player.health || 0) >= 100
-          ? "Full Health!"
-          : undefined,
+      disabledReason: !canTrainEnergy && player && (player.stamina || 0) < 10
+        ? "Not enough stamina!"
+        : undefined,
     },
     {
       icon: Battery,
       label: "Restore Stamina",
       description: "+20 Stamina",
       onClick: executeRestoreStamina,
-      color: "from-purple-500 to-purple-600",
+      color: "from-cyan-500 to-cyan-600",
       state: restoreStaminaState,
       canExecute: canRestoreStamina,
-      disabledReason:
-        !canRestoreStamina && player && (player.stamina || 0) >= 100
-          ? "Full Stamina!"
-          : undefined,
+      disabledReason: !canRestoreStamina && player && (player.stamina || 0) >= 100
+        ? "Full Stamina!"
+        : undefined,
     },
     {
-      icon: Heart,
+      icon: Star,
       label: "Improve Charisma",
-      description: "+5 Charisma, -5 Stamina",
+      description: "+5 Charisma",
       onClick: executeImproveCharisma,
       color: "from-pink-500 to-pink-600",
       state: improveCharismaState,
       canExecute: canImproveCharisma,
-      disabledReason:
-        !canImproveCharisma && player && (player.stamina || 0) <= 5
-          ? "Low Stamina!"
-          : !canImproveCharisma && player && (player.charisma || 0) >= 100
-          ? "Full Charisma!"
-          : undefined,
     },
     {
-      icon: Star,
+      icon: Trophy,
       label: "Improve Fame",
-      description: "+5 Fame, +5 Charisma",
+      description: "+5 Fame",
       onClick: executeImproveFame,
       color: "from-orange-500 to-orange-600",
       state: improveFameState,
       canExecute: canImproveFame,
-      disabledReason:
-        !canImproveFame && player && (player.fame || 0) >= 100
-          ? "Full Fame!"
-          : undefined,
     },
   ];
 
@@ -129,12 +124,35 @@ export function GameActions() {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
+  if (showTeamManagement) {
+    return (
+      <div className="space-y-4">
+        <Button
+          onClick={() => setShowTeamManagement(false)}
+          className="bg-gray-600 hover:bg-gray-700 text-white"
+        >
+          ← Back to Actions
+        </Button>
+        <TeamManagement />
+      </div>
+    );
+  }
+
   return (
     <Card className="bg-white/5 backdrop-blur-xl border-white/10">
       <CardHeader>
-        <CardTitle className="text-white text-xl font-bold">
-          Game Actions
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-white text-xl font-bold">
+            Game Actions
+          </CardTitle>
+          <Button
+            onClick={() => setShowTeamManagement(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Manage Teams
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {!player && (

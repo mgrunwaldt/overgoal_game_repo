@@ -256,6 +256,91 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	// --------- Team management functions ---------
+	const build_game_createTeam_calldata = (team_id: number, name: string, offense: number, defense: number, intensity: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "create_team",
+			calldata: [team_id, name, offense, defense, intensity],
+		};
+	};
+
+	const game_createTeam = async (snAccount: Account | AccountInterface, team_id: number, name: string, offense: number, defense: number, intensity: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_createTeam_calldata(team_id, name, offense, defense, intensity),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_game_addTeamPoints_calldata = (team_id: number, points: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "add_team_points",
+			calldata: [team_id, points],
+		};
+	};
+
+	const game_addTeamPoints = async (snAccount: Account | AccountInterface, team_id: number, points: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_addTeamPoints_calldata(team_id, points),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_game_removeTeamPoints_calldata = (team_id: number, points: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "remove_team_points",
+			calldata: [team_id, points],
+		};
+	};
+
+	const game_removeTeamPoints = async (snAccount: Account | AccountInterface, team_id: number, points: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_removeTeamPoints_calldata(team_id, points),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_game_updateTeamPoints_calldata = (team_id: number, points_delta: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "update_team_points",
+			calldata: [team_id, points_delta],
+		};
+	};
+
+	const game_updateTeamPoints = async (snAccount: Account | AccountInterface, team_id: number, points_delta: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_updateTeamPoints_calldata(team_id, points_delta),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	return {
 		game: {
 			mine: game_mine,
@@ -283,6 +368,15 @@ export function setupWorld(provider: DojoProvider) {
 			buildSpawnDribblerCalldata: build_game_spawnDribbler_calldata,
 			spawnPlaymaker: game_spawnPlaymaker,
 			buildSpawnPlaymakerCalldata: build_game_spawnPlaymaker_calldata,
+			// Team management functions
+			createTeam: game_createTeam,
+			buildCreateTeamCalldata: build_game_createTeam_calldata,
+			addTeamPoints: game_addTeamPoints,
+			buildAddTeamPointsCalldata: build_game_addTeamPoints_calldata,
+			removeTeamPoints: game_removeTeamPoints,
+			buildRemoveTeamPointsCalldata: build_game_removeTeamPoints_calldata,
+			updateTeamPoints: game_updateTeamPoints,
+			buildUpdateTeamPointsCalldata: build_game_updateTeamPoints_calldata,
 		},
 	};
 }

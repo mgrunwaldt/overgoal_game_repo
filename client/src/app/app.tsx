@@ -5,6 +5,7 @@ import LoginScreen from "../components/pages/LoginScreen";
 import HomePage from "../components/pages/HomeScreen";
 import CharacterSelectionScreen from "../components/pages/CharacterSelectionScreen";
 import MainScreen from "../components/pages/MainScreen";
+import TeamManagement from "../components/team-management";
 
 function App() {
   const { account, status } = useAccount();
@@ -50,6 +51,11 @@ function App() {
           element={<MainScreen />} 
         />
        
+       <Route 
+          path="/teams" 
+          element={<TeamManagement />} 
+        />
+
       </Routes>
     </Router>
   );
