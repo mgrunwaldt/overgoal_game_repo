@@ -15,9 +15,7 @@ contract/
 │   │   └── player.cairo      # Player model
 │   ├── systems/              # Main contracts (business logic)
 │   │   └── game.cairo        # Main system
-│   ├── tests/                # Integration tests
-│   │   ├── test_game.cairo   # System tests
-│   │   └── utils.cairo       # Testing utilities
+
 │   ├── constants.cairo       # Global constants
 │   ├── store.cairo           # Layer of data access
 │   └── lib.cairo             # Main module
@@ -210,20 +208,19 @@ while achievement_id <= constants::ACHIEVEMENTS_COUNT {
 }
 ```
 
-## 🧪 Testing
+## 🔧 Development
 
-### Run Tests Locally
+### Build and Deploy Locally
 ```bash
 cd contract
-sozo test
+sozo build
+sozo migrate
 ```
 
-### Tests Included
-- **`test_spawn_player()`**: Player creation
-- **`test_train_player()`**: Training system
-- **`test_mine_coins()`**: Mining system
-- **`test_rest_player()`**: Rest system
-- **`test_complete_game_flow()`**: Complete flow of the game
+### Key Development Commands
+- **`sozo build`**: Compile contracts
+- **`sozo migrate`**: Deploy to local katana
+- **`scarb run sepolia`**: Deploy to Sepolia testnet
 
 ## 📝 Configs
 

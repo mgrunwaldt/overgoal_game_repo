@@ -99,9 +99,9 @@ Build the smallest complete game that demonstrates your vision:
 
 **Social MVG**: Add teams where players share resources and combine efforts.
 
-### **Testing Questions**
+### **Design Questions**
 
-Every extension should pass these tests:
+Every extension should answer these questions:
 1. **Does it make existing choices more interesting?**
 2. **Does it create new meaningful decisions?**
 3. **Does it maintain the core game flow?**
@@ -148,10 +148,10 @@ Focus on engagement metrics that matter for onchain games:
 
 1. **Pick one existing action** (Train/Mine/Rest)
 2. **Create a variation** that serves your game vision
-3. **Test with real players** immediately
+3. **Validate with real players** immediately
 4. **Observe emergent behaviors** 
 5. **Build the next piece** based on learnings
 
-**Remember**: Great onchain games evolve through iteration and community feedback. Start small, test early, build incrementally.
+**Remember**: Great onchain games evolve through iteration and community feedback. Start small, validate early, build incrementally.
 
 The starter gets you from zero to playable in minutes. Where you take it next is up to your vision and player feedback.

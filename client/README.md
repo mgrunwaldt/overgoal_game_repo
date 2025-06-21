@@ -65,7 +65,7 @@ By following this guide series, you'll master:
 
 **🚀 Production Best Practices**
 - Performance optimization techniques
-- Testing strategies for Web3 apps
+- Development best practices for Web3 apps
 - Deployment and environment management
 - Scalable architecture patterns
 
@@ -122,7 +122,7 @@ Data:      Torii GraphQL + Optimistic Updates
 - Complete TypeScript integration
 - Hot reload with contract changes
 - Comprehensive error handling
-- Testing strategies included
+- Development patterns included
 
 **🚀 Production Ready**
 - Environment-based configuration

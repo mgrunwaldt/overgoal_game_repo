@@ -53,7 +53,7 @@ dojo-game-starter/
 │   │   ├── achievements/         # Achievement system implementation
 │   │   └── store/                # Data layer abstraction
 │   └── README.md                 # Backend development and deployment guide
-└── tests/                        # Integration tests
+
 ```
 
 ## 📚 Documentation
@@ -84,7 +84,7 @@ The `contract/` directory contains Cairo smart contracts with Dojo Engine:
 - **Achievement System** - Complete trophy/task implementation
 - **Local Development** - Katana, Sozo, Torii setup
 - **Sepolia Deployment** - Production deployment process
-- **Testing Strategy** - Integration tests and best practices
+- **Development Best Practices** - Code organization and patterns
 
 ## 🎮 Game Mechanics
 

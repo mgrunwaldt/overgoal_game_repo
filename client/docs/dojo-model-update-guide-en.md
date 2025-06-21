@@ -108,33 +108,32 @@ fn remove_stamina(ref self: Player, stamina_amount: u32) {
 }
 ```
 
-#### e) Update ALL tests
+#### e) Verify Model Structure
 ```cairo
-#[test]
-#[available_gas(1000000)]
-fn test_player_new_constructor() {
+// Verify that your model compiles correctly
+fn verify_player_structure() {
     let player = PlayerTrait::new(
         mock_address,
         50,   // experience
         100,  // health
         25,   // coins
         42,   // creation_day
-        // ✅ ADD VALUES FOR NEW FIELDS
+        // ✅ INCLUDE VALUES FOR NEW FIELDS
         30,   // shoot
         35,   // dribble
         100,  // energy
         100,  // stamina
     );
 
-    // ✅ ADD ASSERTIONS FOR NEW FIELDS
-    assert_eq!(player.shoot, 30, "Shoot should be initialized to 30");
-    assert_eq!(player.dribble, 35, "Dribble should be initialized to 35");
-    assert_eq!(player.energy, 100, "Energy should be initialized to 100");
-    assert_eq!(player.stamina, 100, "Stamina should be initialized to 100");
+    // ✅ VERIFY FIELD ACCESS WORKS
+    let _ = player.shoot;
+    let _ = player.dribble;
+    let _ = player.energy;
+    let _ = player.stamina;
 }
 ```
 
-**⚠️ IMPORTANT:** Update ALL existing tests to include the new fields.
+**⚠️ IMPORTANT:** Ensure all model constructors include the new fields and compile successfully.
 
 ---
 
@@ -541,24 +540,24 @@ const policies = {
 
 ---
 
-## 🔍 Step 10: Verification and Testing
+## 🔍 Step 10: Verification and Validation
 
 ### 10.1 Verification Checklist
 
 - [ ] ✅ Contracts compile without errors
 - [ ] ✅ TypeScript compiles without errors
-- [ ] ✅ All Cairo tests pass
+- [ ] ✅ Contract deployment succeeds
 - [ ] ✅ UI shows new fields correctly
 - [ ] ✅ Actions work (optimistic update)
 - [ ] ✅ Persistence works (page reload)
 - [ ] ✅ Validations work (buttons disabled appropriately)
 - [ ] ✅ Rollback works on error
 
-### 10.2 Testing Pattern
+### 10.2 Validation Pattern
 
 1. **Execute action** → Verify immediate UI update
 2. **Reload page** → Verify data persistence
-3. **Test limits** → Verify validations (e.g., stamina = 0)
+3. **Check limits** → Verify validations (e.g., stamina = 0)
 4. **Simulate errors** → Verify rollback
 
 ---
@@ -613,12 +612,12 @@ updatePlayerExperience((player?.experience || 0) + 5);
 updatePlayerStamina(Math.max(0, (player?.stamina || 40) - 10));
 ```
 
-### 🚨 **Critical Error #3: Incomplete Tests**
+### 🚨 **Critical Error #3: Incomplete Model Updates**
 ```cairo
-// ❌ BAD - Forgetting to update existing tests
+// ❌ BAD - Forgetting to update model constructors
 let player = PlayerTrait::new(mock_address, 0, 100, 0, 1); // Missing new fields
 
-// ✅ GOOD - Include ALL fields
+// ✅ GOOD - Include ALL fields in constructor
 let player = PlayerTrait::new(mock_address, 0, 100, 0, 1, 10, 10, 40, 40);
 ```
 

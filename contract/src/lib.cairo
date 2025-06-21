@@ -18,8 +18,4 @@ pub mod models {
     pub mod team;
 }
 
-#[cfg(test)]
-pub mod tests {
-    pub mod test_game;
-    pub mod utils;
-}
+

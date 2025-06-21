@@ -122,7 +122,7 @@ Your client needs to know the addresses and URLs for the deployed services.
 
 ---
 
-## Part 4: Verification and Testing
+## Part 4: Verification and Validation
 
 With everything configured, it's time to verify the end-to-end connection.
 
@@ -134,7 +134,7 @@ With everything configured, it's time to verify the end-to-end connection.
 
 ### Step 2: Verify on a Block Explorer
 
-This is the definitive test to prove everything is working.
+This is the definitive validation to prove everything is working.
 
 1.  **Perform an Action:** In your running application, click a button that initiates an on-chain transaction (e.g., "Spawn Player" or "Train"). Approve the transaction in your wallet.
 2.  **Visit StarkScan:** Go to the [StarkScan Sepolia Explorer](https://sepolia.starkscan.co/).

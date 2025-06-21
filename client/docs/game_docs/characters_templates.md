@@ -375,35 +375,33 @@ const getTrainingDescription = (action: string, template: number) => {
 3. **Confirmation Step**: Final review before committing choice
 4. **Welcome Screen**: Introduction to selected character's journey
 
-## 🔍 Testing Strategy
+## 🔍 Validation Strategy
 
-### Cairo Contract Testing
+### Cairo Contract Validation
 ```cairo
-#[test]
-fn test_character_template_creation() {
-    // Test template initialization
+// Verify character template creation works correctly
+fn validate_character_template_creation() {
+    // Validate template initialization
     // Verify all templates have valid stats
     // Check template retrieval functions
 }
 
-#[test] 
-fn test_player_creation_with_template() {
-    // Test player creation with each template
+fn validate_player_creation_with_template() {
+    // Validate player creation with each template
     // Verify stats match template values
     // Check selection tracking
 }
 
-#[test]
-fn test_specialty_bonuses() {
-    // Test training bonuses for each template
+fn validate_specialty_bonuses() {
+    // Validate training bonuses for each template
     // Verify bonus calculations are correct
     // Check edge cases (stamina = 0, etc.)
 }
 ```
 
-### Frontend Testing
+### Frontend Validation
 - **Template Selection**: Verify UI shows correct stats and descriptions
-- **Navigation Flow**: Test progression from selection to main game
+- **Navigation Flow**: Check progression from selection to main game
 - **Data Persistence**: Ensure selected template persists across sessions
 - **Bonus Display**: Verify training actions show template-specific bonuses
 
@@ -427,8 +425,8 @@ fn test_specialty_bonuses() {
 - [ ] Add specialty indicator in player stats
 - [ ] Implement template-specific achievements
 
-### Phase 4: Polish & Testing (Week 4)
-- [ ] Comprehensive testing across all templates
+### Phase 4: Polish & Validation (Week 4)
+- [ ] Comprehensive validation across all templates
 - [ ] UI/UX refinements and animations
 - [ ] Performance optimization
 - [ ] Documentation and guides
@@ -446,7 +444,7 @@ fn test_specialty_bonuses() {
 - Use Sensei MCP for ALL Cairo/Dojo code generation
 - Follow the exact patterns established in our existing codebase
 - Maintain consistency with current Player model structure
-- Ensure all new models follow the same testing patterns
+- Ensure all new models follow the same validation patterns
 
 ### Technical Considerations
 - **Gas Optimization**: Template data should be stored efficiently
