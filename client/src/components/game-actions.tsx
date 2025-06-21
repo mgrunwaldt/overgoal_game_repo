@@ -1,7 +1,7 @@
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2, Zap, Battery, Heart, Star } from "lucide-react";
-import { useTrainAction } from "../dojo/hooks/useTrainAction";
+
 import { useMineAction } from "../dojo/hooks/useMineAction";
 import { useRestAction } from "../dojo/hooks/useRestAction";
 import { useTrainShootingAction } from "../dojo/hooks/useTrainShootingAction";
@@ -16,7 +16,7 @@ export function GameActions() {
   const player = useAppStore((state) => state.player);
 
   // Separate hooks for each action
-  const { trainState, executeTrain, canTrain } = useTrainAction();
+
   const { mineState, executeMine, canMine } = useMineAction();
   const { restState, executeRest, canRest } = useRestAction();
   const { trainShootingState, executeTrainShooting, canTrainShooting } = useTrainShootingAction();
@@ -27,15 +27,7 @@ export function GameActions() {
   const { improveFameState, executeImproveFame, canImproveFame } = useImproveFameAction();
 
   const actions = [
-    {
-      icon: Dumbbell,
-      label: "Train",
-      description: "+10 EXP",
-      onClick: executeTrain,
-      color: "from-blue-500 to-blue-600",
-      state: trainState,
-      canExecute: canTrain,
-    },
+
     {
       icon: Target,
       label: "Train Shooting",

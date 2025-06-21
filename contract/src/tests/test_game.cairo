@@ -43,53 +43,6 @@ mod tests {
     
     #[test]
     #[available_gas(40000000)]
-    fn test_train_player() {
-        // Create test environment
-        let world = create_test_world();
-        let game_system = create_game_system(world);
-        
-        // Set the caller address for the test
-        cheat_caller_address(PLAYER());
-        
-        // Spawn a player first
-        game_system.spawn_player();
-        
-        // Train the player
-        game_system.train();
-        
-        // Verify player state after training
-        let player: Player = world.read_model(PLAYER());
-        
-        assert(player.experience == 10, 'Player should have 10 exp');
-        assert(player.health == 100, 'Health should remain 100');
-        assert(player.coins == 0, 'Coins should remain 0');
-    }
-    
-    #[test]
-    #[available_gas(40000000)]
-    fn test_multiple_training_sessions() {
-        // Create test environment
-        let world = create_test_world();
-        let game_system = create_game_system(world);
-        
-        // Set the caller address for the test
-        cheat_caller_address(PLAYER());
-        
-        // Spawn a player first
-        game_system.spawn_player();
-        
-        // Train multiple times
-        game_system.train(); // +10 exp = 10
-        game_system.train(); // +10 exp = 20
-        game_system.train(); // +10 exp = 30
-        
-        // Verify cumulative experience
-        let player: Player = world.read_model(PLAYER());
-        assert(player.experience == 30, 'Player should have 30 exp');
-    }
-    
-    #[test]
-    #[available_gas(40000000)]
     fn test_mine_coins() {
         // Create test environment
         let world = create_test_world();
@@ -177,16 +130,14 @@ mod tests {
         game_system.spawn_player();
         
         // Perform various actions
-        game_system.train();  // +10 exp
         game_system.mine();   // +5 coins, -5 health
         game_system.rest();   // +20 health
-        game_system.train();  // +10 exp
         game_system.mine();   // +5 coins, -5 health
         
         // Verify final state
         let player: Player = world.read_model(PLAYER());
         
-        assert(player.experience == 20, 'Should have 20 experience');
+        assert(player.experience == 0, 'Should have 0 experience');
         assert(player.coins == 10, 'Should have 10 coins');
         assert(player.health == 110, 'Should have 110 health'); // 100 - 5 + 20 - 5 = 110
     }

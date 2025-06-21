@@ -25,7 +25,7 @@ interface GameState {
 type GameAction =
   | { type: "CONNECT_WALLET_START" }
   | { type: "CONNECT_WALLET_SUCCESS"; address: string }
-  | { type: "TRAIN_PLAYER" }
+
   | { type: "MINE_COINS" }
   | { type: "TRAIN_ENERGY" }
   | { type: "TRAIN_DRIBBLING" }
@@ -66,17 +66,6 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         connected: true,
         address: action.address,
         isLoading: false,
-      }
-
-    case "TRAIN_PLAYER":
-      const newExp = state.experience + 10
-      const levelUp = newExp >= state.maxExp
-      return {
-        ...state,
-        experience: levelUp ? 0 : newExp,
-        level: levelUp ? state.level + 1 : state.level,
-        maxExp: levelUp ? state.maxExp + 50 : state.maxExp,
-        achievement: levelUp ? `Level ${state.level + 1} Reached!` : state.achievement,
       }
 
     case "MINE_COINS":

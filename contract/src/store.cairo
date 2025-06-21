@@ -63,15 +63,6 @@ pub impl StoreImpl of StoreTrait {
     }
 
     // --------- Game Actions ---------
-    fn train_player(mut self: Store) {
-        let mut player = self.read_player();
-        
-        // Add experience from training
-        player.add_experience(10);
-        
-        self.world.write_model(@player);
-    }
-
     fn mine_coins(mut self: Store) {
         let mut player = self.read_player();
         

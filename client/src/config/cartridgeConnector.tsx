@@ -47,7 +47,7 @@ const policies = {
     [CONTRACT_ADDRESS_GAME]: {
       methods: [
         { name: "spawn_player", entrypoint: "spawn_player" },
-        { name: "train", entrypoint: "train" },
+
         { name: "mine", entrypoint: "mine" },
         { name: "rest", entrypoint: "rest" },
         { name: "train_dribbling", entrypoint: "train_dribbling" },

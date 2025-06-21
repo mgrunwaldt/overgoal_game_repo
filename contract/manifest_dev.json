@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x769f5284cc1a3363b6f9e0875eb4512a39ee22b696a82d4cceabe07f2438349",
-      "class_hash": "0x58885e5e43135eefbf5e6491c9c10c8fd607b2878d4027013dc4fa262d0ab73",
+      "address": "0x6fd3a0430dcdcf3f0cca792370dfe46834accad434a00f07b37605a55a81903",
+      "class_hash": "0xb61427494cbe9ca4145df96095cd68e9728081642d71f603b0bad233f99520",
       "abi": [
         {
           "type": "impl",
@@ -1400,13 +1400,6 @@
             {
               "type": "function",
               "name": "spawn_player",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "train",
               "inputs": [],
               "outputs": [],
               "state_mutability": "external"
@@ -1594,7 +1587,6 @@
       "systems": [
         "dojo_init",
         "spawn_player",
-        "train",
         "mine",
         "rest",
         "train_shooting",
