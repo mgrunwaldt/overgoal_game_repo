@@ -56,6 +56,7 @@ pub impl StoreImpl of StoreTrait {
             40,  // energy - starting energy
             40,  // stamina - starting stamina
             10,  // charisma - starting charisma level
+            10,  // fame - starting fame level
         );
 
         self.world.write_model(@new_player);
@@ -142,6 +143,16 @@ pub impl StoreImpl of StoreTrait {
         // +5 charisma, -5 stamina
         player.add_charisma(5);
         player.remove_stamina(5);
+        
+        self.world.write_model(@player);
+    }
+
+    fn improve_fame(mut self: Store) {
+        let mut player = self.read_player();
+        
+        // +5 fame, +5 charisma (fame improvement also improves charisma)
+        player.add_fame(5);
+        player.add_charisma(5);
         
         self.world.write_model(@player);
     }

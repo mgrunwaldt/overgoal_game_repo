@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2, Pickaxe, Moon, Zap, Battery, Heart } from "lucide-react";
+import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2, Pickaxe, Moon, Zap, Battery, Heart, Star } from "lucide-react";
 import { useTrainAction } from "../dojo/hooks/useTrainAction";
 import { useMineAction } from "../dojo/hooks/useMineAction";
 import { useRestAction } from "../dojo/hooks/useRestAction";
@@ -9,6 +9,7 @@ import { useTrainEnergyAction } from "../dojo/hooks/useTrainEnergyAction";
 import { useTrainDribblingAction } from "../dojo/hooks/useTrainDribblingAction";
 import { useRestoreStaminaAction } from "../dojo/hooks/useRestoreStaminaAction";
 import { useImproveCharismaAction } from "../dojo/hooks/useImproveCharismaAction";
+import { useImproveFameAction } from "../dojo/hooks/useImproveFameAction";
 import useAppStore from "../zustand/store";
 
 export function GameActions() {
@@ -23,6 +24,7 @@ export function GameActions() {
   const { trainDribblingState, executeTrainDribbling, canTrainDribbling } = useTrainDribblingAction();
   const { restoreStaminaState, executeRestoreStamina, canRestoreStamina } = useRestoreStaminaAction();
   const { improveCharismaState, executeImproveCharisma, canImproveCharisma } = useImproveCharismaAction();
+  const { improveFameState, executeImproveFame, canImproveFame } = useImproveFameAction();
 
   const actions = [
     {
@@ -113,6 +115,19 @@ export function GameActions() {
           ? "Low Stamina!"
           : !canImproveCharisma && player && (player.charisma || 0) >= 100
           ? "Full Charisma!"
+          : undefined,
+    },
+    {
+      icon: Star,
+      label: "Improve Fame",
+      description: "+5 Fame, +5 Charisma",
+      onClick: executeImproveFame,
+      color: "from-orange-500 to-orange-600",
+      state: improveFameState,
+      canExecute: canImproveFame,
+      disabledReason:
+        !canImproveFame && player && (player.fame || 0) >= 100
+          ? "Full Fame!"
           : undefined,
     },
   ];

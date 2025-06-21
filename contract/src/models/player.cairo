@@ -23,6 +23,7 @@ pub struct Player {
     pub energy: u32,
     pub stamina: u32,
     pub charisma: u32,
+    pub fame: u32,
 }
 
 // Traits Implementations
@@ -39,6 +40,7 @@ pub impl PlayerImpl of PlayerTrait {
         energy: u32,
         stamina: u32,
         charisma: u32,
+        fame: u32,
     ) -> Player {
         Player {
             owner: owner,
@@ -51,6 +53,7 @@ pub impl PlayerImpl of PlayerTrait {
             energy: energy,
             stamina: stamina,
             charisma: charisma,
+            fame: fame,
         }
     }
 
@@ -89,6 +92,10 @@ pub impl PlayerImpl of PlayerTrait {
     fn add_charisma(ref self: Player, charisma_amount: u32) {
         self.charisma += charisma_amount;
     }
+
+    fn add_fame(ref self: Player, fame_amount: u32) {
+        self.fame += fame_amount;
+    }
 }
 
 #[generate_trait]
@@ -118,6 +125,7 @@ pub impl ZeroablePlayerTrait of Zero<Player> {
             energy: 0,
             stamina: 0,
             charisma: 0,
+            fame: 0,
         }
     }
 
@@ -157,6 +165,7 @@ mod tests {
             100,  // energy
             100,  // stamina
             0,    // charisma
+            0,    // fame
         );
 
         assert_eq!(
@@ -173,6 +182,7 @@ mod tests {
         assert_eq!(player.energy, 100, "Energy should be initialized to 100");
         assert_eq!(player.stamina, 100, "Stamina should be initialized to 100");
         assert_eq!(player.charisma, 0, "Charisma should be initialized to 0");
+        assert_eq!(player.fame, 0, "Fame should be initialized to 0");
     }
 
     #[test]
@@ -192,6 +202,7 @@ mod tests {
             energy: 100,
             stamina: 100,
             charisma: 0,
+            fame: 0,
         };
 
         assert_eq!(
@@ -300,6 +311,7 @@ mod tests {
             100,  // energy
             100,  // stamina
             0,    // charisma
+            0,    // fame
         );
 
         player.add_coins(50);
@@ -333,6 +345,7 @@ mod tests {
             100,  // energy
             100,  // stamina
             0,    // charisma
+            0,    // fame
         );
 
         player.add_experience(25);
@@ -366,6 +379,7 @@ mod tests {
             100,  // energy
             100,  // stamina
             0,    // charisma
+            0,    // fame
         );
 
         // Test adding shoot
@@ -391,6 +405,14 @@ mod tests {
             15, 
             "Player should have 15 charisma after adding 15"
         );
+
+        // Test adding fame
+        player.add_fame(20);
+        assert_eq!(
+            player.fame, 
+            20, 
+            "Player should have 20 fame after adding 20"
+        );
     }
 
     #[test]
@@ -409,6 +431,7 @@ mod tests {
             100,  // energy
             100,  // stamina
             0,    // charisma
+            0,    // fame
         );
 
         // Test adding health
@@ -438,6 +461,7 @@ mod tests {
             100,  // energy
             100,  // stamina
             0,    // charisma
+            0,    // fame
         );
 
         existing_player.assert_exists(); // Should not panic
@@ -467,6 +491,7 @@ mod tests {
             100,  // energy
             100,  // stamina
             0,    // charisma
+            0,    // fame
         );
         
         // Simulate a game session
@@ -478,6 +503,7 @@ mod tests {
         player.add_energy(10);       // Improved energy
         player.add_stamina(10);      // Improved stamina
         player.add_charisma(25);     // Improved charisma
+        player.add_fame(30);         // Improved fame
         
         // Verify final state
         assert_eq!(player.coins, 125, "Player should have 125 coins total");
@@ -488,6 +514,7 @@ mod tests {
         assert_eq!(player.energy, 110, "Player should have 110 energy after training");
         assert_eq!(player.stamina, 110, "Player should have 110 stamina after training");
         assert_eq!(player.charisma, 25, "Player should have 25 charisma after training");
+        assert_eq!(player.fame, 30, "Player should have 30 fame after training");
         assert_eq!(player.creation_day, 10, "Creation day should remain unchanged");
         assert_eq!(player.owner, mock_address, "Owner should remain unchanged");
     }

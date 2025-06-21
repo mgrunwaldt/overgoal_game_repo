@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Progress } from "./ui/progress"
 import { useAccount } from "@starknet-react/core"
 import useAppStore from "../zustand/store"
-import { Coins, Zap, Heart, Loader2, AlertTriangle, Target, Gamepad2, Battery, Dumbbell } from "lucide-react"
+import { Coins, Zap, Heart, Loader2, AlertTriangle, Target, Gamepad2, Battery, Dumbbell, Star } from "lucide-react"
 
 export function PlayerStats() {
   const { status } = useAccount();
@@ -62,6 +62,12 @@ export function PlayerStats() {
       value: player?.dribble || 10,
       color: "text-purple-400",
       icon: Gamepad2
+    },
+    {
+      label: "Fame",
+      value: player?.fame || 10,
+      color: "text-orange-400",
+      icon: Star
     },
   ];
 

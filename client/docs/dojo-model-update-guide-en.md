@@ -6,6 +6,13 @@ This guide details the step-by-step process for adding new fields to Dojo models
 
 When adding new fields or actions to a Dojo model, you must update multiple layers of the stack. This guide ensures you don't miss any critical steps.
 
+IMPORTANT!:
+For the cairo contracts use Sensei MCP. 
+Do not make changes that are not defined in this file.
+
+
+
+
 ---
 
 ## 🎯 Step 1: Cairo Model Changes

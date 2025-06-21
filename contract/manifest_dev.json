@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x64384a616bdea0590dfbc43cae2e18bdf66bc7740ccc3aebf43c7a256204ab9",
-      "class_hash": "0x707f2dee02ffed7f62db8260453ee660fa1847a5c21d86d3cb509d10f09c86a",
+      "address": "0x769f5284cc1a3363b6f9e0875eb4512a39ee22b696a82d4cceabe07f2438349",
+      "class_hash": "0x58885e5e43135eefbf5e6491c9c10c8fd607b2878d4027013dc4fa262d0ab73",
       "abi": [
         {
           "type": "impl",
@@ -1456,6 +1456,13 @@
             {
               "type": "function",
               "name": "improve_charisma",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "improve_fame",
               "inputs": [],
               "outputs": [],
               "state_mutability": "external"
@@ -1595,6 +1602,7 @@
         "train_dribbling",
         "restore_stamina",
         "improve_charisma",
+        "improve_fame",
         "upgrade"
       ]
     }
@@ -1603,7 +1611,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x6a90633a382253f088acb9c6eb161fe351e91ef24029c7806f49f7cb39059c9",
+      "class_hash": "0xd9f23772a726231453a20b462d10f7d21c91fa44afd5e26aa137d09574ad9e",
       "tag": "full_starter_react-Player",
       "selector": "0x13986cc36a0f8437378d1efa3068103f37b22361ff3cc31be99d50ddf2e4187"
     }

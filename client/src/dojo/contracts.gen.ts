@@ -192,6 +192,27 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const game_improveFame = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_improveFame_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_game_improveFame_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "improve_fame",
+			calldata: [],
+		};
+	};
+
 	return {
 		game: {
 			mine: game_mine,
@@ -212,6 +233,8 @@ export function setupWorld(provider: DojoProvider) {
 			buildRestoreStaminaCalldata: build_game_restoreStamina_calldata,
 			improveCharisma: game_improveCharisma,
 			buildImproveCharismaCalldata: build_game_improveCharisma_calldata,
+			improveFame: game_improveFame,
+			buildImproveFameCalldata: build_game_improveFame_calldata,
 		},
 	};
 }

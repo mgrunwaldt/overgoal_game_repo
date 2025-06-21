@@ -29,6 +29,7 @@ const PLAYER_QUERY = `
                     energy
                     stamina
                     charisma
+                    fame
                 }
             }
             totalCount
@@ -93,7 +94,8 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
       dribble: hexToNumber(rawPlayerData.dribble), // Default to 10 if not found
       energy: hexToNumber(rawPlayerData.energy), // Default to 10 if not found
       stamina: hexToNumber(rawPlayerData.stamina), // Default to 10 if not found
-              charisma: hexToNumber(rawPlayerData.charisma || 10), // Default to 10 if not found
+      charisma: hexToNumber(rawPlayerData.charisma || 10), // Default to 10 if not found
+      fame: hexToNumber(rawPlayerData.fame || 10), // Default to 10 if not found
     };
 
     console.log("🔍 Energy: AFTER", playerData.energy);

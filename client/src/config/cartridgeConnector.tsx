@@ -57,6 +57,7 @@ const policies = {
         { name: "add_stamina", entrypoint: "add_stamina" },
         { name: "remove_stamina", entrypoint: "remove_stamina" },
         { name: "improve_charisma", entrypoint: "improve_charisma" },
+        { name: "improve_fame", entrypoint: "improve_fame" },
       ],
     },
   },

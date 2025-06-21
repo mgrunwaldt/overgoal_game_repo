@@ -11,6 +11,7 @@ pub trait IGame<T> {
     fn train_dribbling(ref self: T);
     fn restore_stamina(ref self: T);
     fn improve_charisma(ref self: T);
+    fn improve_fame(ref self: T);
 }
 
 #[dojo::contract]
@@ -269,6 +270,28 @@ pub mod game {
 
             // Improve charisma
             store.improve_charisma();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn improve_fame(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Improve fame
+            store.improve_fame();
 
             // Emit events for achievements progression
             let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1

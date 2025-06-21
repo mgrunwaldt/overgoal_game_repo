@@ -12,6 +12,7 @@ export interface Player {
 	energy: number;
 	stamina: number;
 	charisma: number;
+	fame: number;
 }
 
 // Type definition for `full_starter_react::models::player::PlayerValue` struct
@@ -26,6 +27,7 @@ export interface PlayerValue {
 	energy: number;
 	stamina: number;
 	charisma: number;
+	fame: number;
 }
 
 // Type definition for `achievement::events::index::TrophyCreation` struct
@@ -106,6 +108,7 @@ export const schema: SchemaType = {
 			energy: 0,
 			stamina: 0,
 			charisma: 0,
+			fame: 0,
 		},
 		PlayerValue: {
 			owner: "",
@@ -118,6 +121,7 @@ export const schema: SchemaType = {
 			energy: 0,
 			stamina: 0,
 			charisma: 0,
+			fame: 0,
 		},
 	},
 	achievement: {
