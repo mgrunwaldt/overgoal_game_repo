@@ -24,6 +24,7 @@ pub struct Player {
     pub stamina: u32,
     pub charisma: u32,
     pub fame: u32,
+    pub is_player_created: bool,
 }
 
 // Traits Implementations
@@ -41,6 +42,7 @@ pub impl PlayerImpl of PlayerTrait {
         stamina: u32,
         charisma: u32,
         fame: u32,
+        is_player_created: bool,
     ) -> Player {
         Player {
             owner: owner,
@@ -54,6 +56,7 @@ pub impl PlayerImpl of PlayerTrait {
             stamina: stamina,
             charisma: charisma,
             fame: fame,
+            is_player_created: is_player_created,
         }
     }
 
@@ -96,6 +99,10 @@ pub impl PlayerImpl of PlayerTrait {
     fn add_fame(ref self: Player, fame_amount: u32) {
         self.fame += fame_amount;
     }
+
+    fn mark_as_created(ref self: Player) {
+        self.is_player_created = true;
+    }
 }
 
 #[generate_trait]
@@ -126,6 +133,7 @@ pub impl ZeroablePlayerTrait of Zero<Player> {
             stamina: 0,
             charisma: 0,
             fame: 0,
+            is_player_created: false,
         }
     }
 
@@ -166,6 +174,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            true, // is_player_created
         );
 
         assert_eq!(
@@ -183,6 +192,7 @@ mod tests {
         assert_eq!(player.stamina, 100, "Stamina should be initialized to 100");
         assert_eq!(player.charisma, 0, "Charisma should be initialized to 0");
         assert_eq!(player.fame, 0, "Fame should be initialized to 0");
+        assert_eq!(player.is_player_created, true, "Player should be marked as created");
     }
 
     #[test]
@@ -203,6 +213,7 @@ mod tests {
             stamina: 100,
             charisma: 0,
             fame: 0,
+            is_player_created: false,
         };
 
         assert_eq!(
@@ -244,6 +255,11 @@ mod tests {
             player.stamina, 
             100, 
             "Initial stamina should be 100"
+        );
+        assert_eq!(
+            player.is_player_created, 
+            false, 
+            "Initial player should not be marked as created"
         );
     }
 
@@ -292,6 +308,11 @@ mod tests {
             0, 
             "Zero player stamina should be 0"
         );
+        assert_eq!(
+            player.is_player_created, 
+            false, 
+            "Zero player should not be marked as created"
+        );
         }
 
     #[test]
@@ -312,6 +333,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            false, // is_player_created
         );
 
         player.add_coins(50);
@@ -346,6 +368,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            false, // is_player_created
         );
 
         player.add_experience(25);
@@ -380,6 +403,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            false, // is_player_created
         );
 
         // Test adding shoot
@@ -432,6 +456,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            false, // is_player_created
         );
 
         // Test adding health
@@ -462,6 +487,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            true, // is_player_created
         );
 
         existing_player.assert_exists(); // Should not panic
@@ -472,6 +498,35 @@ mod tests {
         
         assert!(zero_player.is_zero(), "Zero player should be zero");
         assert!(existing_player.is_non_zero(), "Existing player should be non-zero");
+    }
+
+    #[test]
+    #[available_gas(1000000)]
+    fn test_player_mark_as_created() {
+        let mock_address: ContractAddress = contract_address_const::<0x789>();
+        
+        // Initialize player as not created
+        let mut player = PlayerTrait::new(
+            mock_address,
+            0,    // experience
+            100,  // health
+            0,    // coins
+            1,    // creation_day
+            10,   // shoot
+            15,   // dribble
+            100,  // energy
+            100,  // stamina
+            0,    // charisma
+            0,    // fame
+            false, // is_player_created
+        );
+        
+        assert_eq!(player.is_player_created, false, "Player should initially not be created");
+        
+        // Mark as created
+        player.mark_as_created();
+        
+        assert_eq!(player.is_player_created, true, "Player should be marked as created");
     }
 
     #[test]
@@ -492,6 +547,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            false, // is_player_created
         );
         
         // Simulate a game session
@@ -504,6 +560,7 @@ mod tests {
         player.add_stamina(10);      // Improved stamina
         player.add_charisma(25);     // Improved charisma
         player.add_fame(30);         // Improved fame
+        player.mark_as_created();    // Mark player as fully created
         
         // Verify final state
         assert_eq!(player.coins, 125, "Player should have 125 coins total");
@@ -517,5 +574,6 @@ mod tests {
         assert_eq!(player.fame, 30, "Player should have 30 fame after training");
         assert_eq!(player.creation_day, 10, "Creation day should remain unchanged");
         assert_eq!(player.owner, mock_address, "Owner should remain unchanged");
+        assert_eq!(player.is_player_created, true, "Player should be marked as created");
     }
 }

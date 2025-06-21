@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x6fd3a0430dcdcf3f0cca792370dfe46834accad434a00f07b37605a55a81903",
-      "class_hash": "0xb61427494cbe9ca4145df96095cd68e9728081642d71f603b0bad233f99520",
+      "address": "0xc93703a3cf56d6d460aac26458caf29f94e794429bcf91a939075799f90c52",
+      "class_hash": "0x77e56b3cdeaade52e698551a1e113775da7a1b1d729a269fe0576786cdff925",
       "abi": [
         {
           "type": "impl",
@@ -1400,6 +1400,13 @@
             {
               "type": "function",
               "name": "spawn_player",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "mark_player_as_created",
               "inputs": [],
               "outputs": [],
               "state_mutability": "external"
@@ -1587,6 +1594,7 @@
       "systems": [
         "dojo_init",
         "spawn_player",
+        "mark_player_as_created",
         "mine",
         "rest",
         "train_shooting",
@@ -1603,7 +1611,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0xd9f23772a726231453a20b462d10f7d21c91fa44afd5e26aa137d09574ad9e",
+      "class_hash": "0x6ff753bf1cf973cf6e481e59db14dde4dfdc98001c0cb51e5fc4bf5f8624334",
       "tag": "full_starter_react-Player",
       "selector": "0x13986cc36a0f8437378d1efa3068103f37b22361ff3cc31be99d50ddf2e4187"
     }

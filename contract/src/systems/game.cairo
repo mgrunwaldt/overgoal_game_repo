@@ -3,6 +3,7 @@
 pub trait IGame<T> {
     // --------- Core gameplay methods ---------
     fn spawn_player(ref self: T);
+    fn mark_player_as_created(ref self: T);
     fn mine(ref self: T);
     fn rest(ref self: T);
     fn train_shooting(ref self: T);
@@ -98,6 +99,29 @@ pub mod game {
 
             // Create new player
             store.create_player();
+        }
+
+        // Method to mark player as fully created (after character selection)
+        fn mark_player_as_created(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Mark player as created
+            store.mark_player_as_created();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
         }
 
         // Method to mine coins (+5 coins, -5 health)
