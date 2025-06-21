@@ -88,12 +88,12 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
       health: hexToNumber(rawPlayerData.health),
       coins: hexToNumber(rawPlayerData.coins),
       creation_day: hexToNumber(rawPlayerData.creation_day),
-      shoot: hexToNumber(rawPlayerData.shoot || 10),
-      dribble: hexToNumber(rawPlayerData.dribble || 10),
-      energy: hexToNumber(rawPlayerData.energy || 40),
-      stamina: hexToNumber(rawPlayerData.stamina || 40),
-      charisma: hexToNumber(rawPlayerData.charisma || 10),
-      fame: hexToNumber(rawPlayerData.fame || 10),
+      shoot: hexToNumber(rawPlayerData.shoot ),
+      dribble: hexToNumber(rawPlayerData.dribble ),
+      energy: hexToNumber(rawPlayerData.energy ),
+      stamina: hexToNumber(rawPlayerData.stamina ),
+      charisma: hexToNumber(rawPlayerData.charisma ),
+      fame: hexToNumber(rawPlayerData.fame ),
       is_player_created: Boolean(rawPlayerData.is_player_created),
     };
 

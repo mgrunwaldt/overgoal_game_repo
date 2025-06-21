@@ -11,6 +11,7 @@ export function PlayerStats() {
 
   const isConnected = status === "connected";
 
+  console.log("🎯 player stats", player);
 
   // Use real player data or default values
   const stats = [

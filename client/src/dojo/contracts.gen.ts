@@ -45,27 +45,6 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_game_spawnPlayer_calldata = (): DojoCall => {
-		return {
-			contractName: "game",
-			entrypoint: "spawn_player",
-			calldata: [],
-		};
-	};
-
-	const game_spawnPlayer = async (snAccount: Account | AccountInterface) => {
-		try {
-			return await provider.execute(
-				snAccount as any,
-				build_game_spawnPlayer_calldata(),
-				"full_starter_react",
-			);
-		} catch (error) {
-			console.error(error);
-			throw error;
-		}
-	};
-
 	const build_game_markPlayerAsCreated_calldata = (): DojoCall => {
 		return {
 			contractName: "game",
@@ -213,14 +192,76 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	// --------- Archetype spawn functions ---------
+	const build_game_spawnStriker_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "spawn_striker",
+			calldata: [],
+		};
+	};
+
+	const game_spawnStriker = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_spawnStriker_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_game_spawnDribbler_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "spawn_dribbler",
+			calldata: [],
+		};
+	};
+
+	const game_spawnDribbler = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_spawnDribbler_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_game_spawnPlaymaker_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "spawn_playmaker",
+			calldata: [],
+		};
+	};
+
+	const game_spawnPlaymaker = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_spawnPlaymaker_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	return {
 		game: {
 			mine: game_mine,
 			buildMineCalldata: build_game_mine_calldata,
 			rest: game_rest,
 			buildRestCalldata: build_game_rest_calldata,
-			spawnPlayer: game_spawnPlayer,
-			buildSpawnPlayerCalldata: build_game_spawnPlayer_calldata,
 			markPlayerAsCreated: game_markPlayerAsCreated,
 			buildMarkPlayerAsCreatedCalldata: build_game_markPlayerAsCreated_calldata,
 			trainShooting: game_trainShooting,
@@ -235,6 +276,13 @@ export function setupWorld(provider: DojoProvider) {
 			buildImproveCharismaCalldata: build_game_improveCharisma_calldata,
 			improveFame: game_improveFame,
 			buildImproveFameCalldata: build_game_improveFame_calldata,
+			// --------- Archetype spawn functions ---------
+			spawnStriker: game_spawnStriker,
+			buildSpawnStrikerCalldata: build_game_spawnStriker_calldata,
+			spawnDribbler: game_spawnDribbler,
+			buildSpawnDribblerCalldata: build_game_spawnDribbler_calldata,
+			spawnPlaymaker: game_spawnPlaymaker,
+			buildSpawnPlaymakerCalldata: build_game_spawnPlaymaker_calldata,
 		},
 	};
 }

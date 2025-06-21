@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0xc93703a3cf56d6d460aac26458caf29f94e794429bcf91a939075799f90c52",
-      "class_hash": "0x77e56b3cdeaade52e698551a1e113775da7a1b1d729a269fe0576786cdff925",
+      "address": "0x118aea1beaf0f2a01679bd5bfdc09a15d35e900ee92dce7bc4cabaae4d44309",
+      "class_hash": "0x456c5b9ac130f4861041b9ea8aec12e36eebb72323ed7a1e3b5b796121b461e",
       "abi": [
         {
           "type": "impl",
@@ -1399,13 +1399,6 @@
           "items": [
             {
               "type": "function",
-              "name": "spawn_player",
-              "inputs": [],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
               "name": "mark_player_as_created",
               "inputs": [],
               "outputs": [],
@@ -1463,6 +1456,27 @@
             {
               "type": "function",
               "name": "improve_fame",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "spawn_striker",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "spawn_dribbler",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "spawn_playmaker",
               "inputs": [],
               "outputs": [],
               "state_mutability": "external"
@@ -1593,7 +1607,6 @@
       "selector": "0x4c3a60c69390276b1cdfe902f6305743f3668c5ab9e68a96105dea78d8ccd61",
       "systems": [
         "dojo_init",
-        "spawn_player",
         "mark_player_as_created",
         "mine",
         "rest",
@@ -1603,6 +1616,9 @@
         "restore_stamina",
         "improve_charisma",
         "improve_fame",
+        "spawn_striker",
+        "spawn_dribbler",
+        "spawn_playmaker",
         "upgrade"
       ]
     }

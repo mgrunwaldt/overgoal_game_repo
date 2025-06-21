@@ -2,7 +2,6 @@
 #[starknet::interface]
 pub trait IGame<T> {
     // --------- Core gameplay methods ---------
-    fn spawn_player(ref self: T);
     fn mark_player_as_created(ref self: T);
     fn mine(ref self: T);
     fn rest(ref self: T);
@@ -12,6 +11,10 @@ pub trait IGame<T> {
     fn restore_stamina(ref self: T);
     fn improve_charisma(ref self: T);
     fn improve_fame(ref self: T);
+    // --------- Archetype creation methods ---------
+    fn spawn_striker(ref self: T);
+    fn spawn_dribbler(ref self: T);
+    fn spawn_playmaker(ref self: T);
 }
 
 #[dojo::contract]
@@ -92,15 +95,6 @@ pub mod game {
     #[abi(embed_v0)]
     impl GameImpl of IGame<ContractState> {
         
-        // Method to create a new player
-        fn spawn_player(ref self: ContractState) {
-            let mut world = self.world(@"full_starter_react");
-            let store = StoreTrait::new(world);
-
-            // Create new player
-            store.create_player();
-        }
-
         // Method to mark player as fully created (after character selection)
         fn mark_player_as_created(ref self: ContractState) {
             let mut world = self.world(@"full_starter_react");
@@ -305,5 +299,71 @@ pub mod game {
             };
         }
 
+        // --------- Archetype-specific player creation methods ---------
+        fn spawn_striker(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            // Create new striker player
+            store.create_striker();
+
+            let player = store.read_player();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn spawn_dribbler(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            // Create new dribbler player
+            store.create_dribbler();
+
+            let player = store.read_player();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn spawn_playmaker(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            // Create new playmaker player
+            store.create_playmaker();
+
+            let player = store.read_player();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
     }
 }

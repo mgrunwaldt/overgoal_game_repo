@@ -206,9 +206,26 @@ export const useSpawnPlayer = () => {
         txStatus: 'PENDING'
       }));
 
-      // Execute spawn transaction
+      // Execute spawn transaction based on character type
       console.log("📤 Executing spawn transaction...");
-      const spawnTx = await client.game.spawnPlayer(account as Account);
+      let spawnTx;
+      
+      switch (characterType) {
+        case 'striker':
+          spawnTx = await client.game.spawnStriker(account as Account);
+          break;
+        case 'dribbler':
+        case 'midfielder': // Support old naming
+          spawnTx = await client.game.spawnDribbler(account as Account);
+          break;
+        case 'playmaker':
+        case 'defender': // Support old naming
+          spawnTx = await client.game.spawnPlaymaker(account as Account);
+          break;
+        default:
+          // No default spawn available - must select a character type
+          throw new Error(`Invalid character type: ${characterType}. Must be 'striker', 'dribbler', or 'playmaker'.`);
+      }
 
       console.log("📥 Spawn transaction response:", spawnTx);
 

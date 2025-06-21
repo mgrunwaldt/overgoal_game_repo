@@ -60,7 +60,6 @@ const policies = {
   contracts: {
     [CONTRACT_ADDRESS_GAME]: {
       methods: [
-        { name: "spawn_player", entrypoint: "spawn_player" },
         { name: "mark_player_as_created", entrypoint: "mark_player_as_created" },
         { name: "mine", entrypoint: "mine" },
         { name: "rest", entrypoint: "rest" },
@@ -72,6 +71,9 @@ const policies = {
         { name: "remove_stamina", entrypoint: "remove_stamina" },
         { name: "improve_charisma", entrypoint: "improve_charisma" },
         { name: "improve_fame", entrypoint: "improve_fame" },
+        { name: "spawn_striker", entrypoint: "spawn_striker" },
+        { name: "spawn_dribbler", entrypoint: "spawn_dribbler" },
+        { name: "spawn_playmaker", entrypoint: "spawn_playmaker" },
       ],
     },
   },

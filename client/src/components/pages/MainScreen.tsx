@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { usePlayer } from "../../dojo/hooks/usePlayer";
 import { useStarknetConnect } from "../../dojo/hooks/useStarknetConnect";
+import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function MainScreen() {
+    const navigate = useNavigate();
     const [playerStats, setPlayerStats] = useState({
         stamina: 0,
         energy: 0,
@@ -26,7 +29,15 @@ export default function MainScreen() {
     }
   }, [playerLoading, player]);
 
-  return <div>
+  return <div className="flex flex-col items-center justify-center h-screen">
+   
+
+   <div className="flex flex-row items-center justify-center">
+    <button className="rounded-full bg-red-500 p-3 text-white text-center" onClick={() => {
+      handleDisconnect();
+      navigate("/login", { replace: true });
+    }}><LogOut size={20} /></button>
+   </div> 
    
     <div>
       <h1>Stamina: {playerStats.stamina} </h1>
@@ -37,8 +48,10 @@ export default function MainScreen() {
     </div>
 
 
+  
   <button onClick={() => {
-    handleDisconnect();
-  }}>Disconnect</button>
+    console.log("🎯 Play match");
+  }}>Play match</button>
+  
   </div>;
 }   

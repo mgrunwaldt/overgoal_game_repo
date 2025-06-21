@@ -39,30 +39,6 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(player)
     }
     
-    // --------- New entities ---------
-    fn create_player(mut self: Store) {
-        let caller = get_caller_address();
-        let current_timestamp = get_block_timestamp();
-
-        // Create new player with starting stats - initially not fully created
-        let new_player = PlayerTrait::new(
-            caller,
-            0,   // experience
-            100, // health
-            0,   // coins
-            Timestamp::unix_timestamp_to_day(current_timestamp), // creation_day
-            10,  // shoot - starting skill level
-            10,  // dribble - starting skill level
-            40,  // energy - starting energy
-            40,  // stamina - starting stamina
-            10,  // charisma - starting charisma level
-            10,  // fame - starting fame level
-            false, // is_player_created - initially false until character selection is complete
-        );
-
-        self.world.write_model(@new_player);
-    }
-
     fn mark_player_as_created(mut self: Store) {
         let mut player = self.read_player();
         
@@ -70,6 +46,46 @@ pub impl StoreImpl of StoreTrait {
         player.mark_as_created();
         
         self.world.write_model(@player);
+    }
+
+    // --------- Archetype-specific player creation ---------
+    fn create_striker(mut self: Store) {
+        let caller = get_caller_address();
+        let current_timestamp = get_block_timestamp();
+
+        // Create new striker player with archetype-specific stats
+        let new_player = PlayerTrait::new_striker(
+            caller,
+            Timestamp::unix_timestamp_to_day(current_timestamp),
+        );
+
+        self.world.write_model(@new_player);
+    }
+
+    fn create_dribbler(mut self: Store) {
+        let caller = get_caller_address();
+        let current_timestamp = get_block_timestamp();
+
+        // Create new dribbler player with archetype-specific stats
+        let new_player = PlayerTrait::new_dribbler(
+            caller,
+            Timestamp::unix_timestamp_to_day(current_timestamp),
+        );
+
+        self.world.write_model(@new_player);
+    }
+
+    fn create_playmaker(mut self: Store) {
+        let caller = get_caller_address();
+        let current_timestamp = get_block_timestamp();
+
+        // Create new playmaker player with archetype-specific stats
+        let new_player = PlayerTrait::new_playmaker(
+            caller,
+            Timestamp::unix_timestamp_to_day(current_timestamp),
+        );
+
+        self.world.write_model(@new_player);
     }
 
     // --------- Game Actions ---------

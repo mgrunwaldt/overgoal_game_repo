@@ -10,9 +10,11 @@ interface CharacterType {
   name: string;
   description: string;
   stats: {
-    speed: number;
     shoot: number;
-    defense: number;
+    dribble: number;
+    charisma: number;
+    energy: number;
+    stamina: number;
   };
   icon: React.ElementType;
   color: string;
@@ -24,28 +26,28 @@ const characterTypes: CharacterType[] = [
   {
     id: 'striker',
     name: 'STRIKER',
-    description: 'Aggressive forward focused on scoring goals. High shooting accuracy and speed.',
-    stats: { speed: 90, shoot: 95, defense: 60 },
+    description: 'Powerful finisher focused on scoring goals. High shooting accuracy with moderate skills.',
+    stats: { shoot: 60, dribble: 20, charisma: 25, energy: 50, stamina: 45 },
     icon: Target,
     color: 'text-red-300',
     bgGradient: 'from-red-500/20 to-orange-500/20',
     borderColor: 'border-red-400/50'
   },
   {
-    id: 'midfielder',
-    name: 'MIDFIELDER',
-    description: 'Balanced player with excellent energy and versatility. Master of the center field.',
-    stats: { speed: 80, shoot: 75, defense: 85 },
+    id: 'dribbler',
+    name: 'DRIBBLER',
+    description: 'Flashy show-boat winger with exceptional dribbling and charisma. Loves the spotlight.',
+    stats: { shoot: 20, dribble: 50, charisma: 50, energy: 40, stamina: 40 },
     icon: Zap,
     color: 'text-cyan-300',
     bgGradient: 'from-cyan-500/20 to-blue-500/20',
     borderColor: 'border-cyan-400/50'
   },
   {
-    id: 'defender',
-    name: 'DEFENDER',
-    description: 'Strong defensive specialist with high stamina. Protects the goal at all costs.',
-    stats: { speed: 70, shoot: 65, defense: 95 },
+    id: 'playmaker',
+    name: 'PLAYMAKER',
+    description: 'Team-oriented chance creator with balanced skills. High energy and stamina for the long game.',
+    stats: { shoot: 30, dribble: 30, charisma: 40, energy: 50, stamina: 50 },
     icon: Users,
     color: 'text-purple-300',
     bgGradient: 'from-purple-500/20 to-pink-500/20',
@@ -220,19 +222,6 @@ export default function CharacterSelectionScreen() {
                     {/* Stats */}
                     <div className="w-full space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-xs text-slate-400">SPEED</span>
-                        <div className="flex space-x-1">
-                          {[...Array(5)].map((_, i) => (
-                            <div
-                              key={i}
-                              className={`w-2 h-2 rounded-full ${
-                                i < character.stats.speed / 20 ? 'bg-cyan-400' : 'bg-slate-600'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
                         <span className="text-xs text-slate-400">SHOOT</span>
                         <div className="flex space-x-1">
                           {[...Array(5)].map((_, i) => (
@@ -246,13 +235,52 @@ export default function CharacterSelectionScreen() {
                         </div>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-xs text-slate-400">DEFENSE</span>
+                        <span className="text-xs text-slate-400">DRIBBLE</span>
                         <div className="flex space-x-1">
                           {[...Array(5)].map((_, i) => (
                             <div
                               key={i}
                               className={`w-2 h-2 rounded-full ${
-                                i < character.stats.defense / 20 ? 'bg-purple-400' : 'bg-slate-600'
+                                i < character.stats.dribble / 20 ? 'bg-cyan-400' : 'bg-slate-600'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-slate-400">CHARISMA</span>
+                        <div className="flex space-x-1">
+                          {[...Array(5)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-2 h-2 rounded-full ${
+                                i < character.stats.charisma / 20 ? 'bg-purple-400' : 'bg-slate-600'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-slate-400">ENERGY</span>
+                        <div className="flex space-x-1">
+                          {[...Array(5)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-2 h-2 rounded-full ${
+                                i < character.stats.energy / 20 ? 'bg-pink-400' : 'bg-slate-600'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-slate-400">STAMINA</span>
+                        <div className="flex space-x-1">
+                          {[...Array(5)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-2 h-2 rounded-full ${
+                                i < character.stats.stamina / 20 ? 'bg-purple-400' : 'bg-slate-600'
                               }`}
                             />
                           ))}
