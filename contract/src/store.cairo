@@ -8,6 +8,7 @@ use dojo::model::ModelStorage;
 // Models imports
 use full_starter_react::models::player::{Player, PlayerTrait};
 use full_starter_react::models::team::{Team, TeamTrait};
+use full_starter_react::models::gamematch::{GameMatch, GameMatchTrait, MatchDecision, MatchAction};
 
 // Helpers import
 use full_starter_react::helpers::timestamp::Timestamp;
@@ -33,6 +34,10 @@ pub impl StoreImpl of StoreTrait {
 
     fn read_team(self: Store, team_id: u32) -> Team {
         self.world.read_model(team_id)
+    }
+
+    fn read_gamematch(self: Store, match_id: u32) -> GameMatch {
+        self.world.read_model(match_id)
     }
 
     // --------- Archetype-specific player creation ---------
@@ -159,10 +164,55 @@ pub impl StoreImpl of StoreTrait {
         player.add_fame(5);
         self.world.write_model(@player);
     }
-
+    
     fn select_team(mut self: Store, team_id: u32) {
         let mut player = self.read_player();
         player.select_team(team_id);
         self.world.write_model(@player);
+    }
+
+    // --------- GameMatch management functions ---------
+    fn create_gamematch(mut self: Store, match_id: u32, my_team_id: u32, opponent_team_id: u32) {
+        // Create new GameMatch with initial state
+        let new_gamematch = GameMatchTrait::new(match_id, my_team_id, opponent_team_id);
+        self.world.write_model(@new_gamematch);
+    }
+
+    fn start_gamematch(mut self: Store, match_id: u32) -> (MatchAction, u8) {
+        let mut gamematch = self.read_gamematch(match_id);
+        let result = gamematch.start_match();
+        self.world.write_model(@gamematch);
+        result
+    }
+
+    fn process_match_action(mut self: Store, match_id: u32, match_decision: MatchDecision) -> (MatchAction, u8) {
+        let mut gamematch = self.read_gamematch(match_id);
+        let result = gamematch.process_match_action(match_decision);
+        self.world.write_model(@gamematch);
+        result
+    }
+
+    fn finish_gamematch(mut self: Store, match_id: u32) {
+        let mut gamematch = self.read_gamematch(match_id);
+        gamematch.finish_match();
+        self.world.write_model(@gamematch);
+    }
+
+    fn simulate_gamematch(mut self: Store, match_id: u32) {
+        let mut gamematch = self.read_gamematch(match_id);
+        gamematch.simulate_match();
+        self.world.write_model(@gamematch);
+    }
+
+    fn add_my_team_goal(mut self: Store, match_id: u32) {
+        let mut gamematch = self.read_gamematch(match_id);
+        gamematch.add_my_team_goal();
+        self.world.write_model(@gamematch);
+    }
+
+    fn add_opponent_team_goal(mut self: Store, match_id: u32) {
+        let mut gamematch = self.read_gamematch(match_id);
+        gamematch.add_opponent_team_goal();
+        self.world.write_model(@gamematch);
     }
 }

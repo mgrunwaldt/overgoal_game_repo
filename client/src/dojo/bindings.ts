@@ -85,12 +85,53 @@ export interface Task {
 }
 
 export interface Team {
-	team_id: number;
-	name: string;
-	offense: number;
-	defense: number;
-	intensity: number;
-	current_league_points: number;
+    team_id: number;
+    name: string;
+    offense: number;
+    defense: number;
+    intensity: number;
+    current_league_points: number;
+}
+
+export interface GameMatch {
+    match_id: number;
+    my_team_id: number;
+    opponent_team_id: number;
+    my_team_score: number;
+    opponent_team_score: number;
+    next_match_action: number;
+    next_match_action_minute: number;
+    current_time: number;
+    match_status: number;
+}
+
+export enum MatchStatus {
+    NotStarted = 0,
+    InProgress = 1,
+    HalfTime = 2,
+    Finished = 3,
+}
+
+export enum MatchAction {
+    OpenPlay = 0,
+    Jumper = 1,
+    Brawl = 2,
+    FreeKick = 3,
+    Penalty = 4,
+    OpenDefense = 5,
+}
+
+export enum MatchDecision {
+    Dribble = 0,
+    Pass = 1,
+    Simulate = 2,
+    Shoot = 3,
+    StandingTackle = 4,
+    SweepingTackle = 5,
+    AcceptHug = 6,
+    TackleFan = 7,
+    JoinBrawl = 8,
+    StayOut = 9,
 }
 
 export interface SchemaType extends ISchemaType {
@@ -98,6 +139,7 @@ export interface SchemaType extends ISchemaType {
 		Player: Player,
 		PlayerValue: PlayerValue,
 		Team: Team,
+		GameMatch: GameMatch,
 	},
 	achievement: {
 		TrophyCreation: TrophyCreation,
@@ -137,14 +179,25 @@ export const schema: SchemaType = {
 			charisma: 0,
 			fame: 0,
 		},
-		Team: {
-			team_id: 0,
-			name: "",
-			offense: 0,
-			defense: 0,
-			intensity: 0,
-			current_league_points: 0,
-		},
+		        Team: {
+            team_id: 0,
+            name: "",
+            offense: 0,
+            defense: 0,
+            intensity: 0,
+            current_league_points: 0,
+        },
+        GameMatch: {
+            match_id: 0,
+            my_team_id: 0,
+            opponent_team_id: 0,
+            my_team_score: 0,
+            opponent_team_score: 0,
+            next_match_action: 0,
+            next_match_action_minute: 0,
+            current_time: 0,
+            match_status: 0,
+        },
 	},
 	achievement: {
 		TrophyCreation: {
@@ -194,6 +247,8 @@ export const schema: SchemaType = {
 export enum ModelsMapping {
 	Player = 'full_starter_react-Player',
 	PlayerValue = 'full_starter_react-PlayerValue',
+	Team = 'full_starter_react-Team',
+	GameMatch = 'full_starter_react-GameMatch',
 	TrophyCreation = 'achievement-TrophyCreation',
 	TrophyCreationValue = 'achievement-TrophyCreationValue',
 	TrophyProgression = 'achievement-TrophyProgression',

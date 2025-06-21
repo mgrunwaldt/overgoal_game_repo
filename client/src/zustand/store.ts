@@ -27,6 +27,47 @@ export interface Team {
   current_league_points: number;
 }
 
+export interface GameMatch {
+  match_id: number;
+  my_team_id: number;
+  opponent_team_id: number;
+  my_team_score: number;
+  opponent_team_score: number;
+  next_match_action: number;
+  next_match_action_minute: number;
+  current_time: number;
+  match_status: number;
+}
+
+export enum MatchStatus {
+  NotStarted = 0,
+  InProgress = 1,
+  HalfTime = 2,
+  Finished = 3,
+}
+
+export enum MatchAction {
+  OpenPlay = 0,
+  Jumper = 1,
+  Brawl = 2,
+  FreeKick = 3,
+  Penalty = 4,
+  OpenDefense = 5,
+}
+
+export enum MatchDecision {
+  Dribble = 0,
+  Pass = 1,
+  Simulate = 2,
+  Shoot = 3,
+  StandingTackle = 4,
+  SweepingTackle = 5,
+  AcceptHug = 6,
+  TackleFan = 7,
+  JoinBrawl = 8,
+  StayOut = 9,
+}
+
 // Application state
 interface AppState {
   // Player data
@@ -35,6 +76,10 @@ interface AppState {
   // Team data
   teams: Team[];
   selectedTeam: Team | null;
+  
+  // GameMatch data
+  gameMatches: GameMatch[];
+  currentMatch: GameMatch | null;
   
   // UI state
   isLoading: boolean;
@@ -67,6 +112,14 @@ interface AppActions {
   setSelectedTeam: (team: Team | null) => void;
   updateTeamPoints: (teamId: number, points: number) => void;
   
+  // GameMatch actions
+  setGameMatches: (matches: GameMatch[]) => void;
+  addGameMatch: (match: GameMatch) => void;
+  updateGameMatch: (matchId: number, updates: Partial<GameMatch>) => void;
+  setCurrentMatch: (match: GameMatch | null) => void;
+  updateMatchScore: (matchId: number, myScore: number, opponentScore: number) => void;
+  updateMatchStatus: (matchId: number, status: number) => void;
+  
   // UI actions
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -87,6 +140,8 @@ const initialState: AppState = {
   player: null,
   teams: [],
   selectedTeam: null,
+  gameMatches: [],
+  currentMatch: null,
   isLoading: false,
   error: null,
   gameStarted: false,
@@ -177,6 +232,44 @@ const useAppStore = create<AppStore>()(
       setLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
 
+      // GameMatch actions
+      setGameMatches: (gameMatches) => set({ gameMatches }),
+
+      addGameMatch: (match) => set((state) => ({
+        gameMatches: [...state.gameMatches, match]
+      })),
+
+      updateGameMatch: (matchId, updates) => set((state) => ({
+        gameMatches: state.gameMatches.map(match => 
+          match.match_id === matchId ? { ...match, ...updates } : match
+        ),
+        currentMatch: state.currentMatch?.match_id === matchId 
+          ? { ...state.currentMatch, ...updates } 
+          : state.currentMatch
+      })),
+
+      setCurrentMatch: (match) => set({ currentMatch: match }),
+
+      updateMatchScore: (matchId, myScore, opponentScore) => set((state) => ({
+        gameMatches: state.gameMatches.map(match => 
+          match.match_id === matchId 
+            ? { ...match, my_team_score: myScore, opponent_team_score: opponentScore } 
+            : match
+        ),
+        currentMatch: state.currentMatch?.match_id === matchId 
+          ? { ...state.currentMatch, my_team_score: myScore, opponent_team_score: opponentScore }
+          : state.currentMatch
+      })),
+
+      updateMatchStatus: (matchId, status) => set((state) => ({
+        gameMatches: state.gameMatches.map(match => 
+          match.match_id === matchId ? { ...match, match_status: status } : match
+        ),
+        currentMatch: state.currentMatch?.match_id === matchId 
+          ? { ...state.currentMatch, match_status: status }
+          : state.currentMatch
+      })),
+
       // Game actions
       startGame: () => set({ gameStarted: true }),
       endGame: () => set({ gameStarted: false }),
@@ -190,6 +283,8 @@ const useAppStore = create<AppStore>()(
         player: state.player,
         teams: state.teams,
         selectedTeam: state.selectedTeam,
+        gameMatches: state.gameMatches,
+        currentMatch: state.currentMatch,
         gameStarted: state.gameStarted,
       }),
     }

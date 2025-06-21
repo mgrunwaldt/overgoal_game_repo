@@ -342,18 +342,188 @@ export function setupWorld(provider: DojoProvider) {
 	};
 
 	const build_game_selectTeam_calldata = (team_id: number): DojoCall => {
-		return {
-			contractName: "game",
-			entrypoint: "select_team",
-			calldata: [team_id],
-		};
-	};
+    return {
+        contractName: "game",
+        entrypoint: "select_team",
+        calldata: [team_id],
+    };
+};
+
+const build_game_seedInitialTeams_calldata = (): DojoCall => {
+    return {
+        contractName: "game",
+        entrypoint: "seed_initial_teams",
+        calldata: [],
+    };
+};
+
+// GameMatch function calldata builders
+const build_game_createGamematch_calldata = (match_id: number, my_team_id: number, opponent_team_id: number): DojoCall => {
+    return {
+        contractName: "game",
+        entrypoint: "create_gamematch",
+        calldata: [match_id, my_team_id, opponent_team_id],
+    };
+};
+
+const build_game_startGamematch_calldata = (match_id: number): DojoCall => {
+    return {
+        contractName: "game",
+        entrypoint: "start_gamematch",
+        calldata: [match_id],
+    };
+};
+
+const build_game_processMatchAction_calldata = (match_id: number, match_decision: number): DojoCall => {
+    return {
+        contractName: "game",
+        entrypoint: "process_match_action",
+        calldata: [match_id, match_decision],
+    };
+};
+
+const build_game_finishGamematch_calldata = (match_id: number): DojoCall => {
+    return {
+        contractName: "game",
+        entrypoint: "finish_gamematch",
+        calldata: [match_id],
+    };
+};
+
+const build_game_simulateGamematch_calldata = (match_id: number): DojoCall => {
+    return {
+        contractName: "game",
+        entrypoint: "simulate_gamematch",
+        calldata: [match_id],
+    };
+};
+
+const build_game_addMyTeamGoal_calldata = (match_id: number): DojoCall => {
+    return {
+        contractName: "game",
+        entrypoint: "add_my_team_goal",
+        calldata: [match_id],
+    };
+};
+
+const build_game_addOpponentTeamGoal_calldata = (match_id: number): DojoCall => {
+    return {
+        contractName: "game",
+        entrypoint: "add_opponent_team_goal",
+        calldata: [match_id],
+    };
+};
 
 	const game_selectTeam = async (snAccount: Account | AccountInterface, team_id: number) => {
 		try {
 			return await provider.execute(
 				snAccount as any,
 				build_game_selectTeam_calldata(team_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_seedInitialTeams = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_seedInitialTeams_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	// GameMatch execution functions
+	const game_createGamematch = async (snAccount: Account | AccountInterface, match_id: number, my_team_id: number, opponent_team_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_createGamematch_calldata(match_id, my_team_id, opponent_team_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_startGamematch = async (snAccount: Account | AccountInterface, match_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_startGamematch_calldata(match_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_processMatchAction = async (snAccount: Account | AccountInterface, match_id: number, match_decision: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_processMatchAction_calldata(match_id, match_decision),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_finishGamematch = async (snAccount: Account | AccountInterface, match_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_finishGamematch_calldata(match_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_simulateGamematch = async (snAccount: Account | AccountInterface, match_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_simulateGamematch_calldata(match_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_addMyTeamGoal = async (snAccount: Account | AccountInterface, match_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_addMyTeamGoal_calldata(match_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_addOpponentTeamGoal = async (snAccount: Account | AccountInterface, match_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_addOpponentTeamGoal_calldata(match_id),
 				"full_starter_react",
 			);
 		} catch (error) {
@@ -400,6 +570,24 @@ export function setupWorld(provider: DojoProvider) {
 			buildUpdateTeamPointsCalldata: build_game_updateTeamPoints_calldata,
 			selectTeam: game_selectTeam,
 			buildSelectTeamCalldata: build_game_selectTeam_calldata,
+			seedInitialTeams: game_seedInitialTeams,
+			buildSeedInitialTeamsCalldata: build_game_seedInitialTeams_calldata,
+			
+			// GameMatch functions
+			createGamematch: game_createGamematch,
+			buildCreateGamematchCalldata: build_game_createGamematch_calldata,
+			startGamematch: game_startGamematch,
+			buildStartGamematchCalldata: build_game_startGamematch_calldata,
+			processMatchAction: game_processMatchAction,
+			buildProcessMatchActionCalldata: build_game_processMatchAction_calldata,
+			finishGamematch: game_finishGamematch,
+			buildFinishGamematchCalldata: build_game_finishGamematch_calldata,
+			simulateGamematch: game_simulateGamematch,
+			buildSimulateGamematchCalldata: build_game_simulateGamematch_calldata,
+			addMyTeamGoal: game_addMyTeamGoal,
+			buildAddMyTeamGoalCalldata: build_game_addMyTeamGoal_calldata,
+			addOpponentTeamGoal: game_addOpponentTeamGoal,
+			buildAddOpponentTeamGoalCalldata: build_game_addOpponentTeamGoal_calldata,
 		},
 	};
 }

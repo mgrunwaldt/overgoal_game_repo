@@ -1,6 +1,7 @@
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2, Zap, Battery, Heart, Star, Pickaxe, Trophy, Users } from "lucide-react";
+import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2, Zap, Battery, Heart, Star, Pickaxe, Trophy, Users, Play } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { useMineAction } from "../dojo/hooks/useMineAction";
 import { useRestAction } from "../dojo/hooks/useRestAction";
@@ -15,8 +16,9 @@ import { useState } from "react";
 import TeamManagement from "./team-management";
 
 export default function GameActions() {
-  const { player } = useAppStore();
+  const { player, selectedTeam } = useAppStore();
   const [showTeamManagement, setShowTeamManagement] = useState(false);
+  const navigate = useNavigate();
 
   // Separate hooks for each action
 
@@ -145,13 +147,24 @@ export default function GameActions() {
           <CardTitle className="text-white text-xl font-bold">
             Game Actions
           </CardTitle>
-          <Button
-            onClick={() => setShowTeamManagement(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Users className="w-4 h-4 mr-2" />
-            Manage Teams
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => navigate('/game-match')}
+              disabled={!player || !selectedTeam}
+              className="bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
+              title={!selectedTeam ? "Select a team first" : "Start a match"}
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Match
+            </Button>
+            <Button
+              onClick={() => setShowTeamManagement(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Teams
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

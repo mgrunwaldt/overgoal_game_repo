@@ -19,8 +19,8 @@ function TeamCard({ team }: { team: Team }) {
             // Navigate to main game after successful selection
             if (selectTeamState === 'success') {
                 console.log("✅ Team selected successfully, navigating to main");
-                navigate("/main");
-            }
+        navigate("/main");
+    }
         } catch (error) {
             console.error("❌ Error selecting team:", error);
         }
@@ -35,9 +35,9 @@ function TeamCard({ team }: { team: Team }) {
     }`}>
       <h1 className="text-xl font-bold mb-2">{team.name}</h1>
       <div className="space-y-1 text-sm">
-        <p>Offense: {team.offense}</p>
-        <p>Defense: {team.defense}</p>
-        <p>Intensity: {team.intensity}</p>
+    <p>Offense: {team.offense}</p>
+    <p>Defense: {team.defense}</p>
+    <p>Intensity: {team.intensity}</p>
         <p>League Points: {team.current_league_points}</p>
       </div>
       
@@ -129,10 +129,10 @@ export default function TeamSelection() {
         </div>
         
         <div className="flex flex-wrap justify-center gap-4">
-          {teams.map((team) => (
-            <TeamCard key={team.team_id} team={team} />
-          ))}
-        </div>
+      {teams.map((team) => (
+        <TeamCard key={team.team_id} team={team} />
+      ))}
+    </div>
         
         {teams.length === 0 && (
           <div className="text-center mt-8">

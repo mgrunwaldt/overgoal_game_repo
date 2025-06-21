@@ -21,6 +21,15 @@ pub trait IGame<T> {
     fn remove_team_points(ref self: T, team_id: u32, points: u8);
     fn update_team_points(ref self: T, team_id: u32, points_delta: i8);
     fn select_team(ref self: T, team_id: u32);
+    fn seed_initial_teams(ref self: T);
+    // --------- GameMatch management methods ---------
+    fn create_gamematch(ref self: T, match_id: u32, my_team_id: u32, opponent_team_id: u32);
+    fn start_gamematch(ref self: T, match_id: u32);
+    fn process_match_action(ref self: T, match_id: u32, match_decision: u8);
+    fn finish_gamematch(ref self: T, match_id: u32);
+    fn simulate_gamematch(ref self: T, match_id: u32);
+    fn add_my_team_goal(ref self: T, match_id: u32);
+    fn add_opponent_team_goal(ref self: T, match_id: u32);
 }
 
 #[dojo::contract]
@@ -39,6 +48,7 @@ pub mod game {
 
     // Models import
     use full_starter_react::models::player::{PlayerAssert};
+    use full_starter_react::models::gamematch::{MatchDecision};
 
     // Dojo achievements imports
     use achievement::components::achievable::AchievableComponent;
@@ -470,6 +480,218 @@ pub mod game {
 
             // Select team
             store.select_team(team_id);
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn seed_initial_teams(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+
+            // Check if teams already exist to avoid duplicates
+            // Check both team_id and offense to ensure teams are properly seeded
+            let existing_team = store.read_team(1);
+            if existing_team.team_id != 0 && existing_team.offense != 0 {
+                // Teams already seeded with data, return early
+                return;
+            }
+
+            // Create the 3 default teams with predefined stats
+            
+            // Team 1: Nacional (good in everything)
+            store.create_team(
+                team_id: 1,
+                name: 'Nacional',
+                offense: 80,
+                defense: 80,
+                intensity: 80
+            );
+
+            // Team 2: Lanus (good in offense, medium in rest)  
+            store.create_team(
+                team_id: 2,
+                name: 'Lanus',
+                offense: 85,
+                defense: 65,
+                intensity: 65
+            );
+
+            // Team 3: Peñarol (bad in everything)
+            store.create_team(
+                team_id: 3,
+                name: 'Penarol',
+                offense: 40,
+                defense: 40,
+                intensity: 40
+            );
+        }
+
+        // --------- GameMatch management methods ---------
+        fn create_gamematch(ref self: ContractState, match_id: u32, my_team_id: u32, opponent_team_id: u32) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            // Create gamematch
+            store.create_gamematch(match_id, my_team_id, opponent_team_id);
+
+            let player = store.read_player();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn start_gamematch(ref self: ContractState, match_id: u32) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Start gamematch
+            store.start_gamematch(match_id);
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn process_match_action(ref self: ContractState, match_id: u32, match_decision: u8) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Convert u8 to MatchDecision enum
+            let decision = match match_decision {
+                0 => MatchDecision::Dribble,
+                1 => MatchDecision::Pass,
+                2 => MatchDecision::Simulate,
+                3 => MatchDecision::Shoot,
+                4 => MatchDecision::StandingTackle,
+                5 => MatchDecision::SweepingTackle,
+                6 => MatchDecision::AcceptHug,
+                7 => MatchDecision::TackleFan,
+                8 => MatchDecision::JoinBrawl,
+                9 => MatchDecision::StayOut,
+                _ => MatchDecision::Simulate, // Default fallback
+            };
+
+            // Process match action
+            store.process_match_action(match_id, decision);
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn finish_gamematch(ref self: ContractState, match_id: u32) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Finish gamematch
+            store.finish_gamematch(match_id);
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn simulate_gamematch(ref self: ContractState, match_id: u32) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Simulate gamematch
+            store.simulate_gamematch(match_id);
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn add_my_team_goal(ref self: ContractState, match_id: u32) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Add goal to my team
+            store.add_my_team_goal(match_id);
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn add_opponent_team_goal(ref self: ContractState, match_id: u32) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Add goal to opponent team
+            store.add_opponent_team_goal(match_id);
 
             // Emit events for achievements progression
             let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1

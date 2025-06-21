@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x6548e11cf8dd6d3b0aa5b3767763b69047c58456960f6733ec6038e8bff3923",
-      "class_hash": "0x1e4c185ea15732591d027769cf1972461e7577cbf68395ce90b64583b723c65",
+      "address": "0x6d5c61caf4e100cf8cd1e9e0e55e88eb50a315445f456d6c4050a3aca94b7e6",
+      "class_hash": "0x598a57f68310df3a7bc5b2fa9bb4b5de2972368d1240e61deb4440923371857",
       "abi": [
         {
           "type": "impl",
@@ -1568,6 +1568,109 @@
               ],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "seed_initial_teams",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "create_gamematch",
+              "inputs": [
+                {
+                  "name": "match_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "my_team_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "opponent_team_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "start_gamematch",
+              "inputs": [
+                {
+                  "name": "match_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "process_match_action",
+              "inputs": [
+                {
+                  "name": "match_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "match_decision",
+                  "type": "core::integer::u8"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "finish_gamematch",
+              "inputs": [
+                {
+                  "name": "match_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "simulate_gamematch",
+              "inputs": [
+                {
+                  "name": "match_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "add_my_team_goal",
+              "inputs": [
+                {
+                  "name": "match_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "add_opponent_team_goal",
+              "inputs": [
+                {
+                  "name": "match_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
             }
           ]
         },
@@ -1712,12 +1815,26 @@
         "remove_team_points",
         "update_team_points",
         "select_team",
+        "seed_initial_teams",
+        "create_gamematch",
+        "start_gamematch",
+        "process_match_action",
+        "finish_gamematch",
+        "simulate_gamematch",
+        "add_my_team_goal",
+        "add_opponent_team_goal",
         "upgrade"
       ]
     }
   ],
   "libraries": [],
   "models": [
+    {
+      "members": [],
+      "class_hash": "0x170addc8ede157a88ad3b92e51e4d8c90f035c57ea271281150061d439e5ad2",
+      "tag": "full_starter_react-GameMatch",
+      "selector": "0x19ef2f63e63acbbdc49d2d8c7bb6506f1483f0597ef9e9b11c1af48e7b14f21"
+    },
     {
       "members": [],
       "class_hash": "0x6e1469909a26c51cc3ef577c6cb28608137708052051c62b70b580e2698e118",
