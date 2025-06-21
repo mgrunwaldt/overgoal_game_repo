@@ -14,6 +14,7 @@ export interface Player {
   stamina: number;
   charisma: number;
   fame: number;
+  selected_team_id: number;
   is_player_created: boolean;
 }
 
@@ -56,6 +57,7 @@ interface AppActions {
   updatePlayerStamina: (stamina: number) => void;
   updatePlayerCharisma: (charisma: number) => void;
   updatePlayerFame: (fame: number) => void;
+  updatePlayerSelectedTeam: (selected_team_id: number) => void;
   updatePlayerCreationStatus: (is_player_created: boolean) => void;
   
   // Team management actions
@@ -134,6 +136,10 @@ const useAppStore = create<AppStore>()(
 
       updatePlayerFame: (fame) => set((state) => ({
         player: state.player ? { ...state.player, fame } : null
+      })),
+
+      updatePlayerSelectedTeam: (selected_team_id) => set((state) => ({
+        player: state.player ? { ...state.player, selected_team_id } : null
       })),
 
       updatePlayerCreationStatus: (is_player_created) => set((state) => ({

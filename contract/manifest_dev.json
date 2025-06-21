@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x5e37a40111fc40f1500e383f61cc550bb0a6aafc5e64502fb5bbb5982a485f7",
-      "class_hash": "0x576308a0ae9f1151c5609b3454ebb8c54283641c63bfb66168718a0b2ac5cb2",
+      "address": "0x6548e11cf8dd6d3b0aa5b3767763b69047c58456960f6733ec6038e8bff3923",
+      "class_hash": "0x1e4c185ea15732591d027769cf1972461e7577cbf68395ce90b64583b723c65",
       "abi": [
         {
           "type": "impl",
@@ -1556,6 +1556,18 @@
               ],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "select_team",
+              "inputs": [
+                {
+                  "name": "team_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
             }
           ]
         },
@@ -1699,6 +1711,7 @@
         "add_team_points",
         "remove_team_points",
         "update_team_points",
+        "select_team",
         "upgrade"
       ]
     }
@@ -1707,7 +1720,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x6ff753bf1cf973cf6e481e59db14dde4dfdc98001c0cb51e5fc4bf5f8624334",
+      "class_hash": "0x6e1469909a26c51cc3ef577c6cb28608137708052051c62b70b580e2698e118",
       "tag": "full_starter_react-Player",
       "selector": "0x13986cc36a0f8437378d1efa3068103f37b22361ff3cc31be99d50ddf2e4187"
     },

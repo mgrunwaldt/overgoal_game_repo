@@ -24,6 +24,7 @@ pub struct Player {
     pub stamina: u32,
     pub charisma: u32,
     pub fame: u32,
+    pub selected_team_id: u32,  // 0 means no team selected
     pub is_player_created: bool,
 }
 
@@ -42,6 +43,7 @@ pub impl PlayerImpl of PlayerTrait {
         stamina: u32,
         charisma: u32,
         fame: u32,
+        selected_team_id: u32,
         is_player_created: bool,
     ) -> Player {
         Player {
@@ -56,6 +58,7 @@ pub impl PlayerImpl of PlayerTrait {
             stamina: stamina,
             charisma: charisma,
             fame: fame,
+            selected_team_id: selected_team_id,
             is_player_created: is_player_created,
         }
     }
@@ -78,6 +81,7 @@ pub impl PlayerImpl of PlayerTrait {
             stamina: 45,    // Moderate stamina
             charisma: 25,   // Low charisma
             fame: 0,        // Starting fame
+            selected_team_id: 0,  // No team selected initially
             is_player_created: false,
         }
     }
@@ -100,6 +104,7 @@ pub impl PlayerImpl of PlayerTrait {
             stamina: 40,    // Moderate stamina
             charisma: 50,   // High charisma
             fame: 0,        // Starting fame
+            selected_team_id: 0,  // No team selected initially
             is_player_created: false,
         }
     }
@@ -122,6 +127,7 @@ pub impl PlayerImpl of PlayerTrait {
             stamina: 50,    // High stamina
             charisma: 40,   // Good charisma
             fame: 0,        // Starting fame
+            selected_team_id: 0,  // No team selected initially
             is_player_created: false,
         }
     }
@@ -169,6 +175,10 @@ pub impl PlayerImpl of PlayerTrait {
     fn mark_as_created(ref self: Player) {
         self.is_player_created = true;
     }
+
+    fn select_team(ref self: Player, team_id: u32) {
+        self.selected_team_id = team_id;
+    }
 }
 
 #[generate_trait]
@@ -199,6 +209,7 @@ pub impl ZeroablePlayerTrait of Zero<Player> {
             stamina: 0,
             charisma: 0,
             fame: 0,
+            selected_team_id: 0,
             is_player_created: false,
         }
     }
@@ -240,6 +251,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            0,    // selected_team_id
             true, // is_player_created
         );
 
@@ -258,6 +270,7 @@ mod tests {
         assert_eq!(player.stamina, 100, "Stamina should be initialized to 100");
         assert_eq!(player.charisma, 0, "Charisma should be initialized to 0");
         assert_eq!(player.fame, 0, "Fame should be initialized to 0");
+        assert_eq!(player.selected_team_id, 0, "Selected team ID should be initialized to 0");
         assert_eq!(player.is_player_created, true, "Player should be marked as created");
     }
 
@@ -279,6 +292,7 @@ mod tests {
             stamina: 100,
             charisma: 0,
             fame: 0,
+            selected_team_id: 0,
             is_player_created: false,
         };
 
@@ -321,6 +335,11 @@ mod tests {
             player.stamina, 
             100, 
             "Initial stamina should be 100"
+        );
+        assert_eq!(
+            player.selected_team_id, 
+            0, 
+            "Initial selected team ID should be 0"
         );
         assert_eq!(
             player.is_player_created, 
@@ -375,6 +394,11 @@ mod tests {
             "Zero player stamina should be 0"
         );
         assert_eq!(
+            player.selected_team_id, 
+            0, 
+            "Zero player selected team ID should be 0"
+        );
+        assert_eq!(
             player.is_player_created, 
             false, 
             "Zero player should not be marked as created"
@@ -399,6 +423,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            0,    // selected_team_id
             false, // is_player_created
         );
 
@@ -434,6 +459,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            0,    // selected_team_id
             false, // is_player_created
         );
 
@@ -469,6 +495,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            0,    // selected_team_id
             false, // is_player_created
         );
 
@@ -522,6 +549,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            0,    // selected_team_id
             false, // is_player_created
         );
 
@@ -553,6 +581,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            0,    // selected_team_id
             true, // is_player_created
         );
 
@@ -584,6 +613,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            0,    // selected_team_id
             false, // is_player_created
         );
         
@@ -613,6 +643,7 @@ mod tests {
             100,  // stamina
             0,    // charisma
             0,    // fame
+            0,    // selected_team_id
             false, // is_player_created
         );
         
@@ -683,6 +714,7 @@ mod tests {
         assert_eq!(striker.energy, 50, "Striker should have moderate energy (50)");
         assert_eq!(striker.stamina, 45, "Striker should have moderate stamina (45)");
         assert_eq!(striker.fame, 0, "Striker should start with 0 fame");
+        assert_eq!(striker.selected_team_id, 0, "Striker should start with no team selected");
 
         // Verify total stat points = 200
         let total_stats = striker.shoot + striker.dribble + striker.charisma + striker.energy + striker.stamina;
@@ -712,6 +744,7 @@ mod tests {
         assert_eq!(dribbler.energy, 40, "Dribbler should have moderate energy (40)");
         assert_eq!(dribbler.stamina, 40, "Dribbler should have moderate stamina (40)");
         assert_eq!(dribbler.fame, 0, "Dribbler should start with 0 fame");
+        assert_eq!(dribbler.selected_team_id, 0, "Dribbler should start with no team selected");
 
         // Verify total stat points = 200
         let total_stats = dribbler.shoot + dribbler.dribble + dribbler.charisma + dribbler.energy + dribbler.stamina;
@@ -741,6 +774,7 @@ mod tests {
         assert_eq!(playmaker.energy, 50, "Playmaker should have high energy (50)");
         assert_eq!(playmaker.stamina, 50, "Playmaker should have high stamina (50)");
         assert_eq!(playmaker.fame, 0, "Playmaker should start with 0 fame");
+        assert_eq!(playmaker.selected_team_id, 0, "Playmaker should start with no team selected");
 
         // Verify total stat points = 200
         let total_stats = playmaker.shoot + playmaker.dribble + playmaker.charisma + playmaker.energy + playmaker.stamina;
@@ -780,5 +814,29 @@ mod tests {
         assert_eq!(striker_total, 200, "Striker total should be 200");
         assert_eq!(dribbler_total, 200, "Dribbler total should be 200");
         assert_eq!(playmaker_total, 200, "Playmaker total should be 200");
+    }
+
+    #[test]
+    #[available_gas(1000000)]
+    fn test_player_select_team() {
+        let mock_address: ContractAddress = contract_address_const::<0x123>();
+        let creation_day = 1;
+        
+        let mut player = PlayerTrait::new_striker(mock_address, creation_day);
+        
+        // Verify initial state (no team selected)
+        assert_eq!(player.selected_team_id, 0, "Player should start with no team selected");
+        
+        // Select a team
+        player.select_team(42);
+        assert_eq!(player.selected_team_id, 42, "Player should have team 42 selected");
+        
+        // Change team selection
+        player.select_team(99);
+        assert_eq!(player.selected_team_id, 99, "Player should have team 99 selected");
+        
+        // Deselect team (set to 0)
+        player.select_team(0);
+        assert_eq!(player.selected_team_id, 0, "Player should have no team selected");
     }
 }

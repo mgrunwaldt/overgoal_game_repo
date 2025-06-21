@@ -87,7 +87,7 @@ export default function CharacterSelectionScreen() {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         console.log("🚀 Redirecting to game...");
-        navigate("/main", { replace: true });
+        navigate("/select-team", { replace: true });
       } else {
         console.error("❌ Failed to create character:", result.error);
         setSelectedCharacter(null);

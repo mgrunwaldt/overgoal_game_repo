@@ -78,6 +78,7 @@ const policies = {
         { name: "add_team_points", entrypoint: "add_team_points" },
         { name: "remove_team_points", entrypoint: "remove_team_points" },
         { name: "update_team_points", entrypoint: "update_team_points" },
+        { name: "select_team", entrypoint: "select_team" },
       ],
     },
   },

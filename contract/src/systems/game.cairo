@@ -20,6 +20,7 @@ pub trait IGame<T> {
     fn add_team_points(ref self: T, team_id: u32, points: u8);
     fn remove_team_points(ref self: T, team_id: u32, points: u8);
     fn update_team_points(ref self: T, team_id: u32, points_delta: i8);
+    fn select_team(ref self: T, team_id: u32);
 }
 
 #[dojo::contract]
@@ -447,6 +448,28 @@ pub mod game {
 
             // Update team points
             store.update_team_points(team_id, points_delta);
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn select_team(ref self: ContractState, team_id: u32) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Select team
+            store.select_team(team_id);
 
             // Emit events for achievements progression
             let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1

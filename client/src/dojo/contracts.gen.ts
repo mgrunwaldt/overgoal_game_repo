@@ -341,6 +341,27 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_game_selectTeam_calldata = (team_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "select_team",
+			calldata: [team_id],
+		};
+	};
+
+	const game_selectTeam = async (snAccount: Account | AccountInterface, team_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_selectTeam_calldata(team_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	return {
 		game: {
 			mine: game_mine,
@@ -377,6 +398,8 @@ export function setupWorld(provider: DojoProvider) {
 			buildRemoveTeamPointsCalldata: build_game_removeTeamPoints_calldata,
 			updateTeamPoints: game_updateTeamPoints,
 			buildUpdateTeamPointsCalldata: build_game_updateTeamPoints_calldata,
+			selectTeam: game_selectTeam,
+			buildSelectTeamCalldata: build_game_selectTeam_calldata,
 		},
 	};
 }

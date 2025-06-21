@@ -45,6 +45,7 @@ export default function MainScreen() {
       <h1>Charisma: {playerStats.charisma} </h1>
       <h1>Dribble: {playerStats.dribble} </h1>
       <h1>Fame: {playerStats.fame} </h1>
+      <h1>Team: {player?.selected_team_id} </h1>
     </div>
 
 

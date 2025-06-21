@@ -31,6 +31,7 @@ const PLAYER_QUERY = `
                     stamina
                     charisma
                     fame
+                    selected_team_id
                     is_player_created
                 }
             }
@@ -94,6 +95,7 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
       stamina: hexToNumber(rawPlayerData.stamina ),
       charisma: hexToNumber(rawPlayerData.charisma ),
       fame: hexToNumber(rawPlayerData.fame ),
+      selected_team_id: hexToNumber(rawPlayerData.selected_team_id || 0),
       is_player_created: Boolean(rawPlayerData.is_player_created),
     };
 

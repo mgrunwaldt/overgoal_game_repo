@@ -159,4 +159,10 @@ pub impl StoreImpl of StoreTrait {
         player.add_fame(5);
         self.world.write_model(@player);
     }
+
+    fn select_team(mut self: Store, team_id: u32) {
+        let mut player = self.read_player();
+        player.select_team(team_id);
+        self.world.write_model(@player);
+    }
 }

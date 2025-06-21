@@ -13,6 +13,7 @@ export interface Player {
 	stamina: number;
 	charisma: number;
 	fame: number;
+	selected_team_id: number;
 	is_player_created: boolean;
 }
 
@@ -120,6 +121,7 @@ export const schema: SchemaType = {
 			stamina: 0,
 			charisma: 0,
 			fame: 0,
+			selected_team_id: 0,
 			is_player_created: false,
 		},
 		PlayerValue: {
