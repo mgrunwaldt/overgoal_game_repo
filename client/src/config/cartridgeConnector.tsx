@@ -6,7 +6,11 @@ import { manifest } from "./manifest";
 
 const { VITE_PUBLIC_DEPLOY_TYPE } = import.meta.env;
 
-console.log("VITE_PUBLIC_DEPLOY_TYPE", VITE_PUBLIC_DEPLOY_TYPE);
+console.log("🔧 Environment Configuration:", {
+  deployType: VITE_PUBLIC_DEPLOY_TYPE,
+  manifestLoaded: !!manifest,
+  contractsInManifest: manifest?.contracts?.length || 0
+});
 
 const getRpcUrl = () => {
   switch (VITE_PUBLIC_DEPLOY_TYPE) {
@@ -35,19 +39,29 @@ const getDefaultChainId = () => {
 };
 
 const getGameContractAddress = () => {
+  if (!manifest || !manifest.contracts || manifest.contracts.length === 0) {
+    console.error("❌ No contracts found in manifest!");
+    throw new Error("No game contracts found in manifest");
+  }
   return manifest.contracts[0].address;
-
 };
 
-const CONTRACT_ADDRESS_GAME = getGameContractAddress();
-console.log("Using game contract address:", CONTRACT_ADDRESS_GAME);
+let CONTRACT_ADDRESS_GAME: string;
+try {
+  CONTRACT_ADDRESS_GAME = getGameContractAddress();
+  console.log("✅ Using game contract address:", CONTRACT_ADDRESS_GAME);
+} catch (error) {
+  console.error("❌ Failed to get game contract address:", error);
+  // Fallback - will cause issues but allows app to load
+  CONTRACT_ADDRESS_GAME = "0x0";
+}
 
 const policies = {
   contracts: {
     [CONTRACT_ADDRESS_GAME]: {
       methods: [
         { name: "spawn_player", entrypoint: "spawn_player" },
-        { name: "train", entrypoint: "train" },
+        { name: "mark_player_as_created", entrypoint: "mark_player_as_created" },
         { name: "mine", entrypoint: "mine" },
         { name: "rest", entrypoint: "rest" },
         { name: "train_dribbling", entrypoint: "train_dribbling" },
@@ -63,16 +77,34 @@ const policies = {
   },
 }
 
+const rpcUrl = getRpcUrl();
+const chainId = getDefaultChainId();
+
+console.log("🌐 Cartridge Connector Configuration:", {
+  rpcUrl,
+  chainId,
+  namespace: "full_starter_react",
+  slot: "full-starter-react",
+  contractAddress: CONTRACT_ADDRESS_GAME,
+  policiesCount: Object.keys(policies.contracts).length
+});
+
 const options: ControllerOptions = {
-  chains: [{ rpcUrl: getRpcUrl() }],
-  defaultChainId: getDefaultChainId(),
+  chains: [{ rpcUrl }],
+  defaultChainId: chainId,
   policies,
   namespace: "full_starter_react",
   slot: "full-starter-react",
 };
 
-const cartridgeConnector = new ControllerConnector(
-  options,
-) as never as Connector;
+let cartridgeConnector: Connector;
+
+try {
+  cartridgeConnector = new ControllerConnector(options) as never as Connector;
+  console.log("✅ Cartridge connector created successfully");
+} catch (error) {
+  console.error("❌ Failed to create Cartridge connector:", error);
+  throw error;
+}
 
 export default cartridgeConnector;

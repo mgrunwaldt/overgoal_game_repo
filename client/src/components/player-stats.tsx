@@ -84,7 +84,7 @@ export function PlayerStats() {
   const expInCurrentLevel = (player?.experience || 0) % 100;
   const expNeededForNextLevel = 100;
 
-  if (isLoading) {
+  if (isLoading || !player) {
     return (
       <Card className="bg-white/5 backdrop-blur-xl border-white/10">
         <CardHeader>

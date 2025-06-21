@@ -66,19 +66,19 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_game_train_calldata = (): DojoCall => {
+	const build_game_markPlayerAsCreated_calldata = (): DojoCall => {
 		return {
 			contractName: "game",
-			entrypoint: "train",
+			entrypoint: "mark_player_as_created",
 			calldata: [],
 		};
 	};
 
-	const game_train = async (snAccount: Account | AccountInterface) => {
+	const game_markPlayerAsCreated = async (snAccount: Account | AccountInterface) => {
 		try {
 			return await provider.execute(
 				snAccount as any,
-				build_game_train_calldata(),
+				build_game_markPlayerAsCreated_calldata(),
 				"full_starter_react",
 			);
 		} catch (error) {
@@ -192,6 +192,14 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_game_improveFame_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "improve_fame",
+			calldata: [],
+		};
+	};
+
 	const game_improveFame = async (snAccount: Account | AccountInterface) => {
 		try {
 			return await provider.execute(
@@ -205,14 +213,6 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
-	const build_game_improveFame_calldata = (): DojoCall => {
-		return {
-			contractName: "game",
-			entrypoint: "improve_fame",
-			calldata: [],
-		};
-	};
-
 	return {
 		game: {
 			mine: game_mine,
@@ -221,14 +221,14 @@ export function setupWorld(provider: DojoProvider) {
 			buildRestCalldata: build_game_rest_calldata,
 			spawnPlayer: game_spawnPlayer,
 			buildSpawnPlayerCalldata: build_game_spawnPlayer_calldata,
-			train: game_train,
-			buildTrainCalldata: build_game_train_calldata,
+			markPlayerAsCreated: game_markPlayerAsCreated,
+			buildMarkPlayerAsCreatedCalldata: build_game_markPlayerAsCreated_calldata,
 			trainShooting: game_trainShooting,
 			buildTrainShootingCalldata: build_game_trainShooting_calldata,
-			trainDribbling: game_trainDribbling,
-			buildTrainDribblingCalldata: build_game_trainDribbling_calldata,
 			trainEnergy: game_trainEnergy,
 			buildTrainEnergyCalldata: build_game_trainEnergy_calldata,
+			trainDribbling: game_trainDribbling,
+			buildTrainDribblingCalldata: build_game_trainDribbling_calldata,
 			restoreStamina: game_restoreStamina,
 			buildRestoreStaminaCalldata: build_game_restoreStamina_calldata,
 			improveCharisma: game_improveCharisma,

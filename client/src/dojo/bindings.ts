@@ -13,6 +13,7 @@ export interface Player {
 	stamina: number;
 	charisma: number;
 	fame: number;
+	is_player_created: boolean;
 }
 
 // Type definition for `full_starter_react::models::player::PlayerValue` struct
@@ -109,6 +110,7 @@ export const schema: SchemaType = {
 			stamina: 0,
 			charisma: 0,
 			fame: 0,
+			is_player_created: false,
 		},
 		PlayerValue: {
 			owner: "",

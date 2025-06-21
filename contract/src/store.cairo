@@ -44,7 +44,7 @@ pub impl StoreImpl of StoreTrait {
         let caller = get_caller_address();
         let current_timestamp = get_block_timestamp();
 
-        // Create new player with starting stats
+        // Create new player with starting stats - initially not fully created
         let new_player = PlayerTrait::new(
             caller,
             0,   // experience
@@ -57,21 +57,22 @@ pub impl StoreImpl of StoreTrait {
             40,  // stamina - starting stamina
             10,  // charisma - starting charisma level
             10,  // fame - starting fame level
+            false, // is_player_created - initially false until character selection is complete
         );
 
         self.world.write_model(@new_player);
     }
 
-    // --------- Game Actions ---------
-    fn train_player(mut self: Store) {
+    fn mark_player_as_created(mut self: Store) {
         let mut player = self.read_player();
         
-        // Add experience from training
-        player.add_experience(10);
+        // Mark player as fully created
+        player.mark_as_created();
         
         self.world.write_model(@player);
     }
 
+    // --------- Game Actions ---------
     fn mine_coins(mut self: Store) {
         let mut player = self.read_player();
         

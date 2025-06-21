@@ -3,7 +3,7 @@
 pub trait IGame<T> {
     // --------- Core gameplay methods ---------
     fn spawn_player(ref self: T);
-    fn train(ref self: T);
+    fn mark_player_as_created(ref self: T);
     fn mine(ref self: T);
     fn rest(ref self: T);
     fn train_shooting(ref self: T);
@@ -101,16 +101,16 @@ pub mod game {
             store.create_player();
         }
 
-        // Method to train player (+10 experience)
-        fn train(ref self: ContractState) {
+        // Method to mark player as fully created (after character selection)
+        fn mark_player_as_created(ref self: ContractState) {
             let mut world = self.world(@"full_starter_react");
             let store = StoreTrait::new(world);
             let achievement_store = AchievementStoreTrait::new(world);
 
             let player = store.read_player();
 
-            // Train player
-            store.train_player();
+            // Mark player as created
+            store.mark_player_as_created();
 
             // Emit events for achievements progression
             let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1

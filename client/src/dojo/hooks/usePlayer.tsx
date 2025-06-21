@@ -2,12 +2,13 @@ import { useEffect, useState, useMemo } from "react";
 import { useAccount } from "@starknet-react/core";
 import { addAddressPadding } from "starknet";
 import { dojoConfig } from "../dojoConfig";
+import useAppStore from "../../zustand/store";
 import { Player } from '../../zustand/store';
-import useAppStore from '../../zustand/store';
 
 interface UsePlayerReturn {
   player: Player | null;
   isLoading: boolean;
+  playerFetched:boolean;
   error: Error | null;
   refetch: () => Promise<void>;
 }
@@ -30,9 +31,9 @@ const PLAYER_QUERY = `
                     stamina
                     charisma
                     fame
+                    is_player_created
                 }
             }
-            totalCount
         }
     }
 `;
@@ -78,10 +79,7 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
     const rawPlayerData = result.data.fullStarterReactPlayerModels.edges[0].node;
     console.log("📄 Raw player data:", rawPlayerData);
 
-    console.log("🔍 Energy:", rawPlayerData.energy);
-    console.log("🔍 Stamina:", rawPlayerData.stamina);
-    console.log("🔍 Shoot:", rawPlayerData.shoot);
-    console.log("🔍 Dribble:", rawPlayerData.dribble);
+  
 
     // Convert hex values to numbers - including new fields
     const playerData: Player = {
@@ -90,18 +88,14 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
       health: hexToNumber(rawPlayerData.health),
       coins: hexToNumber(rawPlayerData.coins),
       creation_day: hexToNumber(rawPlayerData.creation_day),
-      shoot: hexToNumber(rawPlayerData.shoot), // Default to 10 if not found
-      dribble: hexToNumber(rawPlayerData.dribble), // Default to 10 if not found
-      energy: hexToNumber(rawPlayerData.energy), // Default to 10 if not found
-      stamina: hexToNumber(rawPlayerData.stamina), // Default to 10 if not found
-      charisma: hexToNumber(rawPlayerData.charisma || 10), // Default to 10 if not found
-      fame: hexToNumber(rawPlayerData.fame || 10), // Default to 10 if not found
+      shoot: hexToNumber(rawPlayerData.shoot || 10),
+      dribble: hexToNumber(rawPlayerData.dribble || 10),
+      energy: hexToNumber(rawPlayerData.energy || 40),
+      stamina: hexToNumber(rawPlayerData.stamina || 40),
+      charisma: hexToNumber(rawPlayerData.charisma || 10),
+      fame: hexToNumber(rawPlayerData.fame || 10),
+      is_player_created: Boolean(rawPlayerData.is_player_created),
     };
-
-    console.log("🔍 Energy: AFTER", playerData.energy);
-    console.log("🔍 Stamina: AFTER", playerData.stamina);
-    console.log("🔍 Shoot: AFTER", playerData.shoot);
-    console.log("🔍 Dribble: AFTER", playerData.dribble);
 
     console.log("✅ Player data after conversion:", playerData);
     return playerData;
@@ -114,13 +108,14 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
 
 // Main hook
 export const usePlayer = (): UsePlayerReturn => {
+  const [playerFetched, setPlayerFetched] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const { account } = useAccount();
 
   const storePlayer = useAppStore(state => state.player);
   const setPlayer = useAppStore(state => state.setPlayer);
-
+  
   const userAddress = useMemo(() =>
     account ? addAddressPadding(account.address).toLowerCase() : '',
     [account]
@@ -128,11 +123,14 @@ export const usePlayer = (): UsePlayerReturn => {
 
   const refetch = async () => {
     if (!userAddress) {
+      console.log("set is loading to false - no address");
       setIsLoading(false);
       return;
     }
 
     try {
+      console.log("Starting the fetch")
+      console.log("setting loading to true - refetch");
       setIsLoading(true);
       setError(null);
 
@@ -140,9 +138,16 @@ export const usePlayer = (): UsePlayerReturn => {
       console.log("🎮 Player data fetched:", playerData);
 
       setPlayer(playerData);
-
+      
       const updatedPlayer = useAppStore.getState().player;
       console.log("💾 Player in store after update:", updatedPlayer);
+      
+      // Small delay to ensure state updates propagate before navigation
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      setPlayerFetched(true);
+
+      console.log("🎯 player fetched", playerFetched);
 
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error occurred');
@@ -150,6 +155,7 @@ export const usePlayer = (): UsePlayerReturn => {
       setError(error);
       setPlayer(null);
     } finally {
+      console.log("setting loading to false - finally");
       setIsLoading(false);
     }
   };
@@ -158,14 +164,22 @@ export const usePlayer = (): UsePlayerReturn => {
     if (userAddress) {
       console.log("🔄 Address changed, refetching player data");
       refetch();
+    } else {
+      // If no address, clear player data immediately
+      console.log("❌ No address, clearing player data");
+      setPlayer(null);
+      setError(null);
+      console.log("setting loading to useEffect else");
+      setIsLoading(false);
     }
-  }, [userAddress]);
+  }, [userAddress, setPlayer]);
 
   useEffect(() => {
     if (!account) {
       console.log("❌ No account, clearing player data");
       setPlayer(null);
       setError(null);
+      console.log("setting loading to false - no account");
       setIsLoading(false);
     }
   }, [account, setPlayer]);
@@ -173,6 +187,7 @@ export const usePlayer = (): UsePlayerReturn => {
   return {
     player: storePlayer,
     isLoading,
+    playerFetched,
     error,
     refetch
   };

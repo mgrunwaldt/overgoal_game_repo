@@ -14,6 +14,7 @@ export interface Player {
   stamina: number;
   charisma: number;
   fame: number;
+  is_player_created: boolean;
 }
 
 // Application state
@@ -42,6 +43,7 @@ interface AppActions {
   updatePlayerStamina: (stamina: number) => void;
   updatePlayerCharisma: (charisma: number) => void;
   updatePlayerFame: (fame: number) => void;
+  updatePlayerCreationStatus: (is_player_created: boolean) => void;
   
   // UI actions
   setLoading: (loading: boolean) => void;
@@ -110,6 +112,10 @@ const useAppStore = create<AppStore>()(
 
       updatePlayerFame: (fame) => set((state) => ({
         player: state.player ? { ...state.player, fame } : null
+      })),
+
+      updatePlayerCreationStatus: (is_player_created) => set((state) => ({
+        player: state.player ? { ...state.player, is_player_created } : null
       })),
 
       // UI actions
