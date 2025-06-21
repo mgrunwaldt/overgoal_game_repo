@@ -21,7 +21,7 @@ interface UseTrainShootingActionReturn {
 export const useTrainShootingAction = (): UseTrainShootingActionReturn => {
   const { account, status } = useAccount();
   const { client } = useDojoSDK();
-  const { player, updatePlayerShooting } = useAppStore();
+  const { player, updatePlayerShooting, updatePlayerExperience, updatePlayerStamina } = useAppStore();
 
   const [trainShootingState, setTrainShootingState] = useState<TrainShootingActionState>({
     isLoading: false,
@@ -32,14 +32,18 @@ export const useTrainShootingAction = (): UseTrainShootingActionReturn => {
 
   const isConnected = status === "connected";
   const hasPlayer = player !== null;
-  const canTrainShooting = isConnected && hasPlayer && !trainShootingState.isLoading;
+  const hasEnoughStamina = (player?.stamina || 0) >= 10;
+  const canTrainShooting = isConnected && hasPlayer && hasEnoughStamina && !trainShootingState.isLoading;
 
   const executeTrainShooting = useCallback(async () => {
     if (!canTrainShooting || !account) {
-      setTrainShootingState(prev => ({
-        ...prev,
-        error: !account ? "Please connect your controller" : "Cannot train shooting right now"
-      }));
+      const errorMsg = !account
+        ? "Please connect your controller"
+        : !hasEnoughStamina
+          ? "Not enough stamina to train shooting (need ≥10 stamina)"
+          : "Cannot train shooting right now";
+
+      setTrainShootingState(prev => ({ ...prev, error: errorMsg }));
       return;
     }
 
@@ -63,8 +67,10 @@ export const useTrainShootingAction = (): UseTrainShootingActionReturn => {
       if (tx && tx.code === "SUCCESS") {
         console.log("✅ Train shooting transaction successful!");
 
-        // Optimistic update: +5 shooting, +5 experience
-        updatePlayerShooting((player?.shoot || 0) + 5);
+        // Optimistic update: +5 shooting, +5 experience, -10 stamina
+        updatePlayerShooting((player?.shoot || 10) + 5);
+        updatePlayerExperience((player?.experience || 0) + 5);
+        updatePlayerStamina(Math.max(0, (player?.stamina) - 10));
 
         setTrainShootingState(prev => ({
           ...prev,
@@ -89,6 +95,11 @@ export const useTrainShootingAction = (): UseTrainShootingActionReturn => {
     } catch (error) {
       console.error("❌ Error executing train shooting:", error);
 
+      // Rollback optimistic update
+      updatePlayerShooting((player?.shoot || 10) - 5);
+      updatePlayerExperience((player?.experience || 0) - 5);
+      updatePlayerStamina(Math.min(100, (player?.stamina) + 10));
+
       setTrainShootingState({
         isLoading: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -106,7 +117,7 @@ export const useTrainShootingAction = (): UseTrainShootingActionReturn => {
         });
       }, 5000);
     }
-  }, [canTrainShooting, account, client.game, player, updatePlayerShooting]);
+  }, [canTrainShooting, account, client.game, player, updatePlayerShooting, updatePlayerExperience, updatePlayerStamina, hasEnoughStamina]);
 
   const resetTrainShootingState = useCallback(() => {
     setTrainShootingState({

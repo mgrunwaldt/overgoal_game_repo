@@ -1,11 +1,14 @@
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2 } from "lucide-react";
+import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2, Pickaxe, Moon, Zap, Battery, Heart } from "lucide-react";
 import { useTrainAction } from "../dojo/hooks/useTrainAction";
 import { useMineAction } from "../dojo/hooks/useMineAction";
 import { useRestAction } from "../dojo/hooks/useRestAction";
 import { useTrainShootingAction } from "../dojo/hooks/useTrainShootingAction";
+import { useTrainEnergyAction } from "../dojo/hooks/useTrainEnergyAction";
 import { useTrainDribblingAction } from "../dojo/hooks/useTrainDribblingAction";
+import { useRestoreStaminaAction } from "../dojo/hooks/useRestoreStaminaAction";
+import { useImproveCharismaAction } from "../dojo/hooks/useImproveCharismaAction";
 import useAppStore from "../zustand/store";
 
 export function GameActions() {
@@ -16,7 +19,10 @@ export function GameActions() {
   const { mineState, executeMine, canMine } = useMineAction();
   const { restState, executeRest, canRest } = useRestAction();
   const { trainShootingState, executeTrainShooting, canTrainShooting } = useTrainShootingAction();
+  const { trainEnergyState, executeTrainEnergy, canTrainEnergy } = useTrainEnergyAction();
   const { trainDribblingState, executeTrainDribbling, canTrainDribbling } = useTrainDribblingAction();
+  const { restoreStaminaState, executeRestoreStamina, canRestoreStamina } = useRestoreStaminaAction();
+  const { improveCharismaState, executeImproveCharisma, canImproveCharisma } = useImproveCharismaAction();
 
   const actions = [
     {
@@ -36,6 +42,15 @@ export function GameActions() {
       color: "from-red-500 to-red-600",
       state: trainShootingState,
       canExecute: canTrainShooting,
+    },
+    {
+      icon: Zap,
+      label: "Train Energy",
+      description: "+5 Energy, -10 Stamina",
+      onClick: executeTrainEnergy,
+      color: "from-yellow-500 to-yellow-600",
+      state: trainEnergyState,
+      canExecute: canTrainEnergy,
     },
     {
       icon: Gamepad2,
@@ -70,6 +85,34 @@ export function GameActions() {
       disabledReason:
         !canRest && player && (player.health || 0) >= 100
           ? "Full Health!"
+          : undefined,
+    },
+    {
+      icon: Battery,
+      label: "Restore Stamina",
+      description: "+20 Stamina",
+      onClick: executeRestoreStamina,
+      color: "from-purple-500 to-purple-600",
+      state: restoreStaminaState,
+      canExecute: canRestoreStamina,
+      disabledReason:
+        !canRestoreStamina && player && (player.stamina || 0) >= 100
+          ? "Full Stamina!"
+          : undefined,
+    },
+    {
+      icon: Heart,
+      label: "Improve Charisma",
+      description: "+5 Charisma, -5 Stamina",
+      onClick: executeImproveCharisma,
+      color: "from-pink-500 to-pink-600",
+      state: improveCharismaState,
+      canExecute: canImproveCharisma,
+      disabledReason:
+        !canImproveCharisma && player && (player.stamina || 0) <= 5
+          ? "Low Stamina!"
+          : !canImproveCharisma && player && (player.charisma || 0) >= 100
+          ? "Full Charisma!"
           : undefined,
     },
   ];

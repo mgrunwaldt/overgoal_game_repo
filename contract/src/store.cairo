@@ -53,6 +53,9 @@ pub impl StoreImpl of StoreTrait {
             Timestamp::unix_timestamp_to_day(current_timestamp), // creation_day
             10,  // shoot - starting skill level
             10,  // dribble - starting skill level
+            40,  // energy - starting energy
+            40,  // stamina - starting stamina
+            10,  // charisma - starting charisma level
         );
 
         self.world.write_model(@new_player);
@@ -99,6 +102,17 @@ pub impl StoreImpl of StoreTrait {
         // Improve shooting skill (+5) and add some experience (+5)
         player.add_shoot(5);
         player.add_experience(5);
+        player.remove_stamina(10);
+        
+        self.world.write_model(@player);
+    }
+
+    fn train_energy(mut self: Store) {
+        let mut player = self.read_player();
+        
+        // Improve energy skill (+5) and remove stamina (-10)
+        player.add_energy(5);
+        player.remove_stamina(10);
         
         self.world.write_model(@player);
     }
@@ -112,5 +126,23 @@ pub impl StoreImpl of StoreTrait {
         
         self.world.write_model(@player);
     }
-    
+
+    fn restore_stamina(mut self: Store) {
+        let mut player = self.read_player();
+        
+        // +20 stamina
+        player.add_stamina(20);
+        
+        self.world.write_model(@player);
+    }
+
+    fn improve_charisma(mut self: Store) {
+        let mut player = self.read_player();
+        
+        // +5 charisma, -5 stamina
+        player.add_charisma(5);
+        player.remove_stamina(5);
+        
+        self.world.write_model(@player);
+    }
 }

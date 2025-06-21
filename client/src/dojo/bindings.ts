@@ -9,16 +9,23 @@ export interface Player {
 	creation_day: number;
 	shoot: number;
 	dribble: number;
+	energy: number;
+	stamina: number;
+	charisma: number;
 }
 
 // Type definition for `full_starter_react::models::player::PlayerValue` struct
 export interface PlayerValue {
+	owner: string;
 	experience: number;
 	health: number;
 	coins: number;
 	creation_day: number;
 	shoot: number;
 	dribble: number;
+	energy: number;
+	stamina: number;
+	charisma: number;
 }
 
 // Type definition for `achievement::events::index::TrophyCreation` struct
@@ -96,14 +103,21 @@ export const schema: SchemaType = {
 			creation_day: 0,
 			shoot: 0,
 			dribble: 0,
+			energy: 0,
+			stamina: 0,
+			charisma: 0,
 		},
 		PlayerValue: {
+			owner: "",
 			experience: 0,
 			health: 0,
 			coins: 0,
 			creation_day: 0,
 			shoot: 0,
 			dribble: 0,
+			energy: 0,
+			stamina: 0,
+			charisma: 0,
 		},
 	},
 	achievement: {

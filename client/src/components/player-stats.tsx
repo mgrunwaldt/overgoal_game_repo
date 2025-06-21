@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Progress } from "./ui/progress"
 import { useAccount } from "@starknet-react/core"
 import useAppStore from "../zustand/store"
-import { Coins, Zap, Heart, Loader2, AlertTriangle, Target, Gamepad2 } from "lucide-react"
+import { Coins, Zap, Heart, Loader2, AlertTriangle, Target, Gamepad2, Battery, Dumbbell } from "lucide-react"
 
 export function PlayerStats() {
   const { status } = useAccount();
@@ -11,21 +11,22 @@ export function PlayerStats() {
 
   const isConnected = status === "connected";
 
+
   // Use real player data or default values
   const stats = [
-    {
-      label: "Experience",
-      value: player?.experience || 0,
-      color: "text-blue-400",
-      icon: Zap
-    },
-    {
-      label: "Health",
-      value: player?.health || 100,
-      color: getHealthColor(player?.health || 100),
-      icon: Heart,
-      max: 100
-    },
+          {
+        label: "Experience",
+        value: player?.experience || 0,
+        color: "text-blue-400",
+        icon: Dumbbell
+      },
+          {
+        label: "Health",
+        value: player?.health || 100,
+        color: getHealthColor(player?.health || 100),
+        icon: Heart,
+        max: 100
+      },
     {
       label: "Coins",
       value: player?.coins || 0,
@@ -37,6 +38,24 @@ export function PlayerStats() {
       value: player?.shoot || 10,
       color: "text-red-400",
       icon: Target
+    },
+    {
+      label: "Energy",
+      value: player?.energy || 40,
+      color: "text-green-400",
+      icon: Zap
+    },
+    {
+      label: "Stamina",
+      value: player?.stamina || 40,
+      color: "text-blue-400",
+      icon: Battery
+    },
+    {
+      label: "Charisma",
+      value: player?.charisma || 10,
+      color: "text-pink-400",
+      icon: Heart
     },
     {
       label: "Dribbling",
@@ -93,10 +112,10 @@ export function PlayerStats() {
                 <span className="text-slate-300">{stat.label}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`font-bold text-lg ${stat.color}`}>
-                  {stat.value}
-                  {stat.max && `/${stat.max}`}
-                </span>
+                                  <span className={`font-bold text-lg ${stat.color}`}>
+                    {stat.value}
+                    {stat.max && `/${stat.max}`}
+                  </span>
                 {/* Low health indicator */}
                 {stat.label === "Health" && stat.value <= 20 && (
                   <AlertTriangle className="w-4 h-4 text-red-400" />
@@ -173,6 +192,16 @@ export function PlayerStats() {
             <div className="flex items-center gap-2 text-red-400 text-sm">
               <AlertTriangle className="w-4 h-4" />
               <span>⚠️ Low health! Rest to recover before mining.</span>
+            </div>
+          </div>
+        )}
+
+        {/* Low stamina warning */}
+        {player && player.stamina <= 10 && (
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-blue-400 text-sm">
+              <Battery className="w-4 h-4" />
+              <span>⚡ Low stamina! Restore stamina to train skills.</span>
             </div>
           </div>
         )}

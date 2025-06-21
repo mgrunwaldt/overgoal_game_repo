@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x5086190f962446f4a4a001068ba567991154213faabd3dba26182ddf93c0a5b",
-      "class_hash": "0x1a743f3127e5750d9c4bdc0abf771b3d2bff570b9d4339ea43f0931f6d8c7bd",
+      "address": "0x64384a616bdea0590dfbc43cae2e18bdf66bc7740ccc3aebf43c7a256204ab9",
+      "class_hash": "0x707f2dee02ffed7f62db8260453ee660fa1847a5c21d86d3cb509d10f09c86a",
       "abi": [
         {
           "type": "impl",
@@ -1434,7 +1434,28 @@
             },
             {
               "type": "function",
+              "name": "train_energy",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
               "name": "train_dribbling",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "restore_stamina",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "improve_charisma",
               "inputs": [],
               "outputs": [],
               "state_mutability": "external"
@@ -1570,7 +1591,10 @@
         "mine",
         "rest",
         "train_shooting",
+        "train_energy",
         "train_dribbling",
+        "restore_stamina",
+        "improve_charisma",
         "upgrade"
       ]
     }
@@ -1579,7 +1603,7 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x2be621f94d246f7e868dd7ccbb3274cc53abbff71d125fccb70b1de2cb9cbd7",
+      "class_hash": "0x6a90633a382253f088acb9c6eb161fe351e91ef24029c7806f49f7cb39059c9",
       "tag": "full_starter_react-Player",
       "selector": "0x13986cc36a0f8437378d1efa3068103f37b22361ff3cc31be99d50ddf2e4187"
     }

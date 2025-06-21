@@ -109,6 +109,27 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_game_trainEnergy_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "train_energy",
+			calldata: [],
+		};
+	};
+
+	const game_trainEnergy = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount,
+				build_game_trainEnergy_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	const build_game_trainShooting_calldata = (): DojoCall => {
 		return {
 			contractName: "game",
@@ -144,6 +165,8 @@ export function setupWorld(provider: DojoProvider) {
 			buildTrainCalldata: build_game_train_calldata,
 			trainDribbling: game_trainDribbling,
 			buildTrainDribblingCalldata: build_game_trainDribbling_calldata,
+			trainEnergy: game_trainEnergy,
+			buildTrainEnergyCalldata: build_game_trainEnergy_calldata,
 			trainShooting: game_trainShooting,
 			buildTrainShootingCalldata: build_game_trainShooting_calldata,
 		},

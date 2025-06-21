@@ -26,6 +26,9 @@ const PLAYER_QUERY = `
                     creation_day
                     shoot
                     dribble
+                    energy
+                    stamina
+                    charisma
                 }
             }
             totalCount
@@ -74,6 +77,11 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
     const rawPlayerData = result.data.fullStarterReactPlayerModels.edges[0].node;
     console.log("📄 Raw player data:", rawPlayerData);
 
+    console.log("🔍 Energy:", rawPlayerData.energy);
+    console.log("🔍 Stamina:", rawPlayerData.stamina);
+    console.log("🔍 Shoot:", rawPlayerData.shoot);
+    console.log("🔍 Dribble:", rawPlayerData.dribble);
+
     // Convert hex values to numbers - including new fields
     const playerData: Player = {
       owner: rawPlayerData.owner,
@@ -81,9 +89,17 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
       health: hexToNumber(rawPlayerData.health),
       coins: hexToNumber(rawPlayerData.coins),
       creation_day: hexToNumber(rawPlayerData.creation_day),
-      shoot: hexToNumber(rawPlayerData.shoot || 10), // Default to 10 if not found
-      dribble: hexToNumber(rawPlayerData.dribble || 10), // Default to 10 if not found
+      shoot: hexToNumber(rawPlayerData.shoot), // Default to 10 if not found
+      dribble: hexToNumber(rawPlayerData.dribble), // Default to 10 if not found
+      energy: hexToNumber(rawPlayerData.energy), // Default to 10 if not found
+      stamina: hexToNumber(rawPlayerData.stamina), // Default to 10 if not found
+              charisma: hexToNumber(rawPlayerData.charisma || 10), // Default to 10 if not found
     };
+
+    console.log("🔍 Energy: AFTER", playerData.energy);
+    console.log("🔍 Stamina: AFTER", playerData.stamina);
+    console.log("🔍 Shoot: AFTER", playerData.shoot);
+    console.log("🔍 Dribble: AFTER", playerData.dribble);
 
     console.log("✅ Player data after conversion:", playerData);
     return playerData;

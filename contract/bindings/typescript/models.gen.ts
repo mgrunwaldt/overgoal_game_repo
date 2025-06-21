@@ -11,6 +11,8 @@ export interface Player {
 	creation_day: BigNumberish;
 	shoot: BigNumberish;
 	dribble: BigNumberish;
+	energy: BigNumberish;
+	stamina: BigNumberish;
 }
 
 // Type definition for `full_starter_react::models::player::PlayerValue` struct
@@ -21,6 +23,8 @@ export interface PlayerValue {
 	creation_day: BigNumberish;
 	shoot: BigNumberish;
 	dribble: BigNumberish;
+	energy: BigNumberish;
+	stamina: BigNumberish;
 }
 
 // Type definition for `achievement::events::index::TrophyCreation` struct
@@ -98,6 +102,8 @@ export const schema: SchemaType = {
 			creation_day: 0,
 			shoot: 0,
 			dribble: 0,
+			energy: 0,
+			stamina: 0,
 		},
 		PlayerValue: {
 			experience: 0,
@@ -106,6 +112,8 @@ export const schema: SchemaType = {
 			creation_day: 0,
 			shoot: 0,
 			dribble: 0,
+			energy: 0,
+			stamina: 0,
 		},
 		TrophyCreation: {
 			id: 0,

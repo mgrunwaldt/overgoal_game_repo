@@ -108,6 +108,27 @@ export function setupWorld(provider: DojoProvider) {
 		}
 	};
 
+	const build_game_trainEnergy_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "train_energy",
+			calldata: [],
+		};
+	};
+
+	const game_trainEnergy = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_trainEnergy_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	const build_game_trainDribbling_calldata = (): DojoCall => {
 		return {
 			contractName: "game",
@@ -121,6 +142,48 @@ export function setupWorld(provider: DojoProvider) {
 			return await provider.execute(
 				snAccount as any,
 				build_game_trainDribbling_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_game_restoreStamina_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "restore_stamina",
+			calldata: [],
+		};
+	};
+
+	const game_restoreStamina = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_restoreStamina_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const build_game_improveCharisma_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "improve_charisma",
+			calldata: [],
+		};
+	};
+
+	const game_improveCharisma = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_improveCharisma_calldata(),
 				"full_starter_react",
 			);
 		} catch (error) {
@@ -143,6 +206,12 @@ export function setupWorld(provider: DojoProvider) {
 			buildTrainShootingCalldata: build_game_trainShooting_calldata,
 			trainDribbling: game_trainDribbling,
 			buildTrainDribblingCalldata: build_game_trainDribbling_calldata,
+			trainEnergy: game_trainEnergy,
+			buildTrainEnergyCalldata: build_game_trainEnergy_calldata,
+			restoreStamina: game_restoreStamina,
+			buildRestoreStaminaCalldata: build_game_restoreStamina_calldata,
+			improveCharisma: game_improveCharisma,
+			buildImproveCharismaCalldata: build_game_improveCharisma_calldata,
 		},
 	};
 }

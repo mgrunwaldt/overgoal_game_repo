@@ -20,6 +20,9 @@ pub struct Player {
     pub creation_day: u32,
     pub shoot: u32,
     pub dribble: u32,
+    pub energy: u32,
+    pub stamina: u32,
+    pub charisma: u32,
 }
 
 // Traits Implementations
@@ -33,6 +36,9 @@ pub impl PlayerImpl of PlayerTrait {
         creation_day: u32,
         shoot: u32,
         dribble: u32,
+        energy: u32,
+        stamina: u32,
+        charisma: u32,
     ) -> Player {
         Player {
             owner: owner,
@@ -42,6 +48,9 @@ pub impl PlayerImpl of PlayerTrait {
             creation_day: creation_day,
             shoot: shoot,
             dribble: dribble,
+            energy: energy,
+            stamina: stamina,
+            charisma: charisma,
         }
     }
 
@@ -65,6 +74,21 @@ pub impl PlayerImpl of PlayerTrait {
         self.dribble += dribble_amount;
     }
 
+    fn add_energy(ref self: Player, energy_amount: u32) {
+        self.energy += energy_amount;
+    }
+
+    fn add_stamina(ref self: Player, stamina_amount: u32) {
+        self.stamina += stamina_amount;
+    }
+
+    fn remove_stamina(ref self: Player, stamina_amount: u32) {
+        self.stamina -= stamina_amount;
+    }
+
+    fn add_charisma(ref self: Player, charisma_amount: u32) {
+        self.charisma += charisma_amount;
+    }
 }
 
 #[generate_trait]
@@ -91,6 +115,9 @@ pub impl ZeroablePlayerTrait of Zero<Player> {
             creation_day: 0,
             shoot: 0,
             dribble: 0,
+            energy: 0,
+            stamina: 0,
+            charisma: 0,
         }
     }
 
@@ -127,6 +154,9 @@ mod tests {
             42,   // creation_day
             30,   // shoot
             35,   // dribble
+            100,  // energy
+            100,  // stamina
+            0,    // charisma
         );
 
         assert_eq!(
@@ -140,6 +170,9 @@ mod tests {
         assert_eq!(player.creation_day, 42, "Creation day should be initialized to 42");
         assert_eq!(player.shoot, 30, "Shoot should be initialized to 30");
         assert_eq!(player.dribble, 35, "Dribble should be initialized to 35");
+        assert_eq!(player.energy, 100, "Energy should be initialized to 100");
+        assert_eq!(player.stamina, 100, "Stamina should be initialized to 100");
+        assert_eq!(player.charisma, 0, "Charisma should be initialized to 0");
     }
 
     #[test]
@@ -156,6 +189,9 @@ mod tests {
             creation_day: 1,
             shoot: 10,
             dribble: 15,
+            energy: 100,
+            stamina: 100,
+            charisma: 0,
         };
 
         assert_eq!(
@@ -187,6 +223,16 @@ mod tests {
             player.dribble, 
             15, 
             "Initial dribble should be 15"
+        );
+        assert_eq!(
+            player.energy, 
+            100, 
+            "Initial energy should be 100"
+        );
+        assert_eq!(
+            player.stamina, 
+            100, 
+            "Initial stamina should be 100"
         );
     }
 
@@ -225,7 +271,17 @@ mod tests {
             0, 
             "Zero player dribble should be 0"
         );
-    }
+        assert_eq!(
+            player.energy, 
+            0, 
+            "Zero player energy should be 0"
+        );
+        assert_eq!(
+            player.stamina, 
+            0, 
+            "Zero player stamina should be 0"
+        );
+        }
 
     #[test]
     #[available_gas(1000000)]
@@ -241,6 +297,9 @@ mod tests {
             1,    // creation_day
             10,   // shoot
             15,   // dribble
+            100,  // energy
+            100,  // stamina
+            0,    // charisma
         );
 
         player.add_coins(50);
@@ -271,6 +330,9 @@ mod tests {
             1,    // creation_day
             10,   // shoot
             15,   // dribble
+            100,  // energy
+            100,  // stamina
+            0,    // charisma
         );
 
         player.add_experience(25);
@@ -301,6 +363,9 @@ mod tests {
             1,    // creation_day
             10,   // shoot
             15,   // dribble
+            100,  // energy
+            100,  // stamina
+            0,    // charisma
         );
 
         // Test adding shoot
@@ -318,6 +383,14 @@ mod tests {
             40, 
             "Player should have 40 dribble after adding 25"
         );
+
+        // Test adding charisma
+        player.add_charisma(15);
+        assert_eq!(
+            player.charisma, 
+            15, 
+            "Player should have 15 charisma after adding 15"
+        );
     }
 
     #[test]
@@ -333,6 +406,9 @@ mod tests {
             1,    // creation_day
             10,   // shoot
             15,   // dribble
+            100,  // energy
+            100,  // stamina
+            0,    // charisma
         );
 
         // Test adding health
@@ -359,6 +435,9 @@ mod tests {
             1,    // creation_day
             20,   // shoot
             25,   // dribble
+            100,  // energy
+            100,  // stamina
+            0,    // charisma
         );
 
         existing_player.assert_exists(); // Should not panic
@@ -385,6 +464,9 @@ mod tests {
             10,   // creation_day
             20,   // shoot
             25,   // dribble
+            100,  // energy
+            100,  // stamina
+            0,    // charisma
         );
         
         // Simulate a game session
@@ -393,6 +475,9 @@ mod tests {
         player.add_health(10);       // Restored some health
         player.add_shoot(15);        // Improved shooting skills
         player.add_dribble(10);      // Improved dribbling skills
+        player.add_energy(10);       // Improved energy
+        player.add_stamina(10);      // Improved stamina
+        player.add_charisma(25);     // Improved charisma
         
         // Verify final state
         assert_eq!(player.coins, 125, "Player should have 125 coins total");
@@ -400,6 +485,9 @@ mod tests {
         assert_eq!(player.health, 90, "Player should have 90 health after damage and healing");
         assert_eq!(player.shoot, 35, "Player should have 35 shoot after training");
         assert_eq!(player.dribble, 35, "Player should have 35 dribble after training");
+        assert_eq!(player.energy, 110, "Player should have 110 energy after training");
+        assert_eq!(player.stamina, 110, "Player should have 110 stamina after training");
+        assert_eq!(player.charisma, 25, "Player should have 25 charisma after training");
         assert_eq!(player.creation_day, 10, "Creation day should remain unchanged");
         assert_eq!(player.owner, mock_address, "Owner should remain unchanged");
     }

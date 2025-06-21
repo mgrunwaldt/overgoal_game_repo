@@ -21,7 +21,7 @@ interface UseTrainDribblingActionReturn {
 export const useTrainDribblingAction = (): UseTrainDribblingActionReturn => {
   const { account, status } = useAccount();
   const { client } = useDojoSDK();
-  const { player, updatePlayerDribbling } = useAppStore();
+  const { player, updatePlayerDribbling, updatePlayerExperience } = useAppStore();
 
   const [trainDribblingState, setTrainDribblingState] = useState<TrainDribblingActionState>({
     isLoading: false,
@@ -64,7 +64,8 @@ export const useTrainDribblingAction = (): UseTrainDribblingActionReturn => {
         console.log("✅ Train dribbling transaction successful!");
 
         // Optimistic update: +5 dribbling, +5 experience
-        updatePlayerDribbling((player?.dribble || 0) + 5);
+        updatePlayerDribbling((player?.dribble || 10) + 5);
+        updatePlayerExperience((player?.experience || 0) + 5);
 
         setTrainDribblingState(prev => ({
           ...prev,
@@ -89,6 +90,10 @@ export const useTrainDribblingAction = (): UseTrainDribblingActionReturn => {
     } catch (error) {
       console.error("❌ Error executing train dribbling:", error);
 
+      // Rollback optimistic update
+      updatePlayerDribbling((player?.dribble || 10) - 5);
+      updatePlayerExperience((player?.experience || 0) - 5);
+
       setTrainDribblingState({
         isLoading: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -106,7 +111,7 @@ export const useTrainDribblingAction = (): UseTrainDribblingActionReturn => {
         });
       }, 5000);
     }
-  }, [canTrainDribbling, account, client.game, player, updatePlayerDribbling]);
+  }, [canTrainDribbling, account, client.game, player, updatePlayerDribbling, updatePlayerExperience]);
 
   const resetTrainDribblingState = useCallback(() => {
     setTrainDribblingState({

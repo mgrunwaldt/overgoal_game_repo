@@ -9,6 +9,10 @@ interface GameState {
   maxExp: number
   health: number
   coins: number
+  energy: number
+  stamina: number
+  shoot: number
+  dribble: number
   address: string | null
   isLoading: boolean
   txStatus: {
@@ -23,6 +27,11 @@ type GameAction =
   | { type: "CONNECT_WALLET_SUCCESS"; address: string }
   | { type: "TRAIN_PLAYER" }
   | { type: "MINE_COINS" }
+  | { type: "TRAIN_ENERGY" }
+  | { type: "TRAIN_DRIBBLING" }
+  | { type: "ADD_STAMINA" }
+  | { type: "REMOVE_STAMINA" }
+  | { type: "TRAIN_SHOOTING" }
   | { type: "REST_PLAYER" }
   | { type: "SET_TX_STATUS"; message: string; txType: "pending" | "success" | "error" }
   | { type: "CLEAR_TX_STATUS" }
@@ -36,6 +45,10 @@ const initialState: GameState = {
   maxExp: 100,
   health: 100,
   coins: 0,
+  energy: 40,
+  stamina: 40,
+  shoot: 10,
+  dribble: 10,
   address: null,
   isLoading: false,
   txStatus: { message: "", type: null },
@@ -73,6 +86,37 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         coins: newCoins,
         health: Math.max(0, state.health - 5),
         achievement: newCoins >= 50 && state.coins < 50 ? "Wealthy Miner!" : state.achievement,
+      }
+
+    case "TRAIN_ENERGY":
+      return {
+        ...state,
+        energy: state.energy + 10,
+        stamina: state.stamina - 10,
+      }
+
+    case "TRAIN_DRIBBLING":
+      return {
+        ...state,
+        dribble: state.dribble + 5,
+      }
+
+    case "TRAIN_SHOOTING":
+      return {
+        ...state,
+        shoot: state.shoot + 5,
+      }
+
+    case "ADD_STAMINA":
+      return {
+        ...state,
+        stamina: state.stamina + 10,
+      }
+
+    case "REMOVE_STAMINA":
+      return {
+        ...state,
+        stamina: state.stamina - 10,
       }
 
     case "REST_PLAYER":

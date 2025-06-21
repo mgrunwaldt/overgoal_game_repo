@@ -10,6 +10,9 @@ export interface Player {
   creation_day: number;
   shoot: number;
   dribble: number;
+  energy: number;
+  stamina: number;
+  charisma: number;
 }
 
 // Application state
@@ -34,6 +37,9 @@ interface AppActions {
   updatePlayerHealth: (health: number) => void;
   updatePlayerShooting: (shoot: number) => void;
   updatePlayerDribbling: (dribble: number) => void;
+  updatePlayerEnergy: (energy: number) => void;
+  updatePlayerStamina: (stamina: number) => void;
+  updatePlayerCharisma: (charisma: number) => void;
   
   // UI actions
   setLoading: (loading: boolean) => void;
@@ -86,6 +92,18 @@ const useAppStore = create<AppStore>()(
 
       updatePlayerDribbling: (dribble) => set((state) => ({
         player: state.player ? { ...state.player, dribble } : null
+      })),
+
+      updatePlayerEnergy: (energy) => set((state) => ({
+        player: state.player ? { ...state.player, energy } : null
+      })),
+
+      updatePlayerStamina: (stamina) => set((state) => ({
+        player: state.player ? { ...state.player, stamina } : null
+      })),
+
+      updatePlayerCharisma: (charisma) => set((state) => ({
+        player: state.player ? { ...state.player, charisma } : null
       })),
 
       // UI actions
