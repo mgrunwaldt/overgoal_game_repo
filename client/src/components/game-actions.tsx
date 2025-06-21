@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2, Pickaxe, Moon, Zap, Battery, Heart, Star } from "lucide-react";
+import { Dumbbell, Hammer, Bed, Loader2, ExternalLink, Target, Gamepad2, Zap, Battery, Heart, Star } from "lucide-react";
 import { useTrainAction } from "../dojo/hooks/useTrainAction";
 import { useMineAction } from "../dojo/hooks/useMineAction";
 import { useRestAction } from "../dojo/hooks/useRestAction";
