@@ -6,9 +6,7 @@ import { Team } from "../../zustand/store";
 import useAppStore from "../../zustand/store";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
-const getTeamImage = (teamId: number) => {
-   return `/teams/${teamId}.png`;
-};
+
 
 
 export default function TeamSelection() {
@@ -21,18 +19,27 @@ export default function TeamSelection() {
 
   const currentTeam = teams[currentTeamIndex];
 
+  const getTeamImage = (teamIndex: number) => {
+    let teamId = teams[teamIndex].team_id;
+     return `/teams/${teamId}.png`;
+  };
+  
   useEffect(() => {
-    const currentTeamImage = getTeamImage(currentTeamIndex);
-    setTeamImage(currentTeamImage);
-    console.log("🎯 Current team image:", currentTeamImage);
-  }, [currentTeamIndex]);
+    if (teams.length > 0) {
+      const currentTeamImage = getTeamImage(currentTeamIndex);
+      setTeamImage(currentTeamImage);
+      console.log("🎯 Current team image:", currentTeamImage);
+    }
+  }, [currentTeamIndex, teams]);
  
 
   // Auto-navigate if player already has a team selected
   useEffect(() => {
     if (player && player.selected_team_id > 0) {
       console.log("🎯 Player already has a team selected, navigating to main");
-        navigate("/main");
+      navigate("/main", {
+        state: { selectedTeamId: player.selected_team_id },
+      });
     }
   }, [player, navigate]);
 
@@ -42,10 +49,8 @@ export default function TeamSelection() {
     try {
       console.log("🎯 Selecting team", currentTeam.name, "with ID", currentTeam.team_id);
       await executeSelectTeam(currentTeam.team_id);
-      
-      // Navigate to main game after successful selection
-      console.log("✅ Team selected successfully, navigating to main");
-      navigate("/main");
+
+      // The useEffect hook will handle navigation once the player state is updated.
     } catch (error) {
       console.error("❌ Error selecting team:", error);
     }

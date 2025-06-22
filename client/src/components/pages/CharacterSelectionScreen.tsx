@@ -32,14 +32,14 @@ const characterTypes: CharacterType[] = [
     name: 'DRIBBLER',
     description: 'Flashy show-boat winger with exceptional dribbling and charisma. Loves the spotlight.',
     stats: { shooting: 20, dribbling: 50, passing: 40, energy: 40, charisma: 50 },
-    characterImage: '/playerTypes/10.png'
+    characterImage: '/playerTypes/11.png'
   },
   {
     id: 'playmaker',
     name: 'PLAYMAKER', 
     description: 'Team-oriented chance creator with balanced skills. High energy and stamina for the long game.',
     stats: { shooting: 30, dribbling: 30, passing: 60, energy: 50, charisma: 40 },
-    characterImage: '/playerTypes/11.png'
+    characterImage: '/playerTypes/10.png'
   }
 ];
 

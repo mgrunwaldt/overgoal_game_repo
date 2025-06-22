@@ -22,20 +22,6 @@ const getPlayerImage = (playerType: String): String => {
 };
 
 
-const getStaminaLevel = (stamina: number): String => {
-  const current = stamina / 10;
-  switch (current) {
-    case 9:
-      return "/preMatch/Player 9.png";
-    case 8:
-      return "/preMatch/Player 11.png";
-    case 7:
-      return "/preMatch/Player 10.png";
-    default:
-      return "/preMatch/Player 10.png"; // optional default case
-  }
-};
-
 
 export default function NewMatch() {
   const navigate = useNavigate();
@@ -147,7 +133,7 @@ export default function NewMatch() {
       </div>
 
       <div className="flex flex-row space-x-2 justify-between items-center  ">
-        <img src={playerImage}  className="w-32 h-40" alt="" />
+        <img src={playerImage as string}  className="w-32 h-40" alt="" />
         <img src="/preMatch/Player to watch.png" alt=""  className="relative top-16 w-32 h-40" />
         <img src="/preMatch/Player 9 red.png" alt="" className="w-32 h-40"  />
 

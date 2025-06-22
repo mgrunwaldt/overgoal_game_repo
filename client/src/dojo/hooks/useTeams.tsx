@@ -9,7 +9,12 @@ import { dojoConfig } from "../dojoConfig";
 const TORII_URL = dojoConfig.toriiUrl + "/graphql";
 const TEAMS_QUERY = `
     query GetAllTeams {
-        fullStarterReactTeamModels {
+        fullStarterReactTeamModels (first:14,
+        order: { 
+          field: "TEAM_ID", 
+          direction: "ASC" 
+        }
+        ) {
             edges {
                 node {
                     team_id

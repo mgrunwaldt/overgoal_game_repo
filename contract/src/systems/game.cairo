@@ -628,42 +628,137 @@ pub mod game {
         fn seed_initial_teams(ref self: ContractState) {
             let mut world = self.world(@"full_starter_react");
             let store = StoreTrait::new(world);
-
-            // Check if teams already exist to avoid duplicates
-            // Check both team_id and offense to ensure teams are properly seeded
+        
+            // Avoid duplicating data if teams already exist
             let existing_team = store.read_team(1);
             if existing_team.team_id != 0 && existing_team.offense != 0 {
-                // Teams already seeded with data, return early
                 return;
             }
-
-            // Create the 3 default teams with predefined stats
-            
-            // Team 1: Nacional (good in everything)
+        
+            // 1 – Dojo United (balanced, high intensity)
             store.create_team(
                 team_id: 1,
-                name: 'Nacional',
-                offense: 80,
-                defense: 80,
-                intensity: 80
+                name: 'Dojo United',
+                offense: 78,
+                defense: 75,
+                intensity: 80,
             );
-
-            // Team 2: Lanus (good in offense, medium in rest)  
+        
+            // 2 – Cartridge City (offensive)
             store.create_team(
                 team_id: 2,
-                name: 'Lanus',
+                name: 'Cartridge City',
                 offense: 85,
-                defense: 65,
-                intensity: 65
+                defense: 68,
+                intensity: 72,
             );
-
-            // Team 3: Peñarol (bad in everything)
+        
+            // 3 – Crystal Pulse (defensive)
             store.create_team(
                 team_id: 3,
-                name: 'Penarol',
-                offense: 40,
-                defense: 40,
-                intensity: 40
+                name: 'Crystal Pulse',
+                offense: 70,
+                defense: 83,
+                intensity: 68,
+            );
+        
+            // 4 – Cyber Lions (high intensity)
+            store.create_team(
+                team_id: 4,
+                name: 'Cyber Lions',
+                offense: 75,
+                defense: 72,
+                intensity: 85,
+            );
+        
+            // 5 – Drakon Core (attack-minded)
+            store.create_team(
+                team_id: 5,
+                name: 'Drakon Core',
+                offense: 88,
+                defense: 65,
+                intensity: 78,
+            );
+        
+            // 6 – Galactic Forge (balanced, slight defensive lean)
+            store.create_team(
+                team_id: 6,
+                name: 'Galactic Forge',
+                offense: 74,
+                defense: 77,
+                intensity: 76,
+            );
+        
+            // 7 – Hyper Talons (offense + intensity)
+            store.create_team(
+                team_id: 7,
+                name: 'Hyper Talons',
+                offense: 82,
+                defense: 66,
+                intensity: 83,
+            );
+        
+            // 8 – Iron Syndicate (defensive wall)
+            store.create_team(
+                team_id: 8,
+                name: 'Iron Syndicate',
+                offense: 68,
+                defense: 86,
+                intensity: 70,
+            );
+        
+            // 9 – Neon Strikers (attack focus)
+            store.create_team(
+                team_id: 9,
+                name: 'Neon Strikers',
+                offense: 86,
+                defense: 64,
+                intensity: 74,
+            );
+        
+            // 10 – Neuro Titans (balanced, intense)
+            store.create_team(
+                team_id: 10,
+                name: 'Neuro Titans',
+                offense: 75,
+                defense: 78,
+                intensity: 82,
+            );
+        
+            // 11 – Phantom Surge (balanced-defensive)
+            store.create_team(
+                team_id: 11,
+                name: 'Phantom Surge',
+                offense: 72,
+                defense: 80,
+                intensity: 78,
+            );
+        
+            // 12 – Solar Reign (intensity first)
+            store.create_team(
+                team_id: 12,
+                name: 'Solar Reign',
+                offense: 77,
+                defense: 74,
+                intensity: 84,
+            );
+        
+            // 13 – Void Breakers (defensive core)
+            store.create_team(
+                team_id: 13,
+                name: 'Void Breakers',
+                offense: 70,
+                defense: 85,
+                intensity: 73,
+            );
+        
+            // 14 – Nova United (balanced all-round)
+            store.create_team(
+                team_id: 14,
+                name: 'Nova United',
+                offense: 78,
+                defense: 78,
+                intensity: 79,
             );
         }
 

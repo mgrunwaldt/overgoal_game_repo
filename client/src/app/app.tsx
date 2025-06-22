@@ -74,20 +74,13 @@ function App() {
           element={<NewMatch />} 
         />
 
-        <Route 
-          path="/new-match" 
-          element={<NewMatch />} 
-        />
+        
 
         <Route 
           path="/match-end/:matchId" 
           element={<MatchEnd />} 
         />
 
-        <Route 
-          path="/match-end" 
-          element={<MatchEnd />} 
-        />
 
         <Route 
           path="/non-match-event-selector" 
