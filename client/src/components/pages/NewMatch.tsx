@@ -8,7 +8,33 @@ import useAppStore from "../../zustand/store";
 import type { Team, GameMatch, MatchStatus } from "../../zustand/store";
 
 
+const getPlayerImage = (playerType: String): String => {
+  switch (playerType) {
+    case "Striker":
+      return "/preMatch/Player 9.png";
+    case "Dribble":
+      return "/preMatch/Player 11.png";
+    case "Playmaker":
+      return "/preMatch/Player 10.png";
+    default:
+      return "/preMatch/Player 10.png"; // optional default case
+  }
+};
 
+
+const getStaminaLevel = (stamina: number): String => {
+  const current = stamina / 10;
+  switch (current) {
+    case 9:
+      return "/preMatch/Player 9.png";
+    case 8:
+      return "/preMatch/Player 11.png";
+    case 7:
+      return "/preMatch/Player 10.png";
+    default:
+      return "/preMatch/Player 10.png"; // optional default case
+  }
+};
 
 
 export default function NewMatch() {
@@ -28,9 +54,12 @@ export default function NewMatch() {
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [opponentTeam, setOpponentTeam] = useState<Team | null>(null);
   const [currentGameMatch, setCurrentGameMatch] = useState<GameMatch | null>(null);
+  const [playerImage, setPlayerImage] = useState<String>("/preMatch/Player 10.png")
 
   useEffect(() => {
     if (player && teams.length > 0) {
+      const image = getPlayerImage(player.player_type.toString())
+      setPlayerImage(image)
       // Find the player's selected team (Team 1)
       const playerTeam = teams.find(team => team.team_id === player.selected_team_id);
       setSelectedTeam(playerTeam || null);
@@ -103,9 +132,32 @@ export default function NewMatch() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-6">
+    <div   className="min-h-screen flex flex-col items-center justify-center p-8 bg-cover bg-center relative overflow-hidden"
+    style={{ backgroundImage: "url('/Screens/login/BackGround.png')" }}>
+
+    <div className="flex flex-col justify-between items-center w-full h-full ">
+      <img src="/preMatch/StaminaBar.png"  className="w-3/5 mb-10 " alt="" />
+
+      <div className="flex justify-between space-y-28 flex-col h-full">
+      <div className="flex flex-row space-x-2 justify-between items-center ">
+        <img src="/teams/DojoUnited.png"  className="w-32 h-40" alt="" />
+        <img src="/preMatch/Vs.png" alt=""  className="relative top-16 left-4 w-32 h-40" />
+        <img src="/teams/CartridgeCity.png" alt="" className="w-32 h-40"  />
+
+      </div>
+
+      <div className="flex flex-row space-x-2 justify-between items-center  ">
+        <img src={playerImage}  className="w-32 h-40" alt="" />
+        <img src="/preMatch/Player to watch.png" alt=""  className="relative top-16 w-32 h-40" />
+        <img src="/preMatch/Player 9 red.png" alt="" className="w-32 h-40"  />
+
+      </div>
+      </div>
+
+    </div>
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      {/* <div className="flex items-center justify-between mb-8">
         <button
           onClick={() => navigate("/main")}
           className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
@@ -115,7 +167,7 @@ export default function NewMatch() {
         </button>
         <h1 className="text-2xl font-bold text-cyan-400">New Match</h1>
         <div></div>
-      </div>
+      </div> */}
 
       {/* Verification Panel */}
       {currentGameMatch && (
@@ -159,155 +211,32 @@ export default function NewMatch() {
         </div>
       )}
 
-      {/* Debug Info */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="max-w-4xl mx-auto mb-8">
-          <div className="bg-gray-900/50 border border-gray-600/30 rounded-lg p-4">
-            <details className="cursor-pointer">
-              <summary className="text-sm text-gray-400 hover:text-gray-300">
-                🔧 Debug Info (Development Only)
-              </summary>
-              <div className="mt-2 text-xs text-gray-500 space-y-1">
-                <div>Total Matches in Store: {gameMatches.length}</div>
-                <div>Player Selected Team: {player?.selected_team_id}</div>
-                <div>Available Teams: {teams.map(t => `${t.team_id}:${t.name}`).join(', ')}</div>
-                <div className="text-cyan-400">URL Match ID: {matchId || "None"}</div>
-                <div className="text-cyan-400">Found Match: {currentGameMatch ? `Yes (ID: ${currentGameMatch.match_id})` : "No"}</div>
-                <div className="text-yellow-400">Simulate State: {simulateGameMatchState}</div>
-                <div className="text-yellow-400">Can Simulate: {canSimulateGameMatch.toString()}</div>
-                <div className="text-yellow-400">Is Simulating: {isSimulating.toString()}</div>
-                {simulateError && <div className="text-red-400">Error: {simulateError}</div>}
-                {currentGameMatch && (
-                  <div className="mt-2 p-2 bg-gray-800 rounded">
-                    <div>Raw Match Data:</div>
-                    <pre className="text-xs">{JSON.stringify(currentGameMatch, null, 2)}</pre>
-                  </div>
-                )}
-              </div>
-            </details>
-          </div>
-        </div>
-      )}
+  
 
-      {/* Error display */}
-      {simulateError && (
-        <div className="max-w-4xl mx-auto mb-8">
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm">
-            {simulateError}
-          </div>
-        </div>
-      )}
 
       {/* Match Setup */}
-      <div className="max-w-4xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-          
-          {/* Team 1 - Player's Team */}
-          <div className="bg-slate-800 rounded-lg p-6 border-2 border-cyan-400">
-            <h2 className="text-xl font-semibold mb-4 text-center text-cyan-400">Team 1</h2>
-            {selectedTeam ? (
-              <div className="text-center">
-                <h3 className="text-lg font-bold mb-2">{selectedTeam.name}</h3>
-                <div className="text-xs text-gray-400 mb-2">ID: {selectedTeam.team_id}</div>
-                <div className="space-y-1 text-sm">
-                  <div>Offense: {selectedTeam.offense}</div>
-                  <div>Defense: {selectedTeam.defense}</div>
-                  <div>Intensity: {selectedTeam.intensity}</div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center text-slate-400">
-                <p>No team selected</p>
-                <button
-                  onClick={() => navigate("/select-team")}
-                  className="mt-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 rounded transition-colors"
-                >
-                  Select Team
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* VS */}
-          <div className="text-center">
-            <div className="text-4xl font-bold text-red-400">VS</div>
-            {currentGameMatch && (
-              <div className="text-xs text-gray-400 mt-2">
-                Match #{currentGameMatch.match_id}
-              </div>
-            )}
-          </div>
-
-          {/* Team 2 - Opponent */}
-          <div className="bg-slate-800 rounded-lg p-6 border-2 border-red-400">
-            <h2 className="text-xl font-semibold mb-4 text-center text-red-400">Team 2</h2>
-            {opponentTeam ? (
-              <div className="text-center">
-                <h3 className="text-lg font-bold mb-2">{opponentTeam.name}</h3>
-                <div className="text-xs text-gray-400 mb-2">ID: {opponentTeam.team_id}</div>
-                <div className="space-y-1 text-sm">
-                  <div>Offense: {opponentTeam.offense}</div>
-                  <div>Defense: {opponentTeam.defense}</div>
-                  <div>Intensity: {opponentTeam.intensity}</div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center text-slate-400">
-                <p>No opponent available</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Match Result */}
-        <div className="text-center mt-8">
-          <h2 className="text-xl font-semibold mb-4 text-white">Match Result</h2>
-          <div className="text-3xl font-bold text-cyan-400">
-            <span>{selectedTeam?.name || "Team 1"}: {currentGameMatch?.my_team_score || 0}</span>
-            <span className="mx-4 text-white">-</span>
-            <span>{opponentTeam?.name || "Team 2"}: {currentGameMatch?.opponent_team_score || 0}</span>
-          </div>
-        </div>
-
-        {/* Play Match Button */}
-        <div className="text-center mt-8">
-          <button
-            onClick={handlePlayMatch}
-            disabled={!selectedTeam || !opponentTeam || !currentGameMatch || !canSimulateGameMatch || isSimulating}
-            className={`px-8 py-4 rounded-lg font-semibold text-lg flex items-center gap-3 mx-auto transition-colors ${
-              selectedTeam && opponentTeam && currentGameMatch && canSimulateGameMatch && !isSimulating
-                ? "bg-green-600 hover:bg-green-700 text-white"
-                : "bg-slate-600 text-slate-400 cursor-not-allowed"
-            }`}
-          >
-            {isSimulating ? (
-              <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-            ) : (
-              <Play size={24} />
-            )}
-            {isSimulating ? "Simulating Match..." : currentGameMatch ? "Play Match" : "Loading Match..."}
-          </button>
-          
-          {!currentGameMatch && (
-            <p className="text-sm text-gray-400 mt-2">
-              {!matchId ? "No match ID provided" : "Waiting for match to be loaded..."}
-            </p>
-          )}
-        </div>
-
-        {!matchId && (
-          <div className="text-center mt-4">
-            <p className="text-red-400 text-sm mb-4">
-              No match ID provided. Please create a match first.
-            </p>
+      <div className="max-w-4xl mx-auto mt-auto">
+        <div className="w-full flex flex-col items-center justify-center pb-8 z-100">
             <button
-              onClick={() => navigate("/main")}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
+                onClick={handlePlayMatch}
+                disabled={!selectedTeam || !opponentTeam || !currentGameMatch || !canSimulateGameMatch || isSimulating}
+                className="disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Back to Main
+                {isSimulating ? (
+                    <div className="text-white bg-black/50 rounded-lg p-4">Creating Match...</div>
+                ) : (
+                    <img src="/preMatch/Next Button.png" alt="Play Match" className="w-44 h-auto" />
+                )}
             </button>
-          </div>
-        )}
+             {/* Error display */}
+            {simulateError && (
+                <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                    {simulateError}
+                </div>
+            )}
+        </div>
+
+      
       </div>
     </div>
   );
