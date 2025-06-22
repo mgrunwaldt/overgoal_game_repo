@@ -25,21 +25,21 @@ const characterTypes: CharacterType[] = [
     name: 'STRIKER',
     description: 'Powerful finisher focused on scoring goals. High shooting accuracy with moderate skills.',
     stats: { shooting: 60, dribbling: 20, passing: 30, energy: 50, charisma: 25 },
-    characterImage: '/CharacterSelection/9.png'
+    characterImage: '/playerTypes/9.png'
   },
   {
     id: 'dribbler', 
     name: 'DRIBBLER',
     description: 'Flashy show-boat winger with exceptional dribbling and charisma. Loves the spotlight.',
     stats: { shooting: 20, dribbling: 50, passing: 40, energy: 40, charisma: 50 },
-    characterImage: '/CharacterSelection/10.png'
+    characterImage: '/playerTypes/10.png'
   },
   {
     id: 'playmaker',
     name: 'PLAYMAKER', 
     description: 'Team-oriented chance creator with balanced skills. High energy and stamina for the long game.',
     stats: { shooting: 30, dribbling: 30, passing: 60, energy: 50, charisma: 40 },
-    characterImage: '/CharacterSelection/11.png'
+    characterImage: '/playerTypes/11.png'
   }
 ];
 

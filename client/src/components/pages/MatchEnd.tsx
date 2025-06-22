@@ -16,6 +16,7 @@ export default function MatchEnd() {
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [opponentTeam, setOpponentTeam] = useState<Team | null>(null);
   const [currentGameMatch, setCurrentGameMatch] = useState<GameMatch | null>(null);
+  const [myTeamImage, setMyTeamImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (player && teams.length > 0) {
@@ -37,8 +38,9 @@ export default function MatchEnd() {
       console.log("🎯 MatchEnd - All matches:", gameMatches);
       
       if (targetMatch) {
-        setCurrentGameMatch(targetMatch);
-        
+          setCurrentGameMatch(targetMatch);
+          setMyTeamImage(`/teams/${targetMatch.my_team_id}.png`);
+          
         // Find opponent team based on the match data
         const opponent = teams.find(team => team.team_id === targetMatch.opponent_team_id);
         setOpponentTeam(opponent || null);
@@ -58,11 +60,11 @@ export default function MatchEnd() {
     if (!currentGameMatch) return "No Match";
     
     if (currentGameMatch.my_team_score > currentGameMatch.opponent_team_score) {
-      return "VICTORY!";
+      return "/matchEnd/Victory.png";
     } else if (currentGameMatch.my_team_score < currentGameMatch.opponent_team_score) {
-      return "DEFEAT";
+      return "/matchEnd/Defeat.png";
     } else {
-      return "DRAW";
+      return "/matchEnd/Victory.png";
     }
   };
 
@@ -89,11 +91,14 @@ export default function MatchEnd() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-6">
+    <div 
+    className="min-h-screen flex flex-col items-center justify-center p-8 bg-cover bg-center relative overflow-hidden"
+    style={{ backgroundImage: "url('/Screens/login/BackGround.png')" }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-center mb-8">
+    {/*  <div className="flex items-center justify-center mb-8"> 
         <h1 className="text-3xl font-bold text-cyan-400">Match Result</h1>
-      </div>
+      </div> */}
 
       {/* Match Result */}
       <div className="max-w-2xl mx-auto">
@@ -125,56 +130,36 @@ export default function MatchEnd() {
         )}
 
         {currentGameMatch ? (
-          <div className="space-y-8">
+          <div className="">
             {/* Result Banner */}
             <div className="text-center">
-              <div className={`text-6xl font-bold mb-4 ${getResultColor()}`}>
-                {getResultText()}
-              </div>
-              <div className="text-xl text-gray-300">
-                Match #{currentGameMatch.match_id}
+              <div className={`text-6xl font-bold mb-4 ml-8 flex items-center justify-center ${getResultColor()}`}>
+                {/* {getResultText()} */}
+
+                <img src={getResultText()} alt="Result" className="w-full h-full" />
               </div>
             </div>
 
             {/* Score Display */}
-            <div className="bg-slate-800 rounded-lg p-8 border-2 border-slate-700">
-              <div className="grid grid-cols-3 gap-8 items-center">
-                
-                {/* My Team */}
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-cyan-400 mb-2">
-                    {selectedTeam?.name || "My Team"}
-                  </div>
-                  <div className="text-6xl font-bold text-cyan-400">
-                    {currentGameMatch.my_team_score}
-                  </div>
-                  <div className="text-sm text-gray-400 mt-2">
-                    Team ID: {currentGameMatch.my_team_id}
-                  </div>
-                </div>
+            <div className="p-8 flex items-center justify-center flex-col">
 
-                {/* VS */}
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-gray-400">-</div>
-                </div>
-
-                {/* Opponent Team */}
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-red-400 mb-2">
-                    {opponentTeam?.name || "Opponent"}
-                  </div>
-                  <div className="text-6xl font-bold text-red-400">
-                    {currentGameMatch.opponent_team_score}
-                  </div>
-                  <div className="text-sm text-gray-400 mt-2">
-                    Team ID: {currentGameMatch.opponent_team_id}
-                  </div>
-                </div>
+            <img src={myTeamImage || ""} alt="Score" className="w-full h-full" />
+            <div className="flex items-center justify-center gap-4">
+              <div className="text-8xl font-bold text-cyan-400 mb-2">
+                {currentGameMatch?.my_team_score}
               </div>
+              <div className="text-8xl font-bold text-cyan-400">
+                -
+                </div>
+              <div className="text-8xl font-bold text-cyan-400">
+                {currentGameMatch.opponent_team_score}
+                </div>
+             
+            </div>
             </div>
 
             {/* Match Stats */}
-            <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
+         {/*    <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-yellow-400" />
                 Match Statistics
@@ -199,10 +184,10 @@ export default function MatchEnd() {
                   <span className="text-yellow-400">+3</span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Team Points Update */}
-            {selectedTeam && (
+            {/* {selectedTeam && (
               <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
                 <div className="text-center">
                   <div className="text-green-400 font-semibold mb-2">
@@ -213,7 +198,7 @@ export default function MatchEnd() {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         ) : (
           <div className="text-center">
@@ -231,16 +216,19 @@ export default function MatchEnd() {
           </div>
         )}
 
-        {/* Back to Main Button */}
-        <div className="text-center mt-8">
-          <button
-            onClick={() => navigate("/main")}
-            className="flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-lg mx-auto transition-colors"
-          >
-            <Home size={24} />
-            Back to Main
-          </button>
-        </div>
+
+<div className="absolute bottom-4 right-4 md:bottom-8 md:right-8 z-20">
+        <button
+          onClick={() => navigate("/non-match-event-selector")}
+          className="transform hover:scale-105 transition-transform duration-200 disabled:opacity-50"
+        >
+          <img 
+            src="/CharacterSelection/Next Button.png" 
+            alt="Next"
+            className="w-32 h-18 md:w-32 md:h-16 object-contain"
+          />
+        </button>
+      </div>
       </div>
     </div>
   );

@@ -9,15 +9,20 @@ import useAppStore from "../../zustand/store";
 import StatsPopup from "../StatsPopup";
 
 const charactersImages = {
-  striker: "/playerTypes/9",
-  playmaker: "/playerTypes/10",
-  dribbler: "/playerTypes/11"
+  Striker: "/playerTypes/9.png",
+  Playmaker: "/playerTypes/10.png",
+  Dribbler: "/playerTypes/11.png"
 };
+
+const getCharacterImage = (playerType: string) => {
+    return charactersImages[playerType as keyof typeof charactersImages];
+}
 
 
 export default function MainScreen() {
     const navigate = useNavigate();
     const [isStatsPopupOpen, setIsStatsPopupOpen] = useState(false);
+    const [characterImage, setCharacterImage] = useState("/playerTypes/10.png");
     const [playerStats, setPlayerStats] = useState({
         stamina: 0,
         energy: 0,
@@ -50,6 +55,8 @@ export default function MainScreen() {
             dribble: player.dribble,
             fame: player.fame,
         });
+       const characterImage = getCharacterImage(player.player_type.toString());
+       setCharacterImage(characterImage);
     }
   }, [playerLoading, player]);
 
@@ -105,7 +112,8 @@ export default function MainScreen() {
         className="h-screen w-screen bg-cover bg-center bg-no-repeat flex flex-col items-center justify-between p-4"
         style={{ backgroundImage: "url('/Screens/Main/Background.png')" }}
     >
-   
+    <div className="fixed top-70 right-0 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-blue-800/50 rounded-full blur-3xl animate-pulse pointer-events-none" />
+    <div className="fixed top-70  left-0 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-blue-800/50 rounded-full blur-3xl animate-pulse pointer-events-none" />
 
         {/* Top Icons */}
         <div className="w-full flex justify-around items-start pt-4 px-4 z-100">
@@ -125,7 +133,7 @@ export default function MainScreen() {
 
         {/* Center Character */}
         <div className="flex-grow flex items-center justify-center z-100">
-            <img src="/playerTypes/10.png" alt="Character" className="max-h-[60vh] object-contain" />
+            <img src={characterImage} alt="Character" className="max-h-[50vh] object-contain" />
         </div>
 
         {/* Play Match Button */}
@@ -138,7 +146,7 @@ export default function MainScreen() {
                 {isCreatingMatch ? (
                     <div className="text-white bg-black/50 rounded-lg p-4">Creating Match...</div>
                 ) : (
-                    <img src="/Screens/Main/Play Match.png" alt="Play Match" className="w-64 h-auto" />
+                    <img src="/Screens/Main/Play Match.png" alt="Play Match" className="w-72 h-auto" />
                 )}
             </button>
              {/* Error display */}

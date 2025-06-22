@@ -6,23 +6,33 @@ import { Team } from "../../zustand/store";
 import useAppStore from "../../zustand/store";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
-
+const getTeamImage = (teamId: number) => {
+   return `/teams/${teamId}.png`;
+};
 
 
 export default function TeamSelection() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
   const { teams, isLoading, error, refetch } = useTeams();
   const { executeSelectTeam, selectTeamState, canSelectTeam, error: selectError } = useSelectTeamAction();
   const { player } = useAppStore();
   const [currentTeamIndex, setCurrentTeamIndex] = useState(0);
+  const [teamImage, setTeamImage] = useState("/teams/1.png");
 
   const currentTeam = teams[currentTeamIndex];
+
+  useEffect(() => {
+    const currentTeamImage = getTeamImage(currentTeamIndex);
+    setTeamImage(currentTeamImage);
+    console.log("🎯 Current team image:", currentTeamImage);
+  }, [currentTeamIndex]);
+ 
 
   // Auto-navigate if player already has a team selected
   useEffect(() => {
     if (player && player.selected_team_id > 0) {
       console.log("🎯 Player already has a team selected, navigating to main");
-      navigate("/main");
+        navigate("/main");
     }
   }, [player, navigate]);
 
@@ -216,16 +226,7 @@ export default function TeamSelection() {
             <div className="relative">
               {/* Team Logo/Emblem Placeholder */}
               <div className="relative w-64 h-80 lg:w-80 lg:h-96 flex items-center justify-center">
-                <div className="w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full border-4 border-cyan-400/50 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl lg:text-6xl font-bold text-cyan-300 mb-2">
-                      {currentTeam?.name.charAt(0)}
-                    </div>
-                    <div className="text-sm lg:text-base text-cyan-400 font-medium">
-                      TEAM
-                    </div>
-                  </div>
-                </div>
+                <img src={teamImage} alt="Team" className="w-48 h-48 lg:w-64 lg:h-64 object-contain" />
                 
                 {/* Loading Overlay */}
                 {isExecuting && (
@@ -310,15 +311,20 @@ export default function TeamSelection() {
           {/* Team Display */}
           <div className="relative">
             <div className="relative w-64 h-80 flex items-center justify-center">
-              <div className="w-48 h-48 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full border-4 border-cyan-400/50 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-cyan-300 mb-2">
-                    {currentTeam?.name.charAt(0)}
+              <div className="relative w-64 h-80 lg:w-80 lg:h-96 flex items-center justify-center">
+                <img src={teamImage} alt="Team" className="w-48 h-48 lg:w-64 lg:h-64 object-contain" />
+                
+                {/* Loading Overlay */}
+                {isExecuting && (
+                  <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
+                    <div className="text-center space-y-4">
+                      <Loader2 className="w-12 h-12 animate-spin text-cyan-400 mx-auto" />
+                      <div className="text-cyan-300 font-bold text-lg">
+                        Selecting {currentTeam?.name}...
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-cyan-400 font-medium">
-                    TEAM
-                  </div>
-                </div>
+                )}
               </div>
               
               {/* Loading Overlay */}
