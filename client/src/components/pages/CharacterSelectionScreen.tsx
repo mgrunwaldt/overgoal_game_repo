@@ -66,6 +66,7 @@ export default function CharacterSelectionScreen() {
       console.log(`🎯 Creating ${currentCharacter.name} character...`);
       
       const result = await spawnPlayerWithCharacter(currentCharacter.id);
+      console.log(result);
       
       if (result.success) {
         console.log("🎉 Character created successfully!");

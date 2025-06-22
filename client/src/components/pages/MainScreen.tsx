@@ -56,6 +56,9 @@ export default function MainScreen() {
             fame: player.fame,
         });
        const characterImage = getCharacterImage(player.player_type.toString());
+
+       console.log(characterImage);
+       console.log(player.player_type);
        setCharacterImage(characterImage);
     }
   }, [playerLoading, player]);
