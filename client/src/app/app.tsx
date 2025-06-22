@@ -51,7 +51,7 @@ function App() {
       
         <Route 
           path="/main" 
-          element={<NewMatch />} 
+          element={<MainScreen />} 
         />
        
        <Route 
