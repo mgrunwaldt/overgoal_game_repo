@@ -2,7 +2,7 @@ import { useStarknetConnect } from "../../dojo/hooks/useStarknetConnect";
 import { usePlayer } from "../../dojo/hooks/usePlayer";
 import { Loader2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function LoginScreen() {
   const {
@@ -17,6 +17,9 @@ export default function LoginScreen() {
   
   // Ref to prevent multiple navigation attempts
   const hasNavigated = useRef(false);
+  
+  // Loading state for post-connection flow
+  const [isPostConnectionLoading, setIsPostConnectionLoading] = useState(false);
 
   // Handle navigation after successful connection
   useEffect(() => {
@@ -30,9 +33,10 @@ export default function LoginScreen() {
         hasNavigated: hasNavigated.current
       });
   
-      // Reset navigation flag if we're back on login (user navigated back manually)
+      // Reset navigation flag and loading state if we're back on login (user navigated back manually)
       if (location.pathname === '/login') {
         hasNavigated.current = false;
+        setIsPostConnectionLoading(false);
       }
 
   
@@ -49,23 +53,27 @@ export default function LoginScreen() {
         
         console.log("✅ Wallet connected, checking player status...");
         
-        // Set flag to prevent multiple navigations
+        // Set flag to prevent multiple navigations and show loading
         hasNavigated.current = true;
+        setIsPostConnectionLoading(true);
   
-
+        try {
           // Current wait for fetching plater data from the contract
-        console.log("🎯 waiting for 3 seconds");
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        console.log("🎯 3 seconds passed");
-       
-        console.log("🎯 player", player);
+          console.log("🎯 waiting for 3 seconds");
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          console.log("🎯 3 seconds passed");
+         
+          console.log("🎯 player", player);
 
-        if (player) {
-          console.log("🎮 setting -player");
-          navigate("/main", { replace: true });
-        } else {
-          console.log("👤 setting - else");
-          navigate("/character-selection", { replace: true });
+          if (player) {
+            console.log("🎮 setting -player");
+            navigate("/main", { replace: true });
+          } else {
+            console.log("👤 setting - else");
+            navigate("/character-selection", { replace: true });
+          }
+        } finally {
+          setIsPostConnectionLoading(false);
         }
       }
     }
@@ -75,8 +83,9 @@ export default function LoginScreen() {
   const onLoginClick = () => {
     console.log("🎯 Login button clicked!");
     console.log("📊 Current state:", { status, isConnecting });
-    // Reset navigation flag on new login attempt
+    // Reset navigation flag and loading state on new login attempt
     hasNavigated.current = false;
+    setIsPostConnectionLoading(false);
     handleConnect();
   };
   
@@ -116,11 +125,11 @@ export default function LoginScreen() {
             <div className="w-full max-w-xs flex flex-col items-center space-y-4 mt-32 pb-8">
                 <button
                     onClick={onLoginClick}
-                    disabled={isConnecting || status === "connecting" || (status === "connected" && playerLoading)}
+                    disabled={isConnecting || status === "connecting" || isPostConnectionLoading}
                     className="w-2/4 relative disabled:opacity-50 transition-opacity"
                 >
                     <img src="/Screens/login/LoginInButton.png" alt="LogIn" />
-                    {(isConnecting || status === "connecting" || (status === "connected" && playerLoading)) && (
+                    {(isConnecting || status === "connecting") && !isPostConnectionLoading && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 rounded-md">
                             <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
                         </div>
@@ -128,6 +137,28 @@ export default function LoginScreen() {
                 </button>
             </div>
         </div>
+
+        {/* Post-Connection Loading Overlay */}
+        {isPostConnectionLoading && (
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="text-center space-y-6">
+              <Loader2 className="w-16 h-16 animate-spin text-cyan-400 mx-auto" />
+              <div className="text-cyan-300 font-bold text-xl">
+                Connecting to Game...
+              </div>
+              <div className="text-cyan-400 text-sm max-w-md">
+                Initializing your player data and preparing the game environment
+              </div>
+              
+              {/* Animated Progress Dots */}
+              <div className="flex justify-center space-x-2">
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse delay-200"></div>
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse delay-400"></div>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 } 

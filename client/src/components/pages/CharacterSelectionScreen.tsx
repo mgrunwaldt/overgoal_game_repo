@@ -14,7 +14,7 @@ interface CharacterType {
     dribbling: number;
     passing: number;
     energy: number;
-    fame: number;
+    charisma: number;
   };
   characterImage: string;
 }
@@ -24,21 +24,21 @@ const characterTypes: CharacterType[] = [
     id: 'striker',
     name: 'STRIKER',
     description: 'Powerful finisher focused on scoring goals. High shooting accuracy with moderate skills.',
-    stats: { shooting: 72, dribbling: 45, passing: 58, energy: 80, fame: 65 },
+    stats: { shooting: 60, dribbling: 20, passing: 30, energy: 50, charisma: 25 },
     characterImage: '/CharacterSelection/9.png'
   },
   {
     id: 'dribbler', 
     name: 'DRIBBLER',
     description: 'Flashy show-boat winger with exceptional dribbling and charisma. Loves the spotlight.',
-    stats: { shooting: 55, dribbling: 85, passing: 70, energy: 75, fame: 90 },
+    stats: { shooting: 20, dribbling: 50, passing: 40, energy: 40, charisma: 50 },
     characterImage: '/CharacterSelection/10.png'
   },
   {
     id: 'playmaker',
     name: 'PLAYMAKER', 
     description: 'Team-oriented chance creator with balanced skills. High energy and stamina for the long game.',
-    stats: { shooting: 60, dribbling: 78, passing: 85, energy: 80, fame: 70 },
+    stats: { shooting: 30, dribbling: 30, passing: 60, energy: 50, charisma: 40 },
     characterImage: '/CharacterSelection/11.png'
   }
 ];
@@ -135,7 +135,7 @@ export default function CharacterSelectionScreen() {
           <img 
             src="/CharacterSelection/Back Button.png" 
             alt="Back"
-            className="w-16 h-8 md:w-24 md:h-12 object-contain"
+            className="w-32 h-16 md:w-24 md:h-12 object-contain"
           />
         </button>
       </div>
@@ -271,8 +271,8 @@ export default function CharacterSelectionScreen() {
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">FAME</span>
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentCharacter.stats.fame}</span>
+                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">CHARISMA</span>
+                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentCharacter.stats.charisma}</span>
                     </div>
                   </div>
                 </div>
@@ -364,8 +364,8 @@ export default function CharacterSelectionScreen() {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                      <span className="text-3xl font-bold text-cyan-300 tracking-wider">FAME</span>
-                      <span className="text-3xl font-bold text-cyan-300">{currentCharacter.stats.fame}</span>
+                      <span className="text-3xl font-bold text-cyan-300 tracking-wider">CHARISMA</span>
+                      <span className="text-3xl font-bold text-cyan-300">{currentCharacter.stats.charisma}</span>
                   </div>
                 </div>
               </div>
@@ -384,7 +384,7 @@ export default function CharacterSelectionScreen() {
           <img 
             src="/CharacterSelection/Next Button.png" 
             alt="Next"
-            className="w-24 h-12 md:w-32 md:h-16 object-contain"
+            className="w-32 h-18 md:w-32 md:h-16 object-contain"
           />
         </button>
       </div>
