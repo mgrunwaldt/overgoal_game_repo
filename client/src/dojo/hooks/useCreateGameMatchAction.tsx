@@ -4,48 +4,68 @@ import { useDojoSDK } from "@dojoengine/sdk/react";
 import { Account } from "starknet";
 import useAppStore from "../../zustand/store";
 
+// Action state type
+export type ActionState = 'idle' | 'executing' | 'success' | 'error';
+
 export interface UseCreateGameMatchActionReturn {
-    createGameMatchState: 'idle' | 'loading' | 'success' | 'error';
+    createGameMatchState: ActionState;
     executeCreateGameMatch: (matchId: number, myTeamId: number, opponentTeamId: number) => Promise<void>;
     canCreateGameMatch: boolean;
+    isLoading: boolean;
     error: string | null;
 }
 
 export const useCreateGameMatchAction = (): UseCreateGameMatchActionReturn => {
     const { account, status } = useAccount();
     const { client } = useDojoSDK();
-    const { player, addGameMatch, setError } = useAppStore();
+    const { addGameMatch } = useAppStore();
     
-    const [createGameMatchState, setCreateGameMatchState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-    const [error, setLocalError] = useState<string | null>(null);
+    // Local state
+    const [createGameMatchState, setCreateGameMatchState] = useState<ActionState>('idle');
+    const [error, setError] = useState<string | null>(null);
 
+    // Computed states
     const isConnected = status === 'connected';
-    const hasPlayer = !!player;
-    const canCreateGameMatch = isConnected && hasPlayer && createGameMatchState !== 'loading';
+    const isLoading = createGameMatchState === 'executing';
+    const canCreateGameMatch = isConnected && !isLoading;
 
-    const executeCreateGameMatch = useCallback(async (matchId: number, myTeamId: number, opponentTeamId: number) => {
-        if (!canCreateGameMatch || !account) {
+    const executeCreateGameMatch = useCallback(async (
+        matchId: number, 
+        myTeamId: number, 
+        opponentTeamId: number
+    ) => {
+        if (!canCreateGameMatch) {
+            setError("Cannot create game match: wallet not connected or action in progress");
             return;
         }
 
-        setCreateGameMatchState('loading');
-        setLocalError(null);
+        // Validation
+        if (matchId <= 0) {
+            setError("Match ID must be greater than 0");
+            return;
+        }
+
+        if (myTeamId <= 0) {
+            setError("My team ID must be greater than 0");
+            return;
+        }
+
+        if (opponentTeamId <= 0) {
+            setError("Opponent team ID must be greater than 0");
+            return;
+        }
+
+        if (myTeamId === opponentTeamId) {
+            setError("My team and opponent team cannot be the same");
+            return;
+        }
+
+        setCreateGameMatchState('executing');
         setError(null);
 
         try {
-            // Validation
-            if (matchId <= 0) {
-                throw new Error('Match ID must be greater than 0');
-            }
-            if (myTeamId <= 0) {
-                throw new Error('My team ID must be greater than 0');
-            }
-            if (opponentTeamId <= 0) {
-                throw new Error('Opponent team ID must be greater than 0');
-            }
-            if (myTeamId === opponentTeamId) {
-                throw new Error('My team and opponent team cannot be the same');
-            }
+            console.log(`🎮 Creating game match: ${matchId}`);
+            console.log(`⚽ Teams - My Team: ${myTeamId}, Opponent: ${opponentTeamId}`);
 
             // Optimistic update - add the new match to local state
             const newGameMatch = {
@@ -63,13 +83,20 @@ export const useCreateGameMatchAction = (): UseCreateGameMatchActionReturn => {
             addGameMatch(newGameMatch);
 
             // Execute blockchain transaction
-            const tx = await client.game.createGamematch(account as Account, matchId, myTeamId, opponentTeamId);
+            const tx = await client.game.createGamematch(
+                account as Account,
+                matchId,
+                myTeamId,
+                opponentTeamId
+            );
+
+            console.log("📋 Create game match transaction response:", tx);
 
             if (tx && tx.code === "SUCCESS") {
+                console.log("✅ Game match created successfully!");
                 setCreateGameMatchState('success');
-                console.log('✅ GameMatch created successfully:', { matchId, myTeamId, opponentTeamId });
                 
-                // Reset state after a delay
+                // Reset to idle after success
                 setTimeout(() => {
                     setCreateGameMatchState('idle');
                 }, 2000);
@@ -78,28 +105,24 @@ export const useCreateGameMatchAction = (): UseCreateGameMatchActionReturn => {
             }
 
         } catch (error: any) {
-            console.error('❌ Error creating GameMatch:', error);
+            console.error("❌ Create game match error:", error);
             
-            const errorMessage = error?.message || 'Failed to create GameMatch';
-            setLocalError(errorMessage);
-            setError(errorMessage);
             setCreateGameMatchState('error');
-
-            // Rollback optimistic update by removing the match
-            // Note: In a more sophisticated implementation, we'd have a proper rollback mechanism
+            setError(error instanceof Error ? error.message : 'Failed to create game match');
             
-            // Reset error state after a delay
+            // Reset to idle after error
             setTimeout(() => {
                 setCreateGameMatchState('idle');
-                setLocalError(null);
+                setError(null);
             }, 3000);
         }
-    }, [account, client, canCreateGameMatch, addGameMatch, setError]);
+    }, [account, client, canCreateGameMatch, addGameMatch]);
 
     return {
         createGameMatchState,
         executeCreateGameMatch,
         canCreateGameMatch,
+        isLoading,
         error,
     };
 }; 

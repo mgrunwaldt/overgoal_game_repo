@@ -117,7 +117,7 @@ export const usePlayer = (): UsePlayerReturn => {
 
   const storePlayer = useAppStore(state => state.player);
   const setPlayer = useAppStore(state => state.setPlayer);
-  
+
   const userAddress = useMemo(() =>
     account ? addAddressPadding(account.address).toLowerCase() : '',
     [account]
@@ -140,7 +140,7 @@ export const usePlayer = (): UsePlayerReturn => {
       console.log("🎮 Player data fetched:", playerData);
 
       setPlayer(playerData);
-      
+
       const updatedPlayer = useAppStore.getState().player;
       console.log("💾 Player in store after update:", updatedPlayer);
       

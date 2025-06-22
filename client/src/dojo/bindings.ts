@@ -197,7 +197,7 @@ export const schema: SchemaType = {
             next_match_action_minute: 0,
             current_time: 0,
             match_status: 0,
-        },
+		},
 	},
 	achievement: {
 		TrophyCreation: {

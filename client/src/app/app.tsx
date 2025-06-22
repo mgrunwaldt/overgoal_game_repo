@@ -7,6 +7,8 @@ import CharacterSelectionScreen from "../components/pages/CharacterSelectionScre
 import MainScreen from "../components/pages/MainScreen";
 import TeamManagement from "../components/team-management";
 import TeamSelection from "../components/pages/TeamSelection";
+import NewMatch from "../components/pages/NewMatch";
+import MatchEnd from "../components/pages/MatchEnd";
 
 function App() {
   const { account, status } = useAccount();
@@ -62,6 +64,25 @@ function App() {
           element={<TeamSelection />} 
         />
 
+        <Route 
+          path="/new-match/:matchId" 
+          element={<NewMatch />} 
+        />
+
+        <Route 
+          path="/new-match" 
+          element={<NewMatch />} 
+        />
+
+        <Route 
+          path="/match-end/:matchId" 
+          element={<MatchEnd />} 
+        />
+
+        <Route 
+          path="/match-end" 
+          element={<MatchEnd />} 
+        />
 
       </Routes>
     </Router>

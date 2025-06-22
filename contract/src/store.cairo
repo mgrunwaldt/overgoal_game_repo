@@ -200,8 +200,13 @@ pub impl StoreImpl of StoreTrait {
 
     fn simulate_gamematch(mut self: Store, match_id: u32) {
         let mut gamematch = self.read_gamematch(match_id);
+        
+        // Simulate the match (my team always wins)
         gamematch.simulate_match();
         self.world.write_model(@gamematch);
+        
+        // Add +3 points to my team for the win
+        self.add_team_points(gamematch.my_team_id, 3);
     }
 
     fn add_my_team_goal(mut self: Store, match_id: u32) {

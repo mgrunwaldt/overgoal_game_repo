@@ -42,7 +42,7 @@ export default function GameActions() {
       canExecute: canMine,
       disabledReason: !canMine && player && (player.health || 0) <= 10 
         ? "Health too low!" 
-        : undefined,
+          : undefined,
     },
     {
       icon: Heart,
@@ -53,8 +53,8 @@ export default function GameActions() {
       state: restState,
       canExecute: canRest,
       disabledReason: !canRest && player && (player.health || 0) >= 100 
-        ? "Full Health!" 
-        : undefined,
+          ? "Full Health!"
+          : undefined,
     },
     {
       icon: Target,
@@ -144,9 +144,9 @@ export default function GameActions() {
     <Card className="bg-white/5 backdrop-blur-xl border-white/10">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-white text-xl font-bold">
-            Game Actions
-          </CardTitle>
+        <CardTitle className="text-white text-xl font-bold">
+          Game Actions
+        </CardTitle>
           <div className="flex gap-2">
             <Button
               onClick={() => navigate('/game-match')}
