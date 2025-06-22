@@ -9,6 +9,11 @@ import TeamManagement from "../components/team-management";
 import TeamSelection from "../components/pages/TeamSelection";
 import NewMatch from "../components/pages/NewMatch";
 import MatchEnd from "../components/pages/MatchEnd";
+import NonMatchEventSelector from "../components/pages/NonMatchEventSelector";
+import MatchComponent from "../components/pages/MatchComponent";
+import MatchDecision from "../components/pages/MatchDecision";
+import NonMatchResult from "../components/pages/NonMatchResult";
+import NonMatchEvent from "../components/pages/NonMatchEvent";
 
 function App() {
   const { account, status } = useAccount();
@@ -42,7 +47,7 @@ function App() {
       <Routes>
         <Route 
           path="/login" 
-          element={<MainScreen />} 
+          element={<LoginScreen />} 
         />
         <Route 
           path="/character-selection" 
@@ -83,6 +88,24 @@ function App() {
           path="/match-end" 
           element={<MatchEnd />} 
         />
+
+        <Route 
+          path="/non-match-event-selector" 
+          element={<NonMatchEventSelector />} 
+        />
+
+        <Route 
+          path="/match/:matchId" 
+          element={<MatchComponent />} 
+        />
+
+        <Route 
+          path="/non-match-result/:eventId" 
+          element={<NonMatchResult />} 
+        />
+
+       
+   
 
       </Routes>
     </Router>

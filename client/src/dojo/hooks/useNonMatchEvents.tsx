@@ -76,6 +76,33 @@ const hexToNumber = (hexValue: string | number): number => {
   return 0;
 };
 
+// Helper to convert hex strings to readable text
+const hexToString = (hexValue: string): string => {
+  if (!hexValue || typeof hexValue !== 'string') return '';
+  
+  // Remove 0x prefix if present
+  const cleanHex = hexValue.startsWith('0x') ? hexValue.slice(2) : hexValue;
+  
+  // If it's not a hex string, return as is
+  if (!/^[0-9a-fA-F]*$/.test(cleanHex)) return hexValue;
+  
+  try {
+    // Convert hex to bytes and then to string
+    let result = '';
+    for (let i = 0; i < cleanHex.length; i += 2) {
+      const hexPair = cleanHex.substr(i, 2);
+      const charCode = parseInt(hexPair, 16);
+      if (charCode !== 0) { // Skip null bytes
+        result += String.fromCharCode(charCode);
+      }
+    }
+    return result || hexValue; // Return original if conversion fails
+  } catch (error) {
+    console.warn('Failed to convert hex to string:', hexValue, error);
+    return hexValue; // Return original hex if conversion fails
+  }
+};
+
 // Interfaces
 export interface NonMatchEvent {
   event_id: number;
@@ -134,8 +161,8 @@ const fetchNonMatchEvents = async (): Promise<NonMatchEvent[]> => {
       .filter(Boolean)
       .map((event: any) => ({
         event_id: hexToNumber(event.event_id),
-        name: event.name || "",
-        description: event.description || "",
+        name: hexToString(event.name) || "",
+        description: hexToString(event.description) || "",
         is_available: Boolean(event.is_available),
       }));
   } catch (error) {
@@ -168,8 +195,8 @@ const fetchNonMatchEventOutcomes = async (eventId: number): Promise<NonMatchEven
         event_id: hexToNumber(outcome.event_id),
         outcome_id: hexToNumber(outcome.outcome_id),
         outcome_type: hexToNumber(outcome.outcome_type),
-        name: outcome.name || "",
-        description: outcome.description || "",
+        name: hexToString(outcome.name) || "",
+        description: hexToString(outcome.description) || "",
         coins_delta: hexToNumber(outcome.coins_delta),
         shoot_delta: hexToNumber(outcome.shoot_delta),
         dribble_delta: hexToNumber(outcome.dribble_delta),
