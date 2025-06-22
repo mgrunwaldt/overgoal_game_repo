@@ -3,12 +3,21 @@ import { usePlayer } from "../../dojo/hooks/usePlayer";
 import { useTeams } from "../../dojo/hooks/useTeams";
 import { useStarknetConnect } from "../../dojo/hooks/useStarknetConnect";
 import { useCreateGameMatchAction } from "../../dojo/hooks/useCreateGameMatchAction";
-import { LogOut, Play } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useAppStore from "../../zustand/store";
+import StatsPopup from "../StatsPopup";
+
+const charactersImages = {
+  striker: "/playerTypes/9",
+  playmaker: "/playerTypes/10",
+  dribbler: "/playerTypes/11"
+};
+
 
 export default function MainScreen() {
     const navigate = useNavigate();
+    const [isStatsPopupOpen, setIsStatsPopupOpen] = useState(false);
     const [playerStats, setPlayerStats] = useState({
         stamina: 0,
         energy: 0,
@@ -91,56 +100,71 @@ export default function MainScreen() {
     }
   }, [createGameMatchState, navigate, gameMatches]);
 
-  return <div className="flex flex-col items-center justify-center h-screen">
+  return (
+    <div 
+        className="h-screen w-screen bg-cover bg-center bg-no-repeat flex flex-col items-center justify-between p-4"
+        style={{ backgroundImage: "url('/Screens/Main/Background.png')" }}
+    >
    
 
-   <div className="flex flex-row items-center justify-center">
-    <button className="rounded-full bg-red-500 p-3 text-white text-center" onClick={() => {
-      handleDisconnect();
-      navigate("/login", { replace: true });
-    }}><LogOut size={20} /></button>
-   </div> 
-   
-    <div>
-      <h1>Stamina: {playerStats.stamina} </h1>
-      <h1>Energy: {playerStats.energy} </h1>
-      <h1>Charisma: {playerStats.charisma} </h1>
-      <h1>Dribble: {playerStats.dribble} </h1>
-      <h1>Fame: {playerStats.fame} </h1>
-      <h1>Team: {selectedTeam?.name || player?.selected_team_id || "None"} </h1>
-      <h1>Team Points: {selectedTeam?.current_league_points || 0} </h1>
-    </div>
+        {/* Top Icons */}
+        <div className="w-full flex justify-around items-start pt-4 px-4 z-100">
+            <button onClick={() => console.log('Ranking Board clicked')}>
+                <img src="/Screens/Main/Ranking Board.png" alt="Ranking Board" className="w-24 h-24 object-contain" />
+            </button>
+            <button onClick={() => {
+               setIsStatsPopupOpen(true)
+               console.log("cLICK")
+            }}>
+                <img src="/Screens/Main/Character Stats.png" alt="Character Stats" className="w-24 h-24 object-contain" />
+            </button>
+            <button onClick={() => console.log('Weekend Cup clicked')}>
+                <img src="/Screens/Main/Weekend Cup.png" alt="Weekend Cup" className="w-24 h-24 object-contain" />
+            </button>
+        </div>
 
-    {/* Error display */}
-    {matchError && (
-      <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-        {matchError}
-      </div>
-    )}
+        {/* Center Character */}
+        <div className="flex-grow flex items-center justify-center z-100">
+            <img src="/playerTypes/10.png" alt="Character" className="max-h-[60vh] object-contain" />
+        </div>
 
-    {/* New Match Button */}
-    <div className="mt-8">
-      <button
-        onClick={handleNewMatch}
-        disabled={!canCreateGameMatch || isCreatingMatch || !selectedTeam || teams.length < 2}
-        className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
-          canCreateGameMatch && !isCreatingMatch && selectedTeam && teams.length >= 2
-            ? "bg-green-600 hover:bg-green-700 text-white"
-            : "bg-slate-600 text-slate-400 cursor-not-allowed"
-        }`}
-      >
-        {isCreatingMatch ? (
-          <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-        ) : (
-          <Play size={20} />
+        {/* Play Match Button */}
+        <div className="w-full flex flex-col items-center justify-center pb-8 z-100">
+            <button
+                onClick={handleNewMatch}
+                disabled={!canCreateGameMatch || isCreatingMatch || !selectedTeam || teams.length < 2}
+                className="disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {isCreatingMatch ? (
+                    <div className="text-white bg-black/50 rounded-lg p-4">Creating Match...</div>
+                ) : (
+                    <img src="/Screens/Main/Play Match.png" alt="Play Match" className="w-64 h-auto" />
+                )}
+            </button>
+             {/* Error display */}
+            {matchError && (
+                <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                    {matchError}
+                </div>
+            )}
+        </div>
+
+        {/* Logout Button */}
+        <div className="absolute top-4 right-4">
+            <button className="rounded-full bg-red-900/50 p-3 text-white text-center hover:bg-red-800/70" onClick={() => {
+                handleDisconnect();
+                navigate("/login", { replace: true });
+            }}><LogOut size={20} /></button>
+        </div>
+
+        {isStatsPopupOpen && player && selectedTeam && (
+            <StatsPopup 
+                stats={playerStats}
+                onClose={() => setIsStatsPopupOpen(false)}
+                teamName={selectedTeam.name}
+                teamPoints={selectedTeam.current_league_points}
+            />
         )}
-        {isCreatingMatch ? "Creating Match..." : "New Match"}
-      </button>
     </div>
-
-
-  
- 
-  
-  </div>;
-}   
+  );
+}
