@@ -41,6 +41,17 @@ export default function NewMatch() {
   const [opponentTeam, setOpponentTeam] = useState<Team | null>(null);
   const [currentGameMatch, setCurrentGameMatch] = useState<GameMatch | null>(null);
   const [playerImage, setPlayerImage] = useState<String>("/preMatch/Player 10.png")
+  const [myTeamImage, setMyTeamImage] = useState<string>("");
+  const [opponentTeamImage, setOpponentTeamImage] = useState<string>("");
+
+  useEffect(() => {
+    if (selectedTeam) {
+      setMyTeamImage(`/teams/${selectedTeam.team_id}.png`);
+    }
+    if (opponentTeam) {
+      setOpponentTeamImage(`/teams/${opponentTeam.team_id}.png`);
+    }
+  }, [selectedTeam, opponentTeam]);
 
   useEffect(() => {
     if (player && teams.length > 0) {
@@ -126,9 +137,9 @@ export default function NewMatch() {
 
       <div className="flex justify-between space-y-28 flex-col h-full">
       <div className="flex flex-row space-x-2 justify-between items-center ">
-        <img src="/teams/DojoUnited.png"  className="w-32 h-40" alt="" />
+        <img src={myTeamImage}  className="w-32 h-40" alt="My Team" />
         <img src="/preMatch/Vs.png" alt=""  className="relative top-16 left-4 w-32 h-40" />
-        <img src="/teams/CartridgeCity.png" alt="" className="w-32 h-40"  />
+        <img src={opponentTeamImage} alt="Opponent Team" className="w-32 h-40"  />
 
       </div>
 
