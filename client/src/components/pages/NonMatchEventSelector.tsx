@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Home, Star, Zap, Dumbbell, Brain, PartyPopper, Target, Mic, Smartphone, Heart, Play, Gamepad2 } from "lucide-react";
 import { useNonMatchEvents, NonMatchEvent } from "../../dojo/hooks/useNonMatchEvents";
+import NonMatchEventItem from "../ui/nonMatchEventItem";
 // Icon mapping for each event
 
 const getEventImage = (eventId: number) => {
@@ -112,10 +113,10 @@ export default function NonMatchEventSelector() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {nonMatchEvents.map((event: NonMatchEvent) => {
-                return <img src={getEventImage(event.event_id)} alt={event.name} />
+                return <NonMatchEventItem event_id={event.event_id} title={event.name} />
             })}
           </div>
-        </div>
+        </div>  
       )}
 
       {/* No Events State */}

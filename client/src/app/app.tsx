@@ -13,6 +13,7 @@ import NonMatchEventSelector from "../components/pages/NonMatchEventSelector";
 import MatchComponent from "../components/pages/MatchComponent";
 import MatchDecision from "../components/pages/MatchDecision";
 import NonMatchResult from "../components/pages/NonMatchResult";
+import NonMatchEvent from "../components/pages/NonMatchEvent";
 
 function App() {
   const { account, status } = useAccount();
@@ -99,9 +100,11 @@ function App() {
         />
 
         <Route 
-          path="/non-match-result" 
+          path="/non-match-result/:eventId" 
           element={<NonMatchResult />} 
         />
+
+       
    
 
       </Routes>

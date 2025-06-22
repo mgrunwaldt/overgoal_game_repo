@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const stats = [
   { name: 'SHOOTING', value: 72 },
@@ -9,6 +10,10 @@ const stats = [
 ];
 
 const NonMatchResult = () => {
+  const navigate = useNavigate();
+
+
+
   return (
     <div
       className="min-h-screen w-full flex flex-col items-center justify-center p-8 bg-cover bg-center"
@@ -53,6 +58,9 @@ const NonMatchResult = () => {
         {/* Next Button */}
         <div className="w-full flex justify-end mt-4">
           <button
+          onClick={() => {
+            navigate("/main");
+          }}
             className="w-40 h-14 bg-contain bg-no-repeat bg-center text-white text-lg font-bold flex items-center justify-center pr-4 transition-transform transform hover:scale-105"
             style={{ backgroundImage: "url('/nonMatchResult/Next Button.png')" }}
           >
