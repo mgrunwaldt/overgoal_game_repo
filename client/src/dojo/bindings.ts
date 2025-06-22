@@ -15,6 +15,12 @@ export interface Player {
 	fame: number;
 	selected_team_id: number;
 	is_player_created: boolean;
+	// ✅ ADD NEW FIELDS
+	is_injured: boolean;
+	passing: number;
+	free_kick: number;
+	team_relationship: number;
+	intelligence: number;
 }
 
 // Type definition for `full_starter_react::models::player::PlayerValue` struct
@@ -134,12 +140,50 @@ export enum MatchDecision {
     StayOut = 9,
 }
 
+export interface NonMatchEvent {
+    event_id: number;
+    name: string;
+    description: string;
+    is_available: boolean;
+}
+
+export interface NonMatchEventOutcome {
+    event_id: number;
+    outcome_id: number;
+    outcome_type: number;
+    name: string;
+    description: string;
+    coins_delta: number;
+    shoot_delta: number;
+    dribble_delta: number;
+    energy_delta: number;
+    stamina_delta: number;
+    charisma_delta: number;
+    fame_delta: number;
+    passing_delta: number;
+    free_kick_delta: number;
+    team_relationship_delta: number;
+    intelligence_delta: number;
+    sets_injured: boolean;
+}
+
+export interface PlayerEventHistory {
+    player: string;
+    event_id: number;
+    times_triggered: number;
+    last_outcome_id: number;
+    last_triggered_day: number;
+}
+
 export interface SchemaType extends ISchemaType {
 	full_starter_react: {
 		Player: Player,
 		PlayerValue: PlayerValue,
 		Team: Team,
 		GameMatch: GameMatch,
+		NonMatchEvent: NonMatchEvent,
+		NonMatchEventOutcome: NonMatchEventOutcome,
+		PlayerEventHistory: PlayerEventHistory,
 	},
 	achievement: {
 		TrophyCreation: TrophyCreation,
@@ -165,6 +209,12 @@ export const schema: SchemaType = {
 			fame: 0,
 			selected_team_id: 0,
 			is_player_created: false,
+			// ✅ ADD WITH DEFAULT VALUES
+			is_injured: false,
+			passing: 0,
+			free_kick: 0,
+			team_relationship: 0,
+			intelligence: 0,
 		},
 		PlayerValue: {
 			owner: "",
@@ -197,6 +247,38 @@ export const schema: SchemaType = {
             next_match_action_minute: 0,
             current_time: 0,
             match_status: 0,
+		},
+		NonMatchEvent: {
+			event_id: 0,
+			name: "",
+			description: "",
+			is_available: false,
+		},
+		NonMatchEventOutcome: {
+			event_id: 0,
+			outcome_id: 0,
+			outcome_type: 0,
+			name: "",
+			description: "",
+			coins_delta: 0,
+			shoot_delta: 0,
+			dribble_delta: 0,
+			energy_delta: 0,
+			stamina_delta: 0,
+			charisma_delta: 0,
+			fame_delta: 0,
+			passing_delta: 0,
+			free_kick_delta: 0,
+			team_relationship_delta: 0,
+			intelligence_delta: 0,
+			sets_injured: false,
+		},
+		PlayerEventHistory: {
+			player: "",
+			event_id: 0,
+			times_triggered: 0,
+			last_outcome_id: 0,
+			last_triggered_day: 0,
 		},
 	},
 	achievement: {
@@ -249,6 +331,9 @@ export enum ModelsMapping {
 	PlayerValue = 'full_starter_react-PlayerValue',
 	Team = 'full_starter_react-Team',
 	GameMatch = 'full_starter_react-GameMatch',
+	NonMatchEvent = 'full_starter_react-NonMatchEvent',
+	NonMatchEventOutcome = 'full_starter_react-NonMatchEventOutcome',
+	PlayerEventHistory = 'full_starter_react-PlayerEventHistory',
 	TrophyCreation = 'achievement-TrophyCreation',
 	TrophyCreationValue = 'achievement-TrophyCreationValue',
 	TrophyProgression = 'achievement-TrophyProgression',

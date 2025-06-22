@@ -16,6 +16,12 @@ export interface Player {
   fame: number;
   selected_team_id: number;
   is_player_created: boolean;
+  // ✅ ADD NEW FIELDS
+  is_injured: boolean;
+  passing: number;
+  free_kick: number;
+  team_relationship: number;
+  intelligence: number;
 }
 
 export interface Team {
@@ -104,6 +110,12 @@ interface AppActions {
   updatePlayerFame: (fame: number) => void;
   updatePlayerSelectedTeam: (selected_team_id: number) => void;
   updatePlayerCreationStatus: (is_player_created: boolean) => void;
+  // ✅ ADD UPDATE ACTIONS FOR NEW FIELDS
+  updatePlayerInjuryStatus: (is_injured: boolean) => void;
+  updatePlayerPassing: (passing: number) => void;
+  updatePlayerFreeKick: (free_kick: number) => void;
+  updatePlayerTeamRelationship: (team_relationship: number) => void;
+  updatePlayerIntelligence: (intelligence: number) => void;
   
   // Team management actions
   setTeams: (teams: Team[]) => void;
@@ -199,6 +211,27 @@ const useAppStore = create<AppStore>()(
 
       updatePlayerCreationStatus: (is_player_created) => set((state) => ({
         player: state.player ? { ...state.player, is_player_created } : null
+      })),
+
+      // ✅ IMPLEMENT ACTIONS FOR NEW FIELDS
+      updatePlayerInjuryStatus: (is_injured) => set((state) => ({
+        player: state.player ? { ...state.player, is_injured } : null
+      })),
+
+      updatePlayerPassing: (passing) => set((state) => ({
+        player: state.player ? { ...state.player, passing } : null
+      })),
+
+      updatePlayerFreeKick: (free_kick) => set((state) => ({
+        player: state.player ? { ...state.player, free_kick } : null
+      })),
+
+      updatePlayerTeamRelationship: (team_relationship) => set((state) => ({
+        player: state.player ? { ...state.player, team_relationship } : null
+      })),
+
+      updatePlayerIntelligence: (intelligence) => set((state) => ({
+        player: state.player ? { ...state.player, intelligence } : null
       })),
 
       // Team actions

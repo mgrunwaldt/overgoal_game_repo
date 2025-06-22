@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x649ddf74f14136e30472f95e4168b16e044612e15fe753db2a0850c5fdaa79c",
-      "class_hash": "0x7bf72447e526da8fc8b72da86583757603ca80d21c8e3907275d2c5fb1c85b1",
+      "address": "0x261d7ef28f9a48841d8a25fecd9d4171eb2ba3c637cc7554ac5839184802ec3",
+      "class_hash": "0x2988e944e1ff2d3182d67c57daac6888463a5be460143ba98f495e9b225a97a",
       "abi": [
         {
           "type": "impl",
@@ -1392,6 +1392,20 @@
           "type": "impl",
           "name": "GameImpl",
           "interface_name": "full_starter_react::systems::game::IGame"
+        },
+        {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
         },
         {
           "type": "interface",
@@ -1457,6 +1471,46 @@
               "type": "function",
               "name": "improve_fame",
               "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "train_passing",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "train_free_kick",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "improve_team_relationship",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "improve_intelligence",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_player_injured",
+              "inputs": [
+                {
+                  "name": "injured",
+                  "type": "core::bool"
+                }
+              ],
               "outputs": [],
               "state_mutability": "external"
             },
@@ -1671,6 +1725,161 @@
               ],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "seed_non_match_events",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "trigger_non_match_event",
+              "inputs": [
+                {
+                  "name": "event_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "look_for_sponsor_deals",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "free_kick_practice",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "go_to_gym",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "meditate",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "party",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "penalty_practice",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "go_to_podcast",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "work_on_social_media",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "visit_parents_home",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "go_for_run",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "play_videogames",
+              "inputs": [
+                {
+                  "name": "outcome_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
             }
           ]
         },
@@ -1807,6 +2016,11 @@
         "restore_stamina",
         "improve_charisma",
         "improve_fame",
+        "train_passing",
+        "train_free_kick",
+        "improve_team_relationship",
+        "improve_intelligence",
+        "set_player_injured",
         "spawn_striker",
         "spawn_dribbler",
         "spawn_playmaker",
@@ -1823,6 +2037,19 @@
         "simulate_gamematch",
         "add_my_team_goal",
         "add_opponent_team_goal",
+        "seed_non_match_events",
+        "trigger_non_match_event",
+        "look_for_sponsor_deals",
+        "free_kick_practice",
+        "go_to_gym",
+        "meditate",
+        "party",
+        "penalty_practice",
+        "go_to_podcast",
+        "work_on_social_media",
+        "visit_parents_home",
+        "go_for_run",
+        "play_videogames",
         "upgrade"
       ]
     }
@@ -1837,9 +2064,27 @@
     },
     {
       "members": [],
-      "class_hash": "0x6e1469909a26c51cc3ef577c6cb28608137708052051c62b70b580e2698e118",
+      "class_hash": "0x6aeb5e39d967417f0ef23c8659996887627b3a09c53280236f32bf6abd64b1e",
+      "tag": "full_starter_react-NonMatchEvent",
+      "selector": "0xe0b670fdad5a1502b5e99e4bf5dc74755cbd1eb4c13e9274824ec41178e747"
+    },
+    {
+      "members": [],
+      "class_hash": "0x68ad553e05d66fba33e2b27427bef257909ba73254da2c2ebea54e62125b766",
+      "tag": "full_starter_react-NonMatchEventOutcome",
+      "selector": "0x7e5bdb859c5f39e5ac0ae0483ca00d81ebdbaf516194e56ec51b459ffeb400e"
+    },
+    {
+      "members": [],
+      "class_hash": "0x30541b36c10277077024b5e7595a86021de2433b6613fe363784e4eb73894aa",
       "tag": "full_starter_react-Player",
       "selector": "0x13986cc36a0f8437378d1efa3068103f37b22361ff3cc31be99d50ddf2e4187"
+    },
+    {
+      "members": [],
+      "class_hash": "0x6b87c1d096930eb64c02bddb01749845ccc1e34725461bb47a77216b419170d",
+      "tag": "full_starter_react-PlayerEventHistory",
+      "selector": "0x5082c8f2762ea0c286a65e12ef0bf2d91f909321d7006195e18f573e1660b2b"
     },
     {
       "members": [],

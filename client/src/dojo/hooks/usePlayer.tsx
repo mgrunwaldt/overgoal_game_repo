@@ -33,6 +33,11 @@ const PLAYER_QUERY = `
                     fame
                     selected_team_id
                     is_player_created
+                    is_injured
+                    passing
+                    free_kick
+                    team_relationship
+                    intelligence
                 }
             }
         }
@@ -97,6 +102,12 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
       fame: hexToNumber(rawPlayerData.fame ),
       selected_team_id: hexToNumber(rawPlayerData.selected_team_id || 0),
       is_player_created: Boolean(rawPlayerData.is_player_created),
+      // ✅ ADD NEW FIELDS WITH DEFAULTS
+      is_injured: Boolean(rawPlayerData.is_injured || false),
+      passing: hexToNumber(rawPlayerData.passing || 0),
+      free_kick: hexToNumber(rawPlayerData.free_kick || 0),
+      team_relationship: hexToNumber(rawPlayerData.team_relationship || 0),
+      intelligence: hexToNumber(rawPlayerData.intelligence || 0),
     };
 
     console.log("✅ Player data after conversion:", playerData);

@@ -406,13 +406,54 @@ const build_game_addMyTeamGoal_calldata = (match_id: number): DojoCall => {
     };
 };
 
-const build_game_addOpponentTeamGoal_calldata = (match_id: number): DojoCall => {
-    return {
-        contractName: "game",
-        entrypoint: "add_opponent_team_goal",
-        calldata: [match_id],
-    };
-};
+	const build_game_addOpponentTeamGoal_calldata = (match_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "add_opponent_team_goal",
+			calldata: [match_id],
+		};
+	};
+
+	// ✅ ADD CALLDATA BUILDERS FOR NEW FUNCTIONS
+	const build_game_trainPassing_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "train_passing",
+			calldata: [],
+		};
+	};
+
+	const build_game_trainFreeKick_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "train_free_kick",
+			calldata: [],
+		};
+	};
+
+	const build_game_improveTeamRelationship_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "improve_team_relationship",
+			calldata: [],
+		};
+	};
+
+	const build_game_improveIntelligence_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "improve_intelligence",
+			calldata: [],
+		};
+	};
+
+	const build_game_setPlayerInjured_calldata = (injured: boolean): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "set_player_injured",
+			calldata: [injured ? 1 : 0],
+		};
+	};
 
 	const game_selectTeam = async (snAccount: Account | AccountInterface, team_id: number) => {
 		try {
@@ -532,6 +573,347 @@ const build_game_addOpponentTeamGoal_calldata = (match_id: number): DojoCall => 
 		}
 	};
 
+	// ✅ ADD EXECUTION FUNCTIONS FOR NEW ACTIONS
+	const game_trainPassing = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_trainPassing_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_trainFreeKick = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_trainFreeKick_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_improveTeamRelationship = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_improveTeamRelationship_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_improveIntelligence = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_improveIntelligence_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_setPlayerInjured = async (snAccount: Account | AccountInterface, injured: boolean) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_setPlayerInjured_calldata(injured),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	// ✅ NON-MATCH EVENT CALLDATA BUILDERS
+	const build_game_seedNonMatchEvents_calldata = (): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "seed_non_match_events",
+			calldata: [],
+		};
+	};
+
+	const build_game_triggerNonMatchEvent_calldata = (event_id: number, outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "trigger_non_match_event",
+			calldata: [event_id, outcome_id],
+		};
+	};
+
+	const build_game_lookForSponsorDeals_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "look_for_sponsor_deals",
+			calldata: [outcome_id],
+		};
+	};
+
+	const build_game_freeKickPractice_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "free_kick_practice",
+			calldata: [outcome_id],
+		};
+	};
+
+	const build_game_goToGym_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "go_to_gym",
+			calldata: [outcome_id],
+		};
+	};
+
+	const build_game_meditate_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "meditate",
+			calldata: [outcome_id],
+		};
+	};
+
+	const build_game_party_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "party",
+			calldata: [outcome_id],
+		};
+	};
+
+	const build_game_penaltyPractice_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "penalty_practice",
+			calldata: [outcome_id],
+		};
+	};
+
+	const build_game_goToPodcast_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "go_to_podcast",
+			calldata: [outcome_id],
+		};
+	};
+
+	const build_game_workOnSocialMedia_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "work_on_social_media",
+			calldata: [outcome_id],
+		};
+	};
+
+	const build_game_visitParentsHome_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "visit_parents_home",
+			calldata: [outcome_id],
+		};
+	};
+
+	const build_game_goForRun_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "go_for_run",
+			calldata: [outcome_id],
+		};
+	};
+
+	const build_game_playVideogames_calldata = (outcome_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "play_videogames",
+			calldata: [outcome_id],
+		};
+	};
+
+	// ✅ NON-MATCH EVENT EXECUTION FUNCTIONS
+	const game_seedNonMatchEvents = async (snAccount: Account | AccountInterface) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_seedNonMatchEvents_calldata(),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_triggerNonMatchEvent = async (snAccount: Account | AccountInterface, event_id: number, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_triggerNonMatchEvent_calldata(event_id, outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_lookForSponsorDeals = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_lookForSponsorDeals_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_freeKickPractice = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_freeKickPractice_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_goToGym = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_goToGym_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_meditate = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_meditate_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_party = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_party_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_penaltyPractice = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_penaltyPractice_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_goToPodcast = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_goToPodcast_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_workOnSocialMedia = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_workOnSocialMedia_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_visitParentsHome = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_visitParentsHome_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_goForRun = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_goForRun_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
+	const game_playVideogames = async (snAccount: Account | AccountInterface, outcome_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_playVideogames_calldata(outcome_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	return {
 		game: {
 			mine: game_mine,
@@ -552,6 +934,17 @@ const build_game_addOpponentTeamGoal_calldata = (match_id: number): DojoCall => 
 			buildImproveCharismaCalldata: build_game_improveCharisma_calldata,
 			improveFame: game_improveFame,
 			buildImproveFameCalldata: build_game_improveFame_calldata,
+			// ✅ ADD TO RETURN OBJECT
+			trainPassing: game_trainPassing,
+			buildTrainPassingCalldata: build_game_trainPassing_calldata,
+			trainFreeKick: game_trainFreeKick,
+			buildTrainFreeKickCalldata: build_game_trainFreeKick_calldata,
+			improveTeamRelationship: game_improveTeamRelationship,
+			buildImproveTeamRelationshipCalldata: build_game_improveTeamRelationship_calldata,
+			improveIntelligence: game_improveIntelligence,
+			buildImproveIntelligenceCalldata: build_game_improveIntelligence_calldata,
+			setPlayerInjured: game_setPlayerInjured,
+			buildSetPlayerInjuredCalldata: build_game_setPlayerInjured_calldata,
 			// --------- Archetype spawn functions ---------
 			spawnStriker: game_spawnStriker,
 			buildSpawnStrikerCalldata: build_game_spawnStriker_calldata,
@@ -588,6 +981,34 @@ const build_game_addOpponentTeamGoal_calldata = (match_id: number): DojoCall => 
 			buildAddMyTeamGoalCalldata: build_game_addMyTeamGoal_calldata,
 			addOpponentTeamGoal: game_addOpponentTeamGoal,
 			buildAddOpponentTeamGoalCalldata: build_game_addOpponentTeamGoal_calldata,
+			
+			// Non-Match Event functions
+			seedNonMatchEvents: game_seedNonMatchEvents,
+			buildSeedNonMatchEventsCalldata: build_game_seedNonMatchEvents_calldata,
+			triggerNonMatchEvent: game_triggerNonMatchEvent,
+			buildTriggerNonMatchEventCalldata: build_game_triggerNonMatchEvent_calldata,
+			lookForSponsorDeals: game_lookForSponsorDeals,
+			buildLookForSponsorDealsCalldata: build_game_lookForSponsorDeals_calldata,
+			freeKickPractice: game_freeKickPractice,
+			buildFreeKickPracticeCalldata: build_game_freeKickPractice_calldata,
+			goToGym: game_goToGym,
+			buildGoToGymCalldata: build_game_goToGym_calldata,
+			meditate: game_meditate,
+			buildMeditateCalldata: build_game_meditate_calldata,
+			party: game_party,
+			buildPartyCalldata: build_game_party_calldata,
+			penaltyPractice: game_penaltyPractice,
+			buildPenaltyPracticeCalldata: build_game_penaltyPractice_calldata,
+			goToPodcast: game_goToPodcast,
+			buildGoToPodcastCalldata: build_game_goToPodcast_calldata,
+			workOnSocialMedia: game_workOnSocialMedia,
+			buildWorkOnSocialMediaCalldata: build_game_workOnSocialMedia_calldata,
+			visitParentsHome: game_visitParentsHome,
+			buildVisitParentsHomeCalldata: build_game_visitParentsHome_calldata,
+			goForRun: game_goForRun,
+			buildGoForRunCalldata: build_game_goForRun_calldata,
+			playVideogames: game_playVideogames,
+			buildPlayVideogamesCalldata: build_game_playVideogames_calldata,
 		},
 	};
 }

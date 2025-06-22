@@ -17,6 +17,8 @@ pub mod models {
     pub mod player;
     pub mod team;
     pub mod gamematch;
+    pub mod non_match_event;
 }
+
 
 

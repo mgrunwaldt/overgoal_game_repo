@@ -11,6 +11,12 @@ pub trait IGame<T> {
     fn restore_stamina(ref self: T);
     fn improve_charisma(ref self: T);
     fn improve_fame(ref self: T);
+    // ✅ ADD NEW METHODS
+    fn train_passing(ref self: T);
+    fn train_free_kick(ref self: T);
+    fn improve_team_relationship(ref self: T);
+    fn improve_intelligence(ref self: T);
+    fn set_player_injured(ref self: T, injured: bool);
     // --------- Archetype creation methods ---------
     fn spawn_striker(ref self: T);
     fn spawn_dribbler(ref self: T);
@@ -30,6 +36,21 @@ pub trait IGame<T> {
     fn simulate_gamematch(ref self: T, match_id: u32);
     fn add_my_team_goal(ref self: T, match_id: u32);
     fn add_opponent_team_goal(ref self: T, match_id: u32);
+    // --------- Non-Match Event methods ---------
+    fn seed_non_match_events(ref self: T);
+    fn trigger_non_match_event(ref self: T, event_id: u32, outcome_id: u32);
+    // Individual event methods
+    fn look_for_sponsor_deals(ref self: T, outcome_id: u32);
+    fn free_kick_practice(ref self: T, outcome_id: u32);
+    fn go_to_gym(ref self: T, outcome_id: u32);
+    fn meditate(ref self: T, outcome_id: u32);
+    fn party(ref self: T, outcome_id: u32);
+    fn penalty_practice(ref self: T, outcome_id: u32);
+    fn go_to_podcast(ref self: T, outcome_id: u32);
+    fn work_on_social_media(ref self: T, outcome_id: u32);
+    fn visit_parents_home(ref self: T, outcome_id: u32);
+    fn go_for_run(ref self: T, outcome_id: u32);
+    fn play_videogames(ref self: T, outcome_id: u32);
 }
 
 #[dojo::contract]
@@ -302,6 +323,117 @@ pub mod game {
 
             // Improve fame
             store.improve_fame();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        // ✅ IMPLEMENT NEW METHODS FOLLOWING EXACT SAME PATTERN
+        fn train_passing(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Train passing
+            store.train_passing();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn train_free_kick(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Train free kick
+            store.train_free_kick();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn improve_team_relationship(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Improve team relationship
+            store.improve_team_relationship();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn improve_intelligence(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Improve intelligence
+            store.improve_intelligence();
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        fn set_player_injured(ref self: ContractState, injured: bool) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Set player injured status
+            store.set_player_injured(injured);
 
             // Emit events for achievements progression
             let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
@@ -703,6 +835,158 @@ pub mod game {
                 achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
                 achievement_id += 1;
             };
+        }
+
+        // --------- Non-Match Event methods ---------
+        fn seed_non_match_events(ref self: ContractState) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+
+            // Create all 11 non-match events with their outcomes
+            
+            // Event 1: Look for Sponsor Deals
+            store.create_non_match_event(1, 'Look for Sponsor Deals', 'Find sponsorship opportunities');
+            store.create_non_match_event_outcome(1, 1, 1, 'Sneaker Cinderella', 'Hip shoe startup loves you', 15, 0, 0, 0, 0, 4, 8, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(1, 2, 1, 'Eco-Water Hero', 'Water deal with donation', 12, 0, 0, 0, 0, 0, 6, 0, 0, 3, 0, false);
+            store.create_non_match_event_outcome(1, 3, 0, 'Crypto Clown', 'Sketchy token, fans clown you', 18, 0, 0, 0, 0, 0, -10, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(1, 4, 0, 'Smelly Socks Saga', 'Deodorant brand everyone hates', 12, 0, 0, 0, 0, 0, -8, 0, 0, 0, 0, false);
+
+            // Event 2: Free-Kick Practice  
+            store.create_non_match_event(2, 'Free-Kick Practice', 'Practice free kick techniques');
+            store.create_non_match_event_outcome(2, 1, 1, 'Top-Corner Machine', 'Every ball bends in like magic', 0, 4, 0, -6, 0, 0, 0, 0, 7, 0, 0, false);
+            store.create_non_match_event_outcome(2, 2, 1, 'Technique Tutorials', 'Coaches film for academy', 0, 0, 0, -5, 0, 0, 3, 0, 5, 0, 0, false);
+            store.create_non_match_event_outcome(2, 3, 0, 'Wet-Grass Wipe-out', 'Slip, tweak your hamstring', 0, 0, 0, -10, 0, 0, 0, 0, 0, 0, 0, true);
+            store.create_non_match_event_outcome(2, 4, 0, 'Leg-Day Overload', 'Too many reps fry your quads', 0, 0, 0, -8, -6, 0, 0, 0, 0, 0, 0, false);
+
+            // Event 3: Go to the Gym
+            store.create_non_match_event(3, 'Go to the Gym', 'Hit gym for training');
+            store.create_non_match_event_outcome(3, 1, 1, 'PR Parade', 'Smash bench-press record', -4, 0, 0, -5, 6, 2, 0, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(3, 2, 1, 'Core Crusher', 'Core workout boosts endurance', -3, 0, 0, 3, 4, 0, 0, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(3, 3, 0, 'Over-Train Pain', 'Push too hard; body rebels', -2, 0, 0, -8, -4, 0, 0, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(3, 4, 0, 'Gym-Floor Sprain', 'Awkward landing, ankle nope', 0, 0, 0, -10, 0, 0, 0, 0, 0, 0, 0, true);
+
+            // Event 4: Meditate
+            store.create_non_match_event(4, 'Meditate', 'Practice mindfulness');
+            store.create_non_match_event_outcome(4, 1, 1, 'Zen Master', 'Breathing drills clear the mind', 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 5, false);
+            store.create_non_match_event_outcome(4, 2, 1, 'Chill Aura', 'Teammates feed off your calm', 0, 0, 0, 0, 0, 3, 0, 0, 0, 6, 0, false);
+            store.create_non_match_event_outcome(4, 3, 0, 'Meeting Snoozer', 'Doze off mid-team talk', 0, 0, 0, 0, 0, 0, -3, 0, 0, -5, 0, false);
+            store.create_non_match_event_outcome(4, 4, 0, 'Viral Chant Fail', 'Weird chanting clip goes viral', 0, 0, 0, 0, 0, -2, -6, 0, 0, 0, 0, false);
+
+            // Event 5: Party
+            store.create_non_match_event(5, 'Party', 'Go out and party with friends');
+            store.create_non_match_event_outcome(5, 1, 1, 'Dance-Floor Legend', 'Crowd chants your name', -10, 0, 0, -8, 0, 6, 5, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(5, 2, 1, 'VIP Networking', 'Mingle with celebs', 8, 0, 0, -6, 0, 0, 4, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(5, 3, 0, 'Tabloid Trouble', 'Paparazzi catch you at 4 a.m.', 0, 0, 0, -9, 0, -5, -7, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(5, 4, 0, 'Dance-Floor Tackle', 'Club brawl; you limp home', 0, 0, 0, -10, -6, 0, 0, 0, 0, 0, 0, true);
+
+            // Event 6: Penalty Practice
+            store.create_non_match_event(6, 'Penalty Practice', 'Practice penalty shooting');
+            store.create_non_match_event_outcome(6, 1, 1, 'Ten-for-Ten', 'Drill every shot; coach happy', 0, 5, 0, -6, 0, 0, 0, 0, 3, 0, 0, false);
+            store.create_non_match_event_outcome(6, 2, 1, 'Viral Stutter-Step', 'Cheeky run-up delights fans', 0, 2, 0, -4, 0, 3, 4, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(6, 3, 0, 'Confidence Crash', 'Miss five straight; self-doubt', 0, -3, 0, -5, 0, -4, 0, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(6, 4, 0, 'Ball-to-Ankle', 'Mis-hit rebounds into ankle', 0, 0, 0, -8, 0, 0, 0, 0, 0, 0, 0, true);
+
+            // Event 7: Go to a Podcast
+            store.create_non_match_event(7, 'Go to a Podcast', 'Appear on a sports podcast');
+            store.create_non_match_event_outcome(7, 1, 1, 'Story-Time Star', 'Listeners love locker tales', 5, 0, 0, 0, 0, 5, 6, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(7, 2, 1, 'Clip Goes Viral', 'TikTok explodes; teammates', 0, 0, 0, 0, 0, 2, 8, 0, 0, 3, 0, false);
+            store.create_non_match_event_outcome(7, 3, 0, 'Coach-Shade Slip', 'Accidentally roast the coach', 0, 0, 0, 0, 0, 0, -4, 0, 0, -8, 0, false);
+            store.create_non_match_event_outcome(7, 4, 0, 'Hot-Take Backlash', 'Fans cancel you over opinion', 0, 0, 0, 0, 0, -3, -6, 0, 0, 0, 0, false);
+
+            // Event 8: Work on Social Media
+            store.create_non_match_event(8, 'Work on Social Media', 'Create content for socials');
+            store.create_non_match_event_outcome(8, 1, 1, 'Trick-Shot King', 'Reel hits a million views', 5, 0, 0, 0, 0, 4, 7, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(8, 2, 1, 'Brand Collab', 'Sponsored post pays off', 10, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(8, 3, 0, 'Cringe Challenge', 'Dance fails, comments savage', 0, 0, 0, 0, 0, -4, -6, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(8, 4, 0, 'Doom-Scroll Drain', 'Hours lost to scrolling', 0, 0, 0, -6, 0, 0, 0, 0, 0, 0, -3, false);
+
+            // Event 9: Visit Parents' Home
+            store.create_non_match_event(9, 'Visit Parents Home', 'Go home to visit family');
+            store.create_non_match_event_outcome(9, 1, 1, 'Mom\'s Cooking', 'Comfort food recharges', -4, 0, 0, 8, 4, 0, 0, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(9, 2, 1, 'Family Grounding', 'Heart-to-heart resets focus', -2, 0, 0, 0, 0, 0, 0, 0, 0, 6, 3, false);
+            store.create_non_match_event_outcome(9, 3, 0, 'Missed Flight', 'Return late; coach fuming', -6, 0, 0, -4, 0, 0, 0, 0, 0, -5, 0, false);
+            store.create_non_match_event_outcome(9, 4, 0, 'Awkward Paparazzi', 'Small-town tabloid snaps you', 0, 0, 0, -3, 0, 0, -4, 0, 0, 0, 0, false);
+
+            // Event 10: Go for a Run
+            store.create_non_match_event(10, 'Go for a Run', 'Go jogging for cardio exercise');
+            store.create_non_match_event_outcome(10, 1, 1, 'Sunrise Stride', 'Endorphins pump you up', 0, 0, 0, -5, 6, 0, 0, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(10, 2, 1, 'Fan Selfies', 'Bump into supporters mid-jog', 0, 0, 0, -4, 3, 3, 2, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(10, 3, 0, 'Curb Twist', 'Bad step, ankle rolls', 0, 0, 0, -8, 0, 0, 0, 0, 0, 0, 0, true);
+            store.create_non_match_event_outcome(10, 4, 0, 'Overheat', 'Mid-run meltdown', 0, 0, 0, -7, -4, 0, 0, 0, 0, 0, 0, false);
+
+            // Event 11: Play Videogames
+            store.create_non_match_event(11, 'Play Videogames', 'Gaming session for fun');
+            store.create_non_match_event_outcome(11, 1, 1, 'Stream Comeback', 'Epic win on stream; chat subs', 3, 0, 0, -3, 0, 4, 5, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(11, 2, 1, 'Strategy Savant', 'Tactics game sharpens decisions', 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 5, false);
+            store.create_non_match_event_outcome(11, 3, 0, 'All-Nighter', 'Lose track of time; zombie mode', 0, 0, 0, -8, -4, 0, 0, 0, 0, 0, 0, false);
+            store.create_non_match_event_outcome(11, 4, 0, 'Rage-Quit Meme', 'Clip of meltdown goes viral', 0, 0, 0, 0, 0, -3, -6, 0, 0, 0, 0, false);
+        }
+
+        fn trigger_non_match_event(ref self: ContractState, event_id: u32, outcome_id: u32) {
+            let mut world = self.world(@"full_starter_react");
+            let store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Trigger the non-match event
+            store.trigger_non_match_event(event_id, outcome_id);
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+        }
+
+        // Individual event methods (1-4 outcomes each)
+        fn look_for_sponsor_deals(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(1, outcome_id);
+        }
+
+        fn free_kick_practice(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(2, outcome_id);
+        }
+
+        fn go_to_gym(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(3, outcome_id);
+        }
+
+        fn meditate(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(4, outcome_id);
+        }
+
+        fn party(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(5, outcome_id);
+        }
+
+        fn penalty_practice(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(6, outcome_id);
+        }
+
+        fn go_to_podcast(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(7, outcome_id);
+        }
+
+        fn work_on_social_media(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(8, outcome_id);
+        }
+
+        fn visit_parents_home(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(9, outcome_id);
+        }
+
+        fn go_for_run(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(10, outcome_id);
+        }
+
+        fn play_videogames(ref self: ContractState, outcome_id: u32) {
+            self.trigger_non_match_event(11, outcome_id);
         }
     }
 }

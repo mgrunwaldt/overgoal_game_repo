@@ -26,6 +26,11 @@ pub struct Player {
     pub fame: u32,
     pub selected_team_id: u32,  // 0 means no team selected
     pub is_player_created: bool,
+    pub is_injured: bool,
+    pub passing: u32,
+    pub free_kick: u32,
+    pub team_relationship: u32,
+    pub intelligence: u32,
 }
 
 // Traits Implementations
@@ -45,6 +50,12 @@ pub impl PlayerImpl of PlayerTrait {
         fame: u32,
         selected_team_id: u32,
         is_player_created: bool,
+        // ✅ ADD NEW PARAMETERS
+        is_injured: bool,
+        passing: u32,
+        free_kick: u32,
+        team_relationship: u32,
+        intelligence: u32,
     ) -> Player {
         Player {
             owner: owner,
@@ -60,6 +71,12 @@ pub impl PlayerImpl of PlayerTrait {
             fame: fame,
             selected_team_id: selected_team_id,
             is_player_created: is_player_created,
+            // ✅ ADD INITIALIZATION
+            is_injured: is_injured,
+            passing: passing,
+            free_kick: free_kick,
+            team_relationship: team_relationship,
+            intelligence: intelligence,
         }
     }
 
@@ -83,6 +100,12 @@ pub impl PlayerImpl of PlayerTrait {
             fame: 0,        // Starting fame
             selected_team_id: 0,  // No team selected initially
             is_player_created: false,
+            // ✅ ADD FIELDS WITH STRIKER VALUES
+            is_injured: false,
+            passing: 25,    // Moderate passing for striker
+            free_kick: 45,  // Good free kick ability
+            team_relationship: 30,  // Moderate team relationship
+            intelligence: 35,  // Moderate intelligence
         }
     }
 
@@ -106,6 +129,12 @@ pub impl PlayerImpl of PlayerTrait {
             fame: 0,        // Starting fame
             selected_team_id: 0,  // No team selected initially
             is_player_created: false,
+            // ✅ ADD FIELDS WITH DRIBBLER VALUES
+            is_injured: false,
+            passing: 40,    // Good passing for dribbler
+            free_kick: 20,  // Low free kick ability
+            team_relationship: 45,  // High team relationship (charismatic)
+            intelligence: 30,  // Moderate intelligence
         }
     }
 
@@ -129,6 +158,12 @@ pub impl PlayerImpl of PlayerTrait {
             fame: 0,        // Starting fame
             selected_team_id: 0,  // No team selected initially
             is_player_created: false,
+            // ✅ ADD FIELDS WITH PLAYMAKER VALUES
+            is_injured: false,
+            passing: 60,    // Excellent passing for playmaker
+            free_kick: 35,  // Good free kick ability
+            team_relationship: 55,  // Excellent team relationship
+            intelligence: 60,  // High intelligence (cerebral orchestrator)
         }
     }
 
@@ -179,6 +214,27 @@ pub impl PlayerImpl of PlayerTrait {
     fn select_team(ref self: Player, team_id: u32) {
         self.selected_team_id = team_id;
     }
+
+    // ✅ ADD SETTER METHODS FOR NEW FIELDS
+    fn set_injured(ref self: Player, injured: bool) {
+        self.is_injured = injured;
+    }
+
+    fn add_passing(ref self: Player, passing_amount: u32) {
+        self.passing += passing_amount;
+    }
+
+    fn add_free_kick(ref self: Player, free_kick_amount: u32) {
+        self.free_kick += free_kick_amount;
+    }
+
+    fn add_team_relationship(ref self: Player, team_relationship_amount: u32) {
+        self.team_relationship += team_relationship_amount;
+    }
+
+    fn add_intelligence(ref self: Player, intelligence_amount: u32) {
+        self.intelligence += intelligence_amount;
+    }
 }
 
 #[generate_trait]
@@ -211,6 +267,11 @@ pub impl ZeroablePlayerTrait of Zero<Player> {
             fame: 0,
             selected_team_id: 0,
             is_player_created: false,
+            is_injured: false,
+            passing: 0,
+            free_kick: 0,
+            team_relationship: 0,
+            intelligence: 0,
         }
     }
 
