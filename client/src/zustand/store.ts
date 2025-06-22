@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// Player Type Enum
+export enum PlayerType {
+  Striker = 0,
+  Dribbler = 1,
+  Playmaker = 2,
+}
+
 // Interface matching your bindings
 export interface Player {
   owner: string;          
@@ -22,6 +29,7 @@ export interface Player {
   free_kick: number;
   team_relationship: number;
   intelligence: number;
+  player_type: PlayerType;  // ✅ ADD NEW FIELD
 }
 
 export interface Team {
@@ -116,6 +124,7 @@ interface AppActions {
   updatePlayerFreeKick: (free_kick: number) => void;
   updatePlayerTeamRelationship: (team_relationship: number) => void;
   updatePlayerIntelligence: (intelligence: number) => void;
+  updatePlayerType: (player_type: PlayerType) => void;  // ✅ ADD UPDATE ACTION
   
   // Team management actions
   setTeams: (teams: Team[]) => void;
@@ -232,6 +241,10 @@ const useAppStore = create<AppStore>()(
 
       updatePlayerIntelligence: (intelligence) => set((state) => ({
         player: state.player ? { ...state.player, intelligence } : null
+      })),
+
+      updatePlayerType: (player_type) => set((state) => ({
+        player: state.player ? { ...state.player, player_type } : null
       })),
 
       // Team actions

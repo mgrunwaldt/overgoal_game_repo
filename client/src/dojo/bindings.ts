@@ -1,5 +1,12 @@
 import type { SchemaType as ISchemaType } from "@dojoengine/sdk";
 
+// Player Type Enum
+export enum PlayerType {
+	Striker = 0,
+	Dribbler = 1,
+	Playmaker = 2,
+}
+
 // Type definition for `full_starter_react::models::player::Player` struct
 export interface Player {
 	owner: string;
@@ -21,6 +28,7 @@ export interface Player {
 	free_kick: number;
 	team_relationship: number;
 	intelligence: number;
+	player_type: PlayerType;  // ✅ ADD NEW FIELD
 }
 
 // Type definition for `full_starter_react::models::player::PlayerValue` struct
@@ -215,6 +223,7 @@ export const schema: SchemaType = {
 			free_kick: 0,
 			team_relationship: 0,
 			intelligence: 0,
+			player_type: PlayerType.Striker,
 		},
 		PlayerValue: {
 			owner: "",

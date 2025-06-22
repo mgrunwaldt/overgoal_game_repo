@@ -3,7 +3,7 @@ import { useAccount } from "@starknet-react/core";
 import { addAddressPadding } from "starknet";
 import { dojoConfig } from "../dojoConfig";
 import useAppStore from "../../zustand/store";
-import { Player } from '../../zustand/store';
+import { Player, PlayerType } from '../../zustand/store';
 
 interface UsePlayerReturn {
   player: Player | null;
@@ -38,6 +38,7 @@ const PLAYER_QUERY = `
                     free_kick
                     team_relationship
                     intelligence
+                    player_type
                 }
             }
         }
@@ -108,6 +109,7 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
       free_kick: hexToNumber(rawPlayerData.free_kick || 0),
       team_relationship: hexToNumber(rawPlayerData.team_relationship || 0),
       intelligence: hexToNumber(rawPlayerData.intelligence || 0),
+      player_type: (rawPlayerData.player_type !== undefined ? rawPlayerData.player_type : PlayerType.Striker) as PlayerType,
     };
 
     console.log("✅ Player data after conversion:", playerData);

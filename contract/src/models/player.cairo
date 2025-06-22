@@ -8,8 +8,26 @@ use full_starter_react::constants;
 // Helpers import
 use full_starter_react::helpers::timestamp::Timestamp;
 
+// Player Type Enum
+#[derive(Serde, Copy, Drop, Introspect, PartialEq, Debug)]
+pub enum PlayerType {
+    Striker,
+    Dribbler,
+    Playmaker,
+}
+
+impl PlayerTypeIntoFelt252 of Into<PlayerType, felt252> {
+    fn into(self: PlayerType) -> felt252 {
+        match self {
+            PlayerType::Striker => 0,
+            PlayerType::Dribbler => 1,
+            PlayerType::Playmaker => 2,
+        }
+    }
+}
+
 // Model
-#[derive(Copy, Drop, Serde, IntrospectPacked, Debug)]
+#[derive(Copy, Drop, Serde, Introspect, Debug)]
 #[dojo::model]
 pub struct Player {
     #[key]
@@ -31,6 +49,7 @@ pub struct Player {
     pub free_kick: u32,
     pub team_relationship: u32,
     pub intelligence: u32,
+    pub player_type: PlayerType,  // ✅ ADD NEW FIELD
 }
 
 // Traits Implementations
@@ -56,6 +75,7 @@ pub impl PlayerImpl of PlayerTrait {
         free_kick: u32,
         team_relationship: u32,
         intelligence: u32,
+        player_type: PlayerType,
     ) -> Player {
         Player {
             owner: owner,
@@ -77,6 +97,7 @@ pub impl PlayerImpl of PlayerTrait {
             free_kick: free_kick,
             team_relationship: team_relationship,
             intelligence: intelligence,
+            player_type: player_type,
         }
     }
 
@@ -106,6 +127,7 @@ pub impl PlayerImpl of PlayerTrait {
             free_kick: 45,  // Good free kick ability
             team_relationship: 30,  // Moderate team relationship
             intelligence: 35,  // Moderate intelligence
+            player_type: PlayerType::Striker,
         }
     }
 
@@ -135,6 +157,7 @@ pub impl PlayerImpl of PlayerTrait {
             free_kick: 20,  // Low free kick ability
             team_relationship: 45,  // High team relationship (charismatic)
             intelligence: 30,  // Moderate intelligence
+            player_type: PlayerType::Dribbler,
         }
     }
 
@@ -164,6 +187,7 @@ pub impl PlayerImpl of PlayerTrait {
             free_kick: 35,  // Good free kick ability
             team_relationship: 55,  // Excellent team relationship
             intelligence: 60,  // High intelligence (cerebral orchestrator)
+            player_type: PlayerType::Playmaker,
         }
     }
 
@@ -272,6 +296,7 @@ pub impl ZeroablePlayerTrait of Zero<Player> {
             free_kick: 0,
             team_relationship: 0,
             intelligence: 0,
+            player_type: PlayerType::Striker,
         }
     }
 
