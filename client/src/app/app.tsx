@@ -42,7 +42,7 @@ function App() {
       <Routes>
         <Route 
           path="/login" 
-          element={<MainScreen />} 
+          element={<LoginScreen />} 
         />
         <Route 
           path="/character-selection" 
@@ -51,7 +51,7 @@ function App() {
       
         <Route 
           path="/main" 
-          element={<MainScreen />} 
+          element={<NewMatch />} 
         />
        
        <Route 
