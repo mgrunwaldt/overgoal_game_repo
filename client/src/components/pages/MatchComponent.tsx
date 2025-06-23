@@ -1,145 +1,164 @@
-import React, { useState, useEffect, useRef } from 'react'
-import MatchEventIten from '../ui/matchEventIten'
-import StaminaBar from '../ui/StaminaBar'
-import MatchDecision from './MatchDecision'
+import React, { useState, useEffect, useRef } from "react";
+import MatchEventIten from "../ui/matchEventIten";
+import StaminaBar from "../ui/StaminaBar";
+import MatchDecision from "./MatchDecision";
 
 interface MatchEvent {
   text: string;
   playable: boolean;
-  team: 'player' | 'enemy';
+  team: "player" | "enemy";
 }
 
 const possibleEvents = [
-  'Shot on goal',
-  'Save by GK',
-  'Foul at midfield',
-  'Corner kick',
-  'Goal!',
-  'Offside',
-  'Yellow card',
-  'Red card',
-  'Free kick',
-  'Penalty kick',
-]
+  "Shot on goal",
+  "Save by GK",
+  "Foul at midfield",
+  "Corner kick",
+  "Goal!",
+  "Offside",
+  "Yellow card",
+  "Red card",
+  "Free kick",
+  "Penalty kick",
+];
 
 const importantEnemyEvents = [
-  'Enemy Goal!',
-  'Enemy Penalty',
-  'Enemy Red Card',
-  'Enemy Free Kick',
-]
+  "Enemy Goal!",
+  "Enemy Penalty",
+  "Enemy Red Card",
+  "Enemy Free Kick",
+];
 
 const MatchComponent = () => {
-    const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([
-        { text: 'Pass to #10', playable: false, team: 'player' },
-        { text: 'Shot on goal', playable: true, team: 'player' },
-        { text: 'Save by GK', playable: false, team: 'player' },
-        { text: 'Substitution: #8 in, #7 out', playable: false, team: 'player' },
-        { text: 'Foul at midfield', playable: true, team: 'player' },
-    ])
+  const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([
+    { text: "Pass to #10", playable: false, team: "player" },
+    { text: "Shot on goal", playable: true, team: "player" },
+    { text: "Save by GK", playable: false, team: "player" },
+    { text: "Substitution: #8 in, #7 out", playable: false, team: "player" },
+    { text: "Foul at midfield", playable: true, team: "player" },
+  ]);
 
-    const [isDecisionOpen, setDecisionOpen] = useState(false)
-    const eventContainerRef = useRef<HTMLDivElement>(null);
+  const [stamina, setStamina] = useState<number>(100);
+  const [isDecisionOpen, setDecisionOpen] = useState(false);
+  const eventContainerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const eventInterval = setInterval(() => {
-            // 20% chance for an important enemy event
-            if (Math.random() < 0.2) {
-                const newEventText = importantEnemyEvents[Math.floor(Math.random() * importantEnemyEvents.length)];
-                setMatchEvents((prevEvents) => [
-                    ...prevEvents,
-                    { text: newEventText, playable: false, team: 'enemy' },
-                ]);
-            } else {
-                const newEventText = possibleEvents[Math.floor(Math.random() * possibleEvents.length)];
-                const isPlayable = Math.random() > 0.8; // ~20% of events are playable
-                setMatchEvents((prevEvents) => [
-                    ...prevEvents,
-                    { text: newEventText, playable: isPlayable, team: 'player' },
-                ]);
-            }
-        }, 1000)
+  useEffect(() => {
+    const eventInterval = setInterval(() => {
+      // 20% chance for an important enemy event
+      if (Math.random() < 0.2) {
+        const newEventText =
+          importantEnemyEvents[
+            Math.floor(Math.random() * importantEnemyEvents.length)
+          ];
+        setMatchEvents((prevEvents) => [
+          ...prevEvents,
+          { text: newEventText, playable: false, team: "enemy" },
+        ]);
+      } else {
+        const newEventText =
+          possibleEvents[Math.floor(Math.random() * possibleEvents.length)];
+        const isPlayable = Math.random() > 0.8; // ~20% of events are playable
+        setMatchEvents((prevEvents) => [
+          ...prevEvents,
+          { text: newEventText, playable: isPlayable, team: "player" },
+        ]);
+      }
+    }, 1000);
 
-        return () => clearInterval(eventInterval)
-    }, [matchEvents])
+    return () => clearInterval(eventInterval);
+  }, [matchEvents]);
 
-    useEffect(() => {
-        if (eventContainerRef.current) {
-            eventContainerRef.current.scrollTop = eventContainerRef.current.scrollHeight;
-        }
-    }, [matchEvents]);
+  useEffect(() => {
+    if (eventContainerRef.current) {
+      eventContainerRef.current.scrollTop =
+        eventContainerRef.current.scrollHeight;
+    }
+  }, [matchEvents]);
 
-    return (
-        <div className="relative min-h-screen">
+  return (
+    <div className="relative min-h-screen">
+      <div
+        className={`min-h-screen w-full flex flex-col items-center justify-between py-8 px-4 bg-cover bg-center transition-filter duration-300 ${
+          isDecisionOpen ? "blur-sm" : ""
+        }`}
+        style={{ backgroundImage: "url('/match/BackGround.png')" }}
+      >
+        <div className="flex flex-col items-center">
+          {/* Top Section: Score and Timer */}
+          <div
+            className="w-56 h-28 bg-contain bg-no-repeat bg-center flex flex-col items-center justify-center"
+            style={{ backgroundImage: "url('/match/Contador.png')" }}
+          >
+            <p
+              className="text-white text-4xl font-bold -mt-2"
+              style={{ textShadow: "0 0 10px #0ff" }}
+            >
+              2 - 0
+            </p>
+            <p
+              className="text-white text-2xl"
+              style={{ textShadow: "0 0 10px #0ff" }}
+            >
+              34:09
+            </p>
+          </div>
+
+          {/* Match Simulation */}
+          <div
+            className="w-[400px] h-[400px] bg-contain bg-no-repeat bg-center flex items-center justify-center"
+            style={{ backgroundImage: "url('/match/Match sim.png')" }}
+          >
+            <img
+              src="/match/matchGame.png"
+              alt="Match Simulation"
+              className="h-full w-full object-contain p-10"
+            />
+          </div>
+
+          {/* Stamina Bar */}
+          <div className="">
+            <StaminaBar useAnimation={true} initialStamina={stamina} />
+          </div>
+
+          {/* Match Events */}
+          <div
+            className="w-[380px] h-[320px] bg-black/30 bg-contain bg-no-repeat bg-center mt-4 flex justify-center items-start pt-16 px-10"
+            style={{ backgroundImage: "url('/match/Match events.png')" }}
+          >
             <div
-                className={`min-h-screen w-full flex flex-col items-center justify-between py-8 px-4 bg-cover bg-center transition-filter duration-300 ${
-                    isDecisionOpen ? 'blur-sm' : ''
-                }`}
-                style={{ backgroundImage: "url('/match/BackGround.png')" }}
+              ref={eventContainerRef}
+              className="w-full h-[90%] rounded-lg p-4 overflow-y-auto"
             >
-                <div className="flex flex-col items-center">
-                    {/* Top Section: Score and Timer */}
-                    <div
-                        className="w-56 h-28 bg-contain bg-no-repeat bg-center flex flex-col items-center justify-center"
-                        style={{ backgroundImage: "url('/match/Contador.png')" }}
-                    >
-
-                        <p className="text-white text-4xl font-bold -mt-2" style={{ textShadow: '0 0 10px #0ff' }}>
-                            2 - 0
-                        </p>
-                        <p className="text-white text-2xl" style={{ textShadow: '0 0 10px #0ff' }}>
-                            34:09
-                        </p>
-                    </div>
-
-                    {/* Match Simulation */}
-                    <div
-                        className="w-[400px] h-[400px] bg-contain bg-no-repeat bg-center flex items-center justify-center"
-                        style={{ backgroundImage: "url('/match/Match sim.png')" }}
-                    >
-                        <img
-                            src="/match/matchGame.png"
-                            alt="Match Simulation"
-                            className="h-full w-full object-contain p-10"
-                        />
-                    </div>
-
-                    {/* Stamina Bar */}
-                    <div className="">
-                        <StaminaBar />
-                    </div>
-
-                    {/* Match Events */}
-                    <div
-                        className="w-[380px] h-[320px] bg-black/30 bg-contain bg-no-repeat bg-center mt-4 flex justify-center items-start pt-16 px-10"
-                        style={{ backgroundImage: "url('/match/Match events.png')" }}
-                    >
-                        <div
-                            ref={eventContainerRef}
-                            className="w-full h-[90%] rounded-lg p-4 overflow-y-auto"
-                        >
-                            <ul className="text-white space-y-1 text-lg font-sans font-normal tracking-wide">
-                                {matchEvents.map((event, index) => (
-                                    <MatchEventIten key={index} text={event.text} playable={event.playable} team={event.team} />
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <img src="/match/Logo.png" alt="Logo" className="w-24 h-24" />
+              <ul className="text-white space-y-1 text-lg font-sans font-normal tracking-wide">
+                {matchEvents.map((event, index) => (
+                  <MatchEventIten
+                    key={index}
+                    text={event.text}
+                    playable={event.playable}
+                    team={event.team}
+                  />
+                ))}
+              </ul>
             </div>
-
-            {/* Debug Button BORRARLO DESPUES DE QUE ESTEN */}
-            <button
-                onClick={() => setDecisionOpen(true)}
-                className="absolute bottom-10 right-10 bg-cyan-500 text-black font-bold py-2 px-4 rounded-lg shadow-lg hover:bg-cyan-400 transition-all z-10"
-            >
-                Debug: Open Decision
-            </button>
-
-            <MatchDecision isOpen={isDecisionOpen} onClose={() => setDecisionOpen(false)} />
+          </div>
         </div>
-    )
-}
+        <img src="/match/Logo.png" alt="Logo" className="w-24 h-24" />
+      </div>
 
-export default MatchComponent
+      {/* Debug Button BORRARLO DESPUES DE QUE ESTEN */}
+      <button
+        onClick={() => setDecisionOpen(true)}
+        className="absolute bottom-10 right-10 bg-cyan-500 text-black font-bold py-2 px-4 rounded-lg shadow-lg hover:bg-cyan-400 transition-all z-10"
+      >
+        Debug: Open Decision
+      </button>
+
+      <MatchDecision
+        isOpen={isDecisionOpen}
+        onClose={() => setDecisionOpen(false)}
+      />
+    </div>
+  );
+};
+
+export default MatchComponent;
