@@ -96,9 +96,15 @@ export default function MainScreen() {
     }
 
     // Find an opponent team (any team that's not the player's selected team)
-    const opponentTeam = teams.find(
-      (team) => team.team_id !== player.selected_team_id
-    );
+    let randomOpponentId;
+do {
+  randomOpponentId = Math.floor(Math.random() * 14) + 1; // 1 to 14
+} while (randomOpponentId === player.selected_team_id);
+
+// Find the opponent team by the random ID
+const opponentTeam = teams.find(
+  (team) => team.team_id === randomOpponentId
+);
     if (!opponentTeam) {
       console.error("Cannot create match: no opponent team found");
       return;
