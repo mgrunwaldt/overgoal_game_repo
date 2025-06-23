@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface StatsPopupProps {
   stats: {
@@ -7,36 +7,118 @@ interface StatsPopupProps {
     charisma: number;
     dribble: number;
     fame: number;
+    shoot: number;
+    passing: number;
+    intelligence: number;
   };
+  playerType: string;
   onClose: () => void;
   teamName: string;
   teamPoints: number;
 }
 
-const StatsPopup: React.FC<StatsPopupProps> = ({ stats, onClose, teamName, teamPoints }) => {
+const getPlayerImage = (playerType: String): String => {
+  switch (playerType) {
+    case "striker":
+      return "/preMatch/Player 9.png";
+    case "dribble":
+      return "/preMatch/Player 11.png";
+    case "playmaker":
+      return "/preMatch/Player 10.png";
+    default:
+      return "/preMatch/Player 10.png"; // optional default case
+  }
+};
+
+const StatsPopup: React.FC<StatsPopupProps> = ({
+  stats,
+  playerType,
+  onClose,
+  teamName,
+  teamPoints,
+}) => {
+  const [playerImage, setPlayerImage] = React.useState(
+    getPlayerImage(playerType)
+  );
+  const statsDetail = stats
+    ? [
+        { name: "SHOOT", value: stats.shoot },
+        { name: "DRIBBLING", value: stats.dribble },
+        { name: "PASSING", value: stats.passing },
+        { name: "STAMINA", value: stats.stamina },
+        { name: "FAME", value: stats.fame },
+        { name: "CHARISMA", value: stats.charisma },
+        { name: "INTELLIGENCE", value: stats.intelligence },
+      ]
+    : [];
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-      <div className="relative w-[400px] h-[550px] p-8 flex flex-col items-center text-white bg-black/80 rounded-xl border-2 border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.4)]">
-        <button onClick={onClose} className="absolute top-6 right-6 text-white text-3xl font-bold">
-          &times;
-        </button>
-        <h2 className="text-3xl font-bold mb-6 text-cyan-300 glow">Player Stats</h2>
-        
-        <div className="w-full space-y-4 text-2xl">
-            <div className="flex justify-between"><span>Stamina:</span> <span>{stats.stamina}</span></div>
-            <div className="flex justify-between"><span>Energy:</span> <span>{stats.energy}</span></div>
-            <div className="flex justify-between"><span>Charisma:</span> <span>{stats.charisma}</span></div>
-            <div className="flex justify-between"><span>Dribble:</span> <span>{stats.dribble}</span></div>
-            <div className="flex justify-between"><span>Fame:</span> <span>{stats.fame}</span></div>
+    <div
+      className="min-h-screen w-full flex flex-col items-center justify-start pt-12 p-8 bg-cover bg-center"
+      style={{ backgroundImage: "url('/nonMatchResult/BackGround.png')" }}
+    >
+      <div className="w-full max-w-lg flex flex-col items-center">
+        {/* Character Display */}
+        <div>
+          <h2 className="text-4xl text-center font-bold mb-2 text-cyan-300 glow px-6">
+            Player Stats
+          </h2>
+          <div className="border-b-2 border-cyan-400/50 rounded-xl mb-6 w-full" />
+          <div className="flex flex-row items-center gap-x-6">
+            <img src={playerImage} alt="Player" className="w-40" />
+            <div className="border-2 border-cyan-400/50 rounded-xl">
+              <div className="flex flex-col text-center items-center p-2 ">
+                <span className="text-white text-lg font-bold">{teamName}</span>
+                <span className="text-yellow-300 text-2xl font-bold">
+                  {teamPoints}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-8 pt-4 border-t-2 border-cyan-400 w-full text-center">
-            <h3 className="text-4xl font-bold text-cyan-300">{teamName}</h3>
-            <p className="text-2xl mt-2">League Points: {teamPoints}</p>
+        {/* Stats Board */}
+        <div
+          className="w-full h-auto bg-contain bg-no-repeat bg-center flex flex-col rounded-xl items-center justify-center p-12 bg-black/80"
+          style={{ backgroundImage: "url('/nonMatchResult/Stats board.png')" }}
+        >
+          <ul className="w-full  ">
+            {statsDetail.map((stat) => (
+              <li
+                key={stat.name}
+                className="flex justify-between items-center w-full"
+              >
+                <span className="text-cyan-300 text-lg font-bold">
+                  {stat.name}
+                </span>
+                <span
+                  className="text-white text-2xl font-bold"
+                  style={{ textShadow: "0 0 10px #0ff" }}
+                >
+                  {stat.value}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Next Button */}
+        {/* Back Button */}
+        <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 z-20">
+          <button
+            onClick={onClose}
+            className="transform hover:scale-105 transition-transform duration-200"
+          >
+            <img
+              src="/CharacterSelection/Back Button.png"
+              alt="Back"
+              className="w-32 h-16 md:w-24 md:h-12 object-contain"
+            />
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-export default StatsPopup; 
+export default StatsPopup;
