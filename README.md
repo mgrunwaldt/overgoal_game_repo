@@ -1,4 +1,4 @@
-# ⚽ Overgoal - Football RPG on Starknet
+# ⚽ Overgoal: More than a match - Mobile football RPG on Starknet
 
 > **An RPG-style decision-making football game where every choice shapes your legend**
 > 
@@ -113,7 +113,7 @@ sozo migrate
 #### 4. Start the Indexer (Torii)
 ```bash
 # In contract directory
-torii --world "WORLD_ADDRESS_FROM_STEP_3"
+torii --world "WORLD_ADDRESS_FROM_STEP_3" --http.cors_origins "*"
 ```
 *Replace WORLD_ADDRESS_FROM_STEP_3 with the actual address*
 *Keep this terminal running - this indexes blockchain data*
@@ -166,22 +166,6 @@ Manage multiple interconnected stats:
 - **Reputation System**: Your choices affect how teams and fans perceive you
 - **Achievement System**: Unlock badges and milestones
 
-## 🌐 Deployment
-
-### Sepolia Testnet
-The project includes configuration for Sepolia deployment:
-
-1. **Set environment variables**
-   ```bash
-   export DEPLOYER_ACCOUNT_ADDRESS="your_account_address"
-   export DEPLOYER_PRIVATE_KEY="your_private_key"
-   ```
-
-2. **Deploy to Sepolia**
-   ```bash
-   cd contract
-   npm run sepolia
-   ```
 
 ## 🔍 Known Issues & Future Improvements
 
