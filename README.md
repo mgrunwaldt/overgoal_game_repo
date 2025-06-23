@@ -174,13 +174,6 @@ Manage multiple interconnected stats:
 - **Limited Team Variety**: Opponent selection algorithm needs improvement for better variety
 - **Mobile Optimization**: Some UI elements need further mobile refinement
 
-### Roadmap
-- [ ] Move match simulation logic to Cairo contracts
-- [ ] Implement more sophisticated opponent selection
-- [ ] Add more non-match event types
-- [ ] Enhance mobile UI/UX
-- [ ] Add multiplayer features
-- [ ] Implement tournament system
 
 ## 📚 Documentation
 
