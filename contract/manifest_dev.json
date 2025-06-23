@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x4410b0f3588baef5269d277958353c4507bf0f27eb5438a91884066957feb70",
-      "class_hash": "0x68011200e66743f0f754fb5732238c945241d11ae5706ac1dabb03624591660",
+      "address": "0x7a1ca8c8d3f6ca4cbab278fa0916de89123b4ae7beaec20bbeeee4aeb3c6072",
+      "class_hash": "0x3c6c6ff098398bac3757e6bb5481fa73aef7577e1b924a329bfd7267f5c5afa",
       "abi": [
         {
           "type": "impl",
@@ -1728,6 +1728,22 @@
             },
             {
               "type": "function",
+              "name": "execute_non_match_event",
+              "inputs": [
+                {
+                  "name": "event_id",
+                  "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "(core::integer::u32, core::felt252, core::felt252)"
+                }
+              ],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
               "name": "seed_non_match_events",
               "inputs": [],
               "outputs": [],
@@ -2037,6 +2053,7 @@
         "simulate_gamematch",
         "add_my_team_goal",
         "add_opponent_team_goal",
+        "execute_non_match_event",
         "seed_non_match_events",
         "trigger_non_match_event",
         "look_for_sponsor_deals",
@@ -2094,6 +2111,12 @@
     }
   ],
   "events": [
+    {
+      "members": [],
+      "class_hash": "0x182e33f29314422b84da0f5aed2ca5701828178fed179f3dcdb8eb0a03f3fa2",
+      "tag": "full_starter_react-NonMatchEventExecuted",
+      "selector": "0x1f3fe556421c1b01bad04fa207a430208fea2c0fb9811ccfb809e1612e6220f"
+    },
     {
       "members": [],
       "class_hash": "0x702d5440a155e0704b268f8d6dbf74cb8ae09b164064fe3b4f896cf725dcac7",

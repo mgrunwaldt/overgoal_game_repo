@@ -93,7 +93,7 @@ function App() {
         />
 
         <Route 
-          path="/non-match-result/:eventId" 
+          path="/non-match-result" 
           element={<NonMatchResult />} 
         />
 

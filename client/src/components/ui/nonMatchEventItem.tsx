@@ -23,19 +23,15 @@ const getEventImage = (eventId: number) => {
 type props = {
     event_id: number;
     title: string;
+    onClick: () => void;
 }
 
 
 
-const NonMatchEventItem = ( { event_id, title }: props ) => {
-    const navigate = useNavigate();
+const NonMatchEventItem = ( { event_id, title, onClick }: props ) => {
     
-    const handleClick = () => {
-        navigate(`/non-match-result/${event_id}`);
-    }
-
     return (
-        <div onClick={handleClick} className="w-full h-full bg-contain bg-no-repeat bg-center" style={{ backgroundImage: "url('/nonMatchEvent/Event Item.png')" }}>
+        <div onClick={onClick} className="w-full h-full bg-contain bg-no-repeat bg-center cursor-pointer transition-transform transform hover:scale-105" style={{ backgroundImage: "url('/nonMatchEvent/Event Item.png')" }}>
             <img src={getEventImage(event_id)} alt={title} />
         </div>  
     )

@@ -914,6 +914,27 @@ const build_game_addMyTeamGoal_calldata = (match_id: number): DojoCall => {
 		}
 	};
 
+	const build_game_execute_non_match_event_calldata = (event_id: number): DojoCall => {
+		return {
+			contractName: "game",
+			entrypoint: "execute_non_match_event",
+			calldata: [event_id],
+		};
+	};
+
+	const game_execute_non_match_event = async (snAccount: Account | AccountInterface, event_id: number) => {
+		try {
+			return await provider.execute(
+				snAccount as any,
+				build_game_execute_non_match_event_calldata(event_id),
+				"full_starter_react",
+			);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	};
+
 	return {
 		game: {
 			mine: game_mine,
@@ -1009,6 +1030,8 @@ const build_game_addMyTeamGoal_calldata = (match_id: number): DojoCall => {
 			buildGoForRunCalldata: build_game_goForRun_calldata,
 			playVideogames: game_playVideogames,
 			buildPlayVideogamesCalldata: build_game_playVideogames_calldata,
+			executeNonMatchEvent: game_execute_non_match_event,
+			buildExecuteNonMatchEventCalldata: build_game_execute_non_match_event_calldata,
 		},
 	};
 }

@@ -194,7 +194,7 @@ const fetchNonMatchEvents = async (): Promise<NonMatchEvent[]> => {
   }
 };
 
-const fetchNonMatchEventOutcomes = async (eventId: number): Promise<NonMatchEventOutcome[]> => {
+export const fetchNonMatchEventOutcomes = async (eventId: number): Promise<NonMatchEventOutcome[]> => {
   try {
     const response = await fetch(TORII_URL, {
       method: "POST",

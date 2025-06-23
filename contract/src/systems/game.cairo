@@ -37,6 +37,7 @@ pub trait IGame<T> {
     fn add_my_team_goal(ref self: T, match_id: u32);
     fn add_opponent_team_goal(ref self: T, match_id: u32);
     // --------- Non-Match Event methods ---------
+    fn execute_non_match_event(ref self: T, event_id: u32) -> (u32, felt252, felt252);
     fn seed_non_match_events(ref self: T);
     fn trigger_non_match_event(ref self: T, event_id: u32, outcome_id: u32);
     // Individual event methods
@@ -85,7 +86,20 @@ pub mod game {
     #[allow(unused_imports)]
     use dojo::event::EventStorage;
 
-    use starknet::{get_block_timestamp};
+    use starknet::{get_block_timestamp, ContractAddress};
+
+    // Custom event for non-match event outcomes
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct NonMatchEventExecuted {
+        #[key]
+        pub player: ContractAddress,
+        #[key]
+        pub event_id: u32,
+        pub outcome_id: u32,
+        pub outcome_name: felt252,
+        pub outcome_description: felt252,
+    }
 
     #[storage]
     struct Storage {
@@ -785,65 +799,24 @@ pub mod game {
             };
         }
 
+        // Method to start a match
         fn start_gamematch(ref self: ContractState, match_id: u32) {
             let mut world = self.world(@"full_starter_react");
             let store = StoreTrait::new(world);
-            let achievement_store = AchievementStoreTrait::new(world);
 
-            let player = store.read_player();
-
-            // Start gamematch
-            store.start_gamematch(match_id);
-
-            // Emit events for achievements progression
-            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
-            let stop = constants::ACHIEVEMENTS_COUNT; // 5
-            
-            while achievement_id <= stop {
-                let task: Achievement = achievement_id.into(); // u8 to Achievement
-                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
-                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
-                achievement_id += 1;
-            };
+            let _ = store.start_gamematch(match_id);
         }
 
+        // Method to process a match action
         fn process_match_action(ref self: ContractState, match_id: u32, match_decision: u8) {
             let mut world = self.world(@"full_starter_react");
             let store = StoreTrait::new(world);
-            let achievement_store = AchievementStoreTrait::new(world);
 
-            let player = store.read_player();
-
-            // Convert u8 to MatchDecision enum
-            let decision = match match_decision {
-                0 => MatchDecision::Dribble,
-                1 => MatchDecision::Pass,
-                2 => MatchDecision::Simulate,
-                3 => MatchDecision::Shoot,
-                4 => MatchDecision::StandingTackle,
-                5 => MatchDecision::SweepingTackle,
-                6 => MatchDecision::AcceptHug,
-                7 => MatchDecision::TackleFan,
-                8 => MatchDecision::JoinBrawl,
-                9 => MatchDecision::StayOut,
-                _ => MatchDecision::Simulate, // Default fallback
-            };
-
-            // Process match action
-            store.process_match_action(match_id, decision);
-
-            // Emit events for achievements progression
-            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
-            let stop = constants::ACHIEVEMENTS_COUNT; // 5
-            
-            while achievement_id <= stop {
-                let task: Achievement = achievement_id.into(); // u8 to Achievement
-                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
-                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
-                achievement_id += 1;
-            };
+            let decision: MatchDecision = match_decision.into();
+            let _ = store.process_match_action(match_id, decision);
         }
 
+        // Method to finish a match
         fn finish_gamematch(ref self: ContractState, match_id: u32) {
             let mut world = self.world(@"full_starter_react");
             let store = StoreTrait::new(world);
@@ -933,6 +906,40 @@ pub mod game {
         }
 
         // --------- Non-Match Event methods ---------
+        fn execute_non_match_event(ref self: ContractState, event_id: u32) -> (u32, felt252, felt252) {
+            let mut world = self.world(@"full_starter_react");
+            let mut store = StoreTrait::new(world);
+            let achievement_store = AchievementStoreTrait::new(world);
+
+            let player = store.read_player();
+
+            // Execute the non-match event logic and get outcome data
+            let (outcome_id, outcome_name, outcome_description) = store.execute_non_match_event(event_id);
+
+            // Emit custom event with outcome data for frontend
+            world.emit_event(@NonMatchEventExecuted { 
+                player: player.owner, 
+                event_id, 
+                outcome_id, 
+                outcome_name, 
+                outcome_description 
+            });
+
+            // Emit events for achievements progression
+            let mut achievement_id = constants::ACHIEVEMENTS_INITIAL_ID; // 1
+            let stop = constants::ACHIEVEMENTS_COUNT; // 5
+            
+            while achievement_id <= stop {
+                let task: Achievement = achievement_id.into(); // u8 to Achievement
+                let task_identifier = task.identifier(); // Achievement identifier is the task to complete
+                achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
+                achievement_id += 1;
+            };
+
+            // Return outcome data
+            (outcome_id, outcome_name, outcome_description)
+        }
+
         fn seed_non_match_events(ref self: ContractState) {
             let mut world = self.world(@"full_starter_react");
             let store = StoreTrait::new(world);

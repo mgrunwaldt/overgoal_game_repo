@@ -1,6 +1,6 @@
 // Starknet imports
-use starknet::{get_caller_address, get_block_timestamp, ContractAddress};
-use core::num::traits::zero::Zero;
+use starknet::{get_caller_address, get_block_timestamp};
+
 
 // Dojo imports
 use dojo::world::WorldStorage;
@@ -8,12 +8,13 @@ use dojo::model::ModelStorage;
 
 // Models imports
 use full_starter_react::models::player::{Player, PlayerTrait};
-use full_starter_react::models::team::{Team, TeamTrait};
-use full_starter_react::models::gamematch::{GameMatch, GameMatchTrait, MatchDecision, MatchAction};
+use full_starter_react::models::team::{Team, TeamTrait, TeamImpl};
+use full_starter_react::models::gamematch::{
+    GameMatch, GameMatchTrait, GameMatchImpl, MatchAction, MatchDecision
+};
 use full_starter_react::models::non_match_event::{
-    NonMatchEvent, NonMatchEventTrait, 
-    NonMatchEventOutcome, NonMatchEventOutcomeTrait,
-    PlayerEventHistory, PlayerEventHistoryTrait
+    NonMatchEvent, NonMatchEventImpl, NonMatchEventTrait, NonMatchEventOutcome,
+    NonMatchEventOutcomeImpl, NonMatchEventOutcomeTrait
 };
 
 // Helpers import
@@ -54,9 +55,7 @@ pub impl StoreImpl of StoreTrait {
         self.world.read_model((event_id, outcome_id))
     }
 
-    fn read_player_event_history(self: Store, player: ContractAddress, event_id: u32) -> PlayerEventHistory {
-        self.world.read_model((player, event_id))
-    }
+
 
     // --------- Archetype-specific player creation ---------
     fn create_striker(mut self: Store) {
@@ -225,6 +224,45 @@ pub impl StoreImpl of StoreTrait {
     }
 
     // --------- Non-Match Event management functions ---------
+    fn execute_non_match_event(ref self: Store, event_id: u32) -> (u32, felt252, felt252) {
+        let player = get_caller_address();
+        
+        // Read player
+        let mut player_model: Player = self.world.read_model(player);
+        
+        // Use block timestamp for pseudo-randomness
+        let timestamp = get_block_timestamp();
+        let outcome_id = (timestamp % 4) + 1; // outcome IDs are 1-4
+        let outcome_id_u32: u32 = outcome_id.try_into().unwrap();
+        
+        // Read the specific outcome for this event
+        let outcome: NonMatchEventOutcome = self.world.read_model((event_id, outcome_id_u32));
+        
+        // Apply all stat changes
+        player_model.charisma = self.apply_delta_u32(player_model.charisma, outcome.charisma_delta);
+        player_model.fame = self.apply_delta_u32(player_model.fame, outcome.fame_delta);
+        player_model.energy = self.apply_delta_u32(player_model.energy, outcome.energy_delta);
+        player_model.dribble = self.apply_delta_u32(player_model.dribble, outcome.dribble_delta);
+        player_model.shoot = self.apply_delta_u32(player_model.shoot, outcome.shoot_delta);
+        player_model.passing = self.apply_delta_u32(player_model.passing, outcome.passing_delta);
+        player_model.free_kick = self.apply_delta_u32(player_model.free_kick, outcome.free_kick_delta);
+        player_model.intelligence = self.apply_delta_u32(player_model.intelligence, outcome.intelligence_delta);
+        player_model.team_relationship = self.apply_delta_u32(player_model.team_relationship, outcome.team_relationship_delta);
+        player_model.stamina = self.apply_delta_u32(player_model.stamina, outcome.stamina_delta);
+        player_model.coins = self.apply_delta_u32(player_model.coins, outcome.coins_delta);
+        
+        // Handle injury
+        if outcome.sets_injured {
+            player_model.set_injured(true);
+        }
+        
+        // Write back the updated player
+        self.world.write_model(@player_model);
+        
+        // Return outcome data for the frontend
+        (outcome_id_u32, outcome.name, outcome.description)
+    }
+
     fn create_non_match_event(mut self: Store, event_id: u32, name: felt252, description: felt252) {
         let new_event = NonMatchEventTrait::new(event_id, name, description, true);
         self.world.write_model(@new_event);
@@ -273,9 +311,9 @@ pub impl StoreImpl of StoreTrait {
     }
 
     fn trigger_non_match_event(mut self: Store, event_id: u32, outcome_id: u32) {
-        let caller = get_caller_address();
-        let current_timestamp = get_block_timestamp();
-        let current_day = Timestamp::unix_timestamp_to_day(current_timestamp);
+        let _caller = get_caller_address();
+        let _current_timestamp = get_block_timestamp();
+        let _current_day = Timestamp::unix_timestamp_to_day(_current_timestamp);
         
         // Read the outcome
         let outcome = self.read_non_match_event_outcome(event_id, outcome_id);
@@ -337,18 +375,6 @@ pub impl StoreImpl of StoreTrait {
 
         // Update player
         self.world.write_model(@player);
-
-        // Update player event history
-        let mut history = self.read_player_event_history(caller, event_id);
-        if history.is_zero() {
-            // Create new history entry
-            history = PlayerEventHistoryTrait::new(caller, event_id, 1, outcome_id, current_day);
-        } else {
-            // Update existing history
-            history.increment_triggers();
-            history.update_last_outcome(outcome_id, current_day);
-        }
-        self.world.write_model(@history);
     }
 
     // Helper function to apply stat delta with clamping (0-100)
@@ -364,6 +390,20 @@ pub impl StoreImpl of StoreTrait {
             let abs_delta: u32 = (-delta).try_into().unwrap();
             if current_stat >= abs_delta {
                 current_stat - abs_delta
+            } else {
+                0
+            }
+        }
+    }
+
+    // --------- Internal helper functions ---------
+    fn apply_delta_u32(self: Store, current_value: u32, delta: i32) -> u32 {
+        if delta >= 0 {
+            current_value + delta.try_into().unwrap()
+        } else {
+            let subtrahend: u32 = (-delta).try_into().unwrap();
+            if current_value >= subtrahend {
+                current_value - subtrahend
             } else {
                 0
             }

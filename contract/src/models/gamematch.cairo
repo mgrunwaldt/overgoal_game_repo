@@ -93,6 +93,25 @@ impl MatchDecisionIntoFelt252 of Into<MatchDecision, felt252> {
     }
 }
 
+// Implement Into trait for u8 to MatchDecision conversion
+impl U8IntoMatchDecision of Into<u8, MatchDecision> {
+    fn into(self: u8) -> MatchDecision {
+        match self {
+            0 => MatchDecision::Dribble,
+            1 => MatchDecision::Pass,
+            2 => MatchDecision::Simulate,
+            3 => MatchDecision::Shoot,
+            4 => MatchDecision::StandingTackle,
+            5 => MatchDecision::SweepingTackle,
+            6 => MatchDecision::AcceptHug,
+            7 => MatchDecision::TackleFan,
+            8 => MatchDecision::JoinBrawl,
+            9 => MatchDecision::StayOut,
+            _ => MatchDecision::Simulate, // Default fallback
+        }
+    }
+}
+
 // GameMatch Trait Implementation
 #[generate_trait]
 pub impl GameMatchImpl of GameMatchTrait {

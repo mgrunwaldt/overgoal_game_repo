@@ -82,6 +82,26 @@ export enum MatchDecision {
   StayOut = 9,
 }
 
+export interface NonMatchEventOutcome {
+  event_id: number;
+  outcome_id: number;
+  outcome_type: number;
+  name: string;
+  description: string;
+  coins_delta: number;
+  shoot_delta: number;
+  dribble_delta: number;
+  energy_delta: number;
+  stamina_delta: number;
+  charisma_delta: number;
+  fame_delta: number;
+  passing_delta: number;
+  free_kick_delta: number;
+  team_relationship_delta: number;
+  intelligence_delta: number;
+  sets_injured: boolean;
+}
+
 // Application state
 interface AppState {
   // Player data
@@ -101,6 +121,7 @@ interface AppState {
   
   // Game state
   gameStarted: boolean;
+  last_non_match_outcome: NonMatchEventOutcome | null;
 }
 
 // Store actions
@@ -148,6 +169,7 @@ interface AppActions {
   // Game actions
   startGame: () => void;
   endGame: () => void;
+  setLastNonMatchOutcome: (outcome: NonMatchEventOutcome | null) => void;
   
   // Utility actions
   resetStore: () => void;
@@ -166,6 +188,7 @@ const initialState: AppState = {
   isLoading: false,
   error: null,
   gameStarted: false,
+  last_non_match_outcome: null,
 };
 
 // Create the store
@@ -319,6 +342,7 @@ const useAppStore = create<AppStore>()(
       // Game actions
       startGame: () => set({ gameStarted: true }),
       endGame: () => set({ gameStarted: false }),
+      setLastNonMatchOutcome: (outcome) => set({ last_non_match_outcome: outcome }),
 
       // Utility actions
       resetStore: () => set(initialState),
@@ -332,6 +356,7 @@ const useAppStore = create<AppStore>()(
         gameMatches: state.gameMatches,
         currentMatch: state.currentMatch,
         gameStarted: state.gameStarted,
+        last_non_match_outcome: state.last_non_match_outcome, // ✅ FIX: Include in persistence
       }),
     }
   )
