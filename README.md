@@ -7,6 +7,8 @@
 <div align="center">
   <img src="./client/src/assets/Dojo-Logo-Stylized-Red.svg" alt="Dojo Engine" height="60"/>
   &nbsp;&nbsp;&nbsp;
+  <img src="https://github.com/user-attachments/assets/a9c482cb-6bf2-4afc-8039-4ecf79d19af3" height="130"/>
+  &nbsp;&nbsp;&nbsp;&nbsp;
   <img src="./client/src/assets/SN-Linear-Gradient.svg" alt="Starknet" height="60"/>
 </div>
 
@@ -174,6 +176,9 @@ Manage multiple interconnected stats:
 - **Limited Team Variety**: Opponent selection algorithm needs improvement for better variety
 - **Mobile Optimization**: Some UI elements need further mobile refinement
 
+### Art Storyboard 
+
+![WhatsApp Image 2025-06-22 at 02 35 51](https://github.com/user-attachments/assets/28dd4e64-be1b-4053-903f-ed54871c2aad)
 
 ## 📚 Documentation
 
