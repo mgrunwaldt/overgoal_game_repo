@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { useAccount } from "@starknet-react/core";
 import { usePlayer } from "../dojo/hooks/usePlayer";
 import LoginScreen from "../components/pages/LoginScreen";
@@ -14,11 +19,12 @@ import MatchComponent from "../components/pages/MatchComponent";
 import MatchDecision from "../components/pages/MatchDecision";
 import NonMatchResult from "../components/pages/NonMatchResult";
 import NonMatchEvent from "../components/pages/NonMatchEvent";
+import StatsPopup from "../components/StatsPopup";
 
 function App() {
   const { account, status } = useAccount();
   const { player, isLoading: playerLoading } = usePlayer();
-  
+
   const isConnected = status === "connected" && account;
   const hasValidPlayer = player !== null && player.is_player_created === true;
 
@@ -29,7 +35,9 @@ function App() {
     playerLoading,
     playerExists: !!player,
     isPlayerCreated: player?.is_player_created,
-    accountAddress: account?.address ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}` : "none"
+    accountAddress: account?.address
+      ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}`
+      : "none",
   });
 
   // Loading component
@@ -45,61 +53,30 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route 
-          path="/login" 
-          element={<LoginScreen />} 
-        />
-        <Route 
-          path="/character-selection" 
-          element={<CharacterSelectionScreen />} 
-        />
-      
-        <Route 
-          path="/main" 
-          element={<MainScreen />} 
-        />
-       
-       <Route 
-          path="/teams" 
-          element={<TeamManagement />} 
+        <Route path="/login" element={<LoginScreen />} />
+        <Route
+          path="/character-selection"
+          element={<CharacterSelectionScreen />}
         />
 
-      <Route 
-          path="/select-team" 
-          element={<TeamSelection />} 
+        <Route path="/main" element={<MainScreen />} />
+
+        <Route path="/teams" element={<TeamManagement />} />
+
+        <Route path="/select-team" element={<TeamSelection />} />
+
+        <Route path="/new-match/:matchId" element={<NewMatch />} />
+
+        <Route path="/match-end/:matchId" element={<MatchEnd />} />
+
+        <Route
+          path="/non-match-event-selector"
+          element={<NonMatchEventSelector />}
         />
 
-        <Route 
-          path="/new-match/:matchId" 
-          element={<NewMatch />} 
-        />
+        <Route path="/match/:matchId" element={<MatchComponent />} />
 
-        
-
-        <Route 
-          path="/match-end/:matchId" 
-          element={<MatchEnd />} 
-        />
-
-
-        <Route 
-          path="/non-match-event-selector" 
-          element={<NonMatchEventSelector />} 
-        />
-
-        <Route 
-          path="/match/:matchId" 
-          element={<MatchComponent />} 
-        />
-
-        <Route 
-          path="/non-match-result" 
-          element={<NonMatchResult />} 
-        />
-
-       
-   
-
+        <Route path="/non-match-result" element={<NonMatchResult />} />
       </Routes>
     </Router>
   );

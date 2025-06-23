@@ -21,6 +21,31 @@ const getPlayerImage = (playerType: String): String => {
   }
 };
 
+const getRandomDifferentPlayerType = (playerType: string): string => {
+  const playerTypes = ["striker", "dribble", "playmaker"];
+
+  // Filter out the input type
+  const otherTypes = playerTypes.filter((type) => type !== playerType);
+
+  // Edge case: if no other types available
+  if (otherTypes.length === 0) {
+    throw new Error("No other player types available.");
+  }
+
+  const randomIndex = Math.floor(Math.random() * otherTypes.length);
+
+  switch (otherTypes[randomIndex]) {
+    case "striker":
+      return "/preMatch/Player 9 red.png";
+    case "dribble":
+      return "/preMatch/Player 11 red.png";
+    case "playmaker":
+      return "/preMatch/Player 10 red.png";
+    default:
+      return "/preMatch/Player 9 red.png";
+  }
+};
+
 export default function NewMatch() {
   const navigate = useNavigate();
   const { matchId } = useParams<{ matchId: string }>();
@@ -46,6 +71,9 @@ export default function NewMatch() {
   const [myTeamImage, setMyTeamImage] = useState<string>("");
   const [opponentTeamImage, setOpponentTeamImage] = useState<string>("");
   const [stamina, setStamina] = useState<number>(100);
+  const [enemyPlayerImage, setEnemyPlayerImage] = useState<string>(
+    "/preMatch/Player 9 red.png"
+  );
 
   useEffect(() => {
     if (selectedTeam) {
@@ -61,6 +89,9 @@ export default function NewMatch() {
       const image = getPlayerImage(player.player_type.toString());
       setPlayerImage(image);
       setStamina(player.stamina);
+      setEnemyPlayerImage(
+        getRandomDifferentPlayerType(player.player_type.toString())
+      );
       // Find the player's selected team (Team 1)
       const playerTeam = teams.find(
         (team) => team.team_id === player.selected_team_id
@@ -188,7 +219,7 @@ export default function NewMatch() {
               />
 
               <img
-                src="/preMatch/Player 9 red.png"
+                src={enemyPlayerImage}
                 alt=""
                 className="object-contain w-40 h-40"
               />
@@ -217,25 +248,16 @@ export default function NewMatch() {
             <div className="flex items-center gap-2 mb-3">
               <Info className="w-5 h-5 text-blue-400" />
               <h3 className="text-lg font-semibold text-blue-400">
-                Match Verification
+                Match Information
               </h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <Hash className="w-4 h-4 text-green-400" />
-                <span className="text-gray-300">Match ID:</span>
-                <span className="font-mono text-green-400">
-                  {currentGameMatch.match_id}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-yellow-400" />
                 <span className="text-gray-300">Teams:</span>
                 <span className="text-yellow-400">
-                  {currentGameMatch.my_team_id} vs{" "}
-                  {currentGameMatch.opponent_team_id}
+                  {selectedTeam?.name} vs {opponentTeam?.name}
                 </span>
               </div>
 
@@ -246,18 +268,6 @@ export default function NewMatch() {
                   {getMatchStatusText(currentGameMatch.match_status)}
                 </span>
               </div>
-
-              <div className="flex items-center gap-2">
-                <Play className="w-4 h-4 text-cyan-400" />
-                <span className="text-gray-300">Time:</span>
-                <span className="text-cyan-400">
-                  {currentGameMatch.current_time}'
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-3 text-xs text-gray-400">
-              ✅ Match successfully created and stored in blockchain
             </div>
           </div>
         </div>
