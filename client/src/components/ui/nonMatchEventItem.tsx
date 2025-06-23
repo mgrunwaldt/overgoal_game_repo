@@ -15,6 +15,7 @@ const getEventImage = (eventId: number) => {
       case 4: return "/nonMatchEvent/meditate.png";
       case 3: return "/nonMatchEvent/go-to-the-gym.png";
       case 2: return "/nonMatchEvent/free-kick.png";
+      case 1: return "/nonMatchEvent/brand-deals.png";
     }
   }
   

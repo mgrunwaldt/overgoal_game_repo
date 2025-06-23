@@ -7,7 +7,7 @@ const TORII_URL = dojoConfig.toriiUrl + "/graphql";
 // GraphQL queries
 const NON_MATCH_EVENTS_QUERY = `
   query GetNonMatchEvents {
-    fullStarterReactNonMatchEventModels {
+    fullStarterReactNonMatchEventModels(first: 100) {
       edges {
         node {
           event_id
@@ -103,6 +103,14 @@ const hexToString = (hexValue: string): string => {
   }
 };
 
+// Helper function to shuffle an array and get the first N items
+//todo: this should be defined in the backend, with this implementation anywone with access to the client can choose the nme they want
+
+function getRandomItemsFromArray<T>(arr: T[], count: number): T[] {
+  const shuffled = [...arr].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
 // Interfaces
 export interface NonMatchEvent {
   event_id: number;
@@ -152,11 +160,17 @@ const fetchNonMatchEvents = async (): Promise<NonMatchEvent[]> => {
 
     const result = await response.json();
     
+    if (result.errors) {
+      console.error("GraphQL Errors:", result.errors);
+      throw new Error("Failed to fetch non-match events due to GraphQL errors.");
+    }
+
     if (!result.data?.fullStarterReactNonMatchEventModels?.edges?.length) {
+      console.log("No non-match events returned from GraphQL.");
       return [];
     }
 
-    return result.data.fullStarterReactNonMatchEventModels.edges
+    const allEvents: NonMatchEvent[] = result.data.fullStarterReactNonMatchEventModels.edges
       .map((edge: any) => edge?.node)
       .filter(Boolean)
       .map((event: any) => ({
@@ -165,6 +179,15 @@ const fetchNonMatchEvents = async (): Promise<NonMatchEvent[]> => {
         description: hexToString(event.description) || "",
         is_available: Boolean(event.is_available),
       }));
+
+    console.log("Fetched all non-match events:", allEvents);
+
+    const randomEvents = getRandomItemsFromArray(allEvents, 4);
+
+    console.log("Randomly selected 4 events:", randomEvents);
+    
+    return randomEvents;
+
   } catch (error) {
     console.error("❌ Error fetching non-match events:", error);
     throw error;
