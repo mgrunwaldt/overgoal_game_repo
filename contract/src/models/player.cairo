@@ -311,3 +311,54 @@ pub impl ZeroablePlayerTrait of Zero<Player> {
     }
 }
 
+// ✅ ADD PlayerEventHistory Model
+#[derive(Copy, Drop, Serde, Introspect, Debug)]
+#[dojo::model]
+pub struct PlayerEventHistory {
+    #[key]
+    pub player: ContractAddress,
+    pub last_event_id: u32,
+    pub last_outcome_id: u32,
+    pub last_execution_timestamp: u64,
+}
+
+#[generate_trait]
+pub impl PlayerEventHistoryImpl of PlayerEventHistoryTrait {
+    fn new(
+        player: ContractAddress,
+        last_event_id: u32,
+        last_outcome_id: u32,
+        last_execution_timestamp: u64,
+    ) -> PlayerEventHistory {
+        PlayerEventHistory {
+            player: player,
+            last_event_id: last_event_id,
+            last_outcome_id: last_outcome_id,
+            last_execution_timestamp: last_execution_timestamp,
+        }
+    }
+
+    fn update_last_event(
+        ref self: PlayerEventHistory,
+        event_id: u32,
+        outcome_id: u32,
+        timestamp: u64,
+    ) {
+        self.last_event_id = event_id;
+        self.last_outcome_id = outcome_id;
+        self.last_execution_timestamp = timestamp;
+    }
+}
+
+#[generate_trait]
+pub impl ZeroablePlayerEventHistoryImpl of ZeroablePlayerEventHistoryTrait {
+    fn zero() -> PlayerEventHistory {
+        PlayerEventHistory {
+            player: constants::ZERO_ADDRESS(),
+            last_event_id: 0,
+            last_outcome_id: 0,
+            last_execution_timestamp: 0,
+        }
+    }
+}
+

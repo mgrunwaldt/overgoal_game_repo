@@ -7,7 +7,7 @@ use dojo::world::WorldStorage;
 use dojo::model::ModelStorage;
 
 // Models imports
-use full_starter_react::models::player::{Player, PlayerTrait};
+use full_starter_react::models::player::{Player, PlayerTrait, PlayerEventHistory, PlayerEventHistoryTrait};
 use full_starter_react::models::team::{Team, TeamTrait, TeamImpl};
 use full_starter_react::models::gamematch::{
     GameMatch, GameMatchTrait, GameMatchImpl, MatchAction, MatchDecision
@@ -53,6 +53,10 @@ pub impl StoreImpl of StoreTrait {
 
     fn read_non_match_event_outcome(self: Store, event_id: u32, outcome_id: u32) -> NonMatchEventOutcome {
         self.world.read_model((event_id, outcome_id))
+    }
+
+    fn read_player_event_history(self: Store, player: starknet::ContractAddress) -> PlayerEventHistory {
+        self.world.read_model(player)
     }
 
 
@@ -258,6 +262,15 @@ pub impl StoreImpl of StoreTrait {
         
         // Write back the updated player
         self.world.write_model(@player_model);
+        
+        // ✅ ADD: Create/Update PlayerEventHistory
+        let mut event_history = PlayerEventHistoryTrait::new(
+            player,
+            event_id,
+            outcome_id_u32,
+            timestamp,
+        );
+        self.world.write_model(@event_history);
         
         // Return outcome data for the frontend
         (outcome_id_u32, outcome.name, outcome.description)

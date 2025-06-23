@@ -36,22 +36,98 @@ const NonMatchResult = () => {
     );
   }
 
-  const outcomeType =
-    last_non_match_outcome?.outcome_type === 1 ? "Positive" : "Negative";
-  const outcomeColor =
-    outcomeType === "Positive" ? "text-green-400" : "text-red-400";
 
-  const stats = player
-    ? [
-        { name: "SHOOT", value: player.shoot },
-        { name: "DRIBBLING", value: player.dribble },
-        { name: "PASSING", value: player.passing },
-        { name: "STAMINA", value: player.stamina },
-        { name: "FAME", value: player.fame },
-        { name: "CHARISMA", value: player.charisma },
-        { name: "INTELLIGENCE", value: player.intelligence },
-      ]
-    : [];
+
+  const outcomeType = last_non_match_outcome?.outcome_type === 1 ? "Positive" : "Negative";
+  const outcomeColor = outcomeType === "Positive" ? "text-green-400" : "text-red-400";
+
+  // Helper function to get color based on delta
+  const getDeltaColor = (delta: number): string => {
+    if (delta > 0) return "text-green-400";
+    if (delta < 0) return "text-red-400";
+    return "text-white"; // neutral/no change
+  };
+
+  const allStats = player && last_non_match_outcome ? [
+    { 
+      name: 'CHARISMA', 
+      value: player.charisma, 
+      delta: last_non_match_outcome.charisma_delta,
+      color: getDeltaColor(last_non_match_outcome.charisma_delta)
+    },
+    { 
+      name: 'MONEY', 
+      value: player.coins, 
+      delta: last_non_match_outcome.coins_delta,
+      color: getDeltaColor(last_non_match_outcome.coins_delta)
+    },
+    { 
+      name: 'DRIBBLING', 
+      value: player.dribble, 
+      delta: last_non_match_outcome.dribble_delta,
+      color: getDeltaColor(last_non_match_outcome.dribble_delta)
+    },
+    { 
+      name: 'ENERGY', 
+      value: player.energy, 
+      delta: last_non_match_outcome.energy_delta,
+      color: getDeltaColor(last_non_match_outcome.energy_delta)
+    },
+    { 
+      name: 'FAME', 
+      value: player.fame, 
+      delta: last_non_match_outcome.fame_delta,
+      color: getDeltaColor(last_non_match_outcome.fame_delta)
+    },
+    { 
+      name: 'FREE KICK', 
+      value: player.free_kick, 
+      delta: last_non_match_outcome.free_kick_delta,
+      color: getDeltaColor(last_non_match_outcome.free_kick_delta)
+    },
+    { 
+      name: 'INTELLIGENCE', 
+      value: player.intelligence, 
+      delta: last_non_match_outcome.intelligence_delta,
+      color: getDeltaColor(last_non_match_outcome.intelligence_delta)
+    },
+    { 
+      name: 'PASSING', 
+      value: player.passing, 
+      delta: last_non_match_outcome.passing_delta,
+      color: getDeltaColor(last_non_match_outcome.passing_delta)
+    },
+    { 
+      name: 'INJURED', 
+      value: player.is_injured ? 'YES' : 'NO', 
+      delta: last_non_match_outcome.sets_injured ? 1 : 0,
+      color: last_non_match_outcome.sets_injured ? "text-red-400" : "text-white",
+      isInjury: true
+    },
+    { 
+      name: 'SHOOTING', 
+      value: player.shoot, 
+      delta: last_non_match_outcome.shoot_delta,
+      color: getDeltaColor(last_non_match_outcome.shoot_delta)
+    },
+    { 
+      name: 'STAMINA', 
+      value: player.stamina, 
+      delta: last_non_match_outcome.stamina_delta,
+      color: getDeltaColor(last_non_match_outcome.stamina_delta)
+    },
+    { 
+      name: 'TEAM RELATIONSHIP', 
+      value: player.team_relationship, 
+      delta: last_non_match_outcome.team_relationship_delta,
+      color: getDeltaColor(last_non_match_outcome.team_relationship_delta)
+    },
+  ] : [];
+
+  // Filter to only show stats with non-zero deltas
+  const stats = allStats.filter(stat => 
+    stat.isInjury ? last_non_match_outcome?.sets_injured : stat.delta !== 0
+  );
 
   return (
     <div
@@ -93,11 +169,8 @@ const NonMatchResult = () => {
                 <span className="text-cyan-300 text-lg font-bold">
                   {stat.name}
                 </span>
-                <span
-                  className="text-white text-2xl font-bold"
-                  style={{ textShadow: "0 0 10px #0ff" }}
-                >
-                  {stat.value}
+                <span className={`text-2xl font-bold ${stat.color}`} style={{ textShadow: '0 0 10px #0ff' }}>
+                  {stat.value} {stat.isInjury ? '' : `(${stat.delta > 0 ? '+' : ''}${stat.delta})`}
                 </span>
               </li>
             ))}

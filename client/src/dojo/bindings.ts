@@ -177,10 +177,9 @@ export interface NonMatchEventOutcome {
 
 export interface PlayerEventHistory {
     player: string;
-    event_id: number;
-    times_triggered: number;
+    last_event_id: number;
     last_outcome_id: number;
-    last_triggered_day: number;
+    last_execution_timestamp: number;
 }
 
 export interface SchemaType extends ISchemaType {
@@ -284,10 +283,9 @@ export const schema: SchemaType = {
 		},
 		PlayerEventHistory: {
 			player: "",
-			event_id: 0,
-			times_triggered: 0,
+			last_event_id: 0,
 			last_outcome_id: 0,
-			last_triggered_day: 0,
+			last_execution_timestamp: 0,
 		},
 	},
 	achievement: {

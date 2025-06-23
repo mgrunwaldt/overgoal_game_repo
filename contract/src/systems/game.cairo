@@ -88,17 +88,15 @@ pub mod game {
 
     use starknet::{get_block_timestamp, ContractAddress};
 
-    // Custom event for non-match event outcomes
+    // Custom event for player event history
     #[derive(Copy, Drop, Serde)]
     #[dojo::event]
-    pub struct NonMatchEventExecuted {
+    pub struct PlayerEventHistoryUpdated {
         #[key]
         pub player: ContractAddress,
-        #[key]
-        pub event_id: u32,
-        pub outcome_id: u32,
-        pub outcome_name: felt252,
-        pub outcome_description: felt252,
+        pub last_event_id: u32,
+        pub last_outcome_id: u32,
+        pub last_execution_timestamp: u64,
     }
 
     #[storage]
@@ -916,13 +914,12 @@ pub mod game {
             // Execute the non-match event logic and get outcome data
             let (outcome_id, outcome_name, outcome_description) = store.execute_non_match_event(event_id);
 
-            // Emit custom event with outcome data for frontend
-            world.emit_event(@NonMatchEventExecuted { 
+            // Emit custom event for PlayerEventHistory
+            world.emit_event(@PlayerEventHistoryUpdated { 
                 player: player.owner, 
-                event_id, 
-                outcome_id, 
-                outcome_name, 
-                outcome_description 
+                last_event_id: event_id,
+                last_outcome_id: outcome_id,
+                last_execution_timestamp: get_block_timestamp(),
             });
 
             // Emit events for achievements progression
