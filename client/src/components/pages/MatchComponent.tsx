@@ -50,6 +50,12 @@ const MatchComponent = () => {
   useEffect(() => {
     const eventInterval = setInterval(() => {
       // 20% chance for an important enemy event
+
+      // 40% chance to open a popup
+      if (Math.random() < 0.4) {
+        setDecisionOpen(true); // Or your own popup handling logic
+      }
+
       if (Math.random() < 0.2) {
         const newEventText =
           importantEnemyEvents[
@@ -162,6 +168,11 @@ const MatchComponent = () => {
           </div>
         )}
       </div>
+
+      <MatchDecision
+        isOpen={isDecisionOpen}
+        onClose={() => setDecisionOpen(false)}
+      />
     </div>
   );
 };
