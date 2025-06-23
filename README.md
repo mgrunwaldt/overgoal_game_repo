@@ -144,3 +144,131 @@ The starter demonstrates essential onchain game patterns:
 ---
 
 **Built with ❤️ for the Starknet gaming community**
+
+# Overgoal Game
+
+### Submission Track
+Full Game
+
+### Project Summary
+Overgoal is a fully on-chain football management game built with Dojo on Starknet. Players create and manage their football careers, making strategic decisions through matches and non-match events that affect their stats and progression. The game features real-time stat management, team dynamics, and randomized events that create unique player journeys.
+
+Key features:
+- **On-chain Player Stats**: All player attributes (stamina, skills, charisma, etc.) stored and managed on Starknet
+- **Dynamic Match System**: Engage in football matches with real-time decision making
+- **Non-Match Events**: Choose from various activities (training, social events, business deals) with random outcomes
+- **Team Management**: Join teams, build relationships, and compete for glory
+- **Persistent World**: All game state lives on-chain with Dojo's entity-component system
+
+### GitHub
+https://github.com/yourusername/overgoal_game_repo
+
+> Please ensure your github repo is registered with [OnlyDust](https://app.onlydust.com/p/create) to receive awards.
+
+### Play
+
+#### Quick Setup & Play Instructions
+
+**Prerequisites:**
+- Node.js (v18+)
+- Rust and Cairo development environment
+- Git
+
+**1. Clone and Setup:**
+```bash
+git clone https://github.com/yourusername/overgoal_game_repo
+cd overgoal_game_repo
+```
+
+**2. Contract Setup:**
+```bash
+cd contract
+# Install Dojo (if not installed)
+curl -L https://install.dojoengine.org | bash
+dojoup
+
+# Build and deploy contracts
+sozo build
+sozo migrate apply
+```
+
+**3. Frontend Setup:**
+```bash
+cd ../client
+npm install
+npm run dev
+```
+
+**4. Start Playing:**
+1. Open `http://localhost:5173` in your browser
+2. Connect your Starknet wallet (Cartridge Controller recommended)
+3. Create your player character
+4. Select a team to join
+5. Start your football career!
+
+#### How to Play
+
+**Main Game Loop:**
+1. **Character Creation**: Set up your player with initial stats
+2. **Team Selection**: Choose from 14 available teams with different characteristics
+3. **Match Play**: 
+   - Click "Play Match" to find opponents
+   - Make tactical decisions during matches
+   - Manage stamina and energy
+4. **Non-Match Events**:
+   - Choose from activities like training, social events, podcasts
+   - Each event has 4 random outcomes affecting your stats
+   - Events can improve skills, fame, money, or cause setbacks
+5. **Progression**: Build your stats, reputation, and team relationships
+
+**Key Mechanics:**
+- **Stamina System**: Matches consume stamina; rest to recover
+- **Skill Development**: Train specific abilities (shooting, dribbling, energy)
+- **Fame & Charisma**: Affects earning potential and opportunities
+- **Team Relationships**: Important for team chemistry and success
+- **Injury Risk**: Some events can cause temporary injuries
+
+**Stats Explained:**
+- **Core Skills**: Shoot, Dribble, Passing, Free Kick
+- **Physical**: Energy, Stamina
+- **Mental**: Intelligence
+- **Social**: Charisma, Fame, Team Relationship
+- **Resources**: Coins (money), Injury status
+
+### Twitter
+@OvergoalGame
+
+> Share your submission on socials for more exposure!
+
+### Team members
+- **Lead Developer**: [Your Name] - [@yourtwitter](https://twitter.com/yourtwitter) - [GitHub](https://github.com/yourusername)
+- **Game Designer**: [Team Member 2] - Discord: username#1234
+- **Frontend Developer**: [Team Member 3] - [GitHub](https://github.com/teammember3)
+
+#### Technical Architecture
+- **Backend**: Cairo smart contracts on Starknet using Dojo framework
+- **Frontend**: React with TypeScript, Zustand state management
+- **Wallet Integration**: Cartridge Controller for seamless UX
+- **Real-time Updates**: GraphQL subscriptions for live game state
+
+**Key Development Challenges Solved:**
+- **Transaction Patterns**: Uses proper Dojo SDK patterns instead of low-level Starknet calls
+- **Randomization**: Block timestamp-based pseudo-random outcome generation
+- **State Persistence**: Zustand with proper persistence configuration
+- **Real-time Updates**: GraphQL subscriptions for live blockchain data
+
+**Game Features:**
+- **56 Unique Scenarios**: 14 events × 4 outcomes each with varied stat impacts
+- **14 Teams**: Each with unique characteristics and personalities  
+- **Complex Stat System**: 11+ different player attributes affecting gameplay
+- **Visual Feedback**: Color-coded stat changes and dynamic result displays
+
+### Twitter
+@OvergoalGame
+
+> Share your submission on socials for more exposure!
+
+### Team members
+- **Lead Developer**: [Your Name] - [@yourtwitter](https://twitter.com/yourtwitter) - [GitHub](https://github.com/yourusername)
+- **Game Designer**: [Team Member 2] - Discord: username#1234
+- **Frontend Developer**: [Team Member 3] - [GitHub](https://github.com/teammember3)
