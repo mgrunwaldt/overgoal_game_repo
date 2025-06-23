@@ -1,254 +1,231 @@
-# Overgoal Game - Non-Match Event Feature Implementation
+# ⚽ Overgoal - Football RPG on Starknet
 
-## Overview
+> **An RPG-style decision-making football game where every choice shapes your legend**
+> 
+> Set in a near-future where footballers are global icons, build your character through seasons of pivotal matches and meaningful choices. Balance performance, reputation, and life beyond the field.
 
-This document provides a comprehensive guide to the implementation of the Non-Match Event feature in the Overgoal Dojo game. This feature allows players to select events that trigger on-chain actions with random outcomes, affecting player statistics.
+<div align="center">
+  <img src="./client/src/assets/Dojo-Logo-Stylized-Red.svg" alt="Dojo Engine" height="60"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="./client/src/assets/SN-Linear-Gradient.svg" alt="Starknet" height="60"/>
+</div>
 
-## Architecture
+## 🎮 Game Overview
 
-### Game Flow
-1. **Event Selection**: Players choose from available non-match events via `NonMatchEventSelector.tsx`
-2. **Contract Execution**: Cairo contract function `execute_non_match_event` is called
-3. **Random Outcome**: Contract randomly selects one of four possible outcomes using block timestamp
-4. **Stat Application**: Player statistics are updated based on outcome deltas
-5. **Result Display**: Results are shown on a dedicated screen with visual feedback
+**Overgoal** is more than just a match - it's a comprehensive football RPG where you:
 
-## Backend Implementation (Cairo/Dojo)
+- 🌟 **Build Your Legend**: Start as a rising star and progress through seasons
+- ⚽ **Play Strategic Matches**: Engage in football matches with real consequences  
+- 🎭 **Make Life Choices**: Navigate fame, scandals, deals, and danger through non-match events
+- 🏆 **Progress Your Career**: Balance performance, reputation, and personal relationships
+- 📱 **Mobile-First Experience**: Designed specifically for mobile gameplay
 
-### Contract Structure
+### Core Gameplay Loop
+1. **Season Structure**: Each year = one season with alternating matches and events
+2. **Match Play**: Strategic football matches that affect your stats and reputation
+3. **Non-Match Events**: Life choices that shape your character (parties, training, podcasts, etc.)
+4. **Career Progression**: End-of-season transfers based on performance and reputation
+5. **Character Development**: Multiple stats to manage (stamina, skills, charisma, fame, etc.)
 
-#### Store Layer (`contract/src/store.cairo`)
-```cairo
-// Core execution function
-fn execute_non_match_event(ref self: Store, player: Player, event_id: u8) -> (u8, felt252, felt252) {
-    // Generate random outcome (1-4) using block timestamp
-    let block_info = get_block_info().unbox();
-    let random_seed = block_info.block_timestamp;
-    let outcome_id = (random_seed % 4) + 1;
-    
-    // Read outcome data and apply deltas
-    let outcome = self.read_non_match_event_outcome(event_id, outcome_id);
-    // ... stat application logic
-}
+## 🛠️ Tech Stack
+
+```
+Frontend: React + Vite + TypeScript + TailwindCSS + Zustand
+Backend:  Cairo + Dojo Engine + Torii GraphQL Indexer  
+Network:  Starknet (Local/Sepolia/Mainnet)
+Wallet:   Cartridge Controller (Gaming-optimized wallet)
+Mobile:   Responsive design optimized for mobile devices
 ```
 
-#### Player Event History Model
-```cairo
-#[derive(Copy, Drop, Serde)]
-#[dojo::model]
-pub struct PlayerEventHistory {
-    #[key]
-    pub player: ContractAddress,
-    pub last_event_id: u8,
-    pub last_outcome_id: u8,
-    pub last_execution_timestamp: u64,
-}
+## 📦 Project Structure
+
+```
+overgoal_game_repo/
+├── 📱 client/                     # React frontend application
+│   ├── src/
+│   │   ├── components/pages/      # Game screens (Match, Events, Character Selection)
+│   │   ├── dojo/                  # Dojo blockchain integration
+│   │   │   ├── bindings.ts        # TypeScript interfaces from Cairo contracts
+│   │   │   ├── hooks/             # React hooks for blockchain interactions
+│   │   │   └── contracts.gen.ts   # Auto-generated contract functions
+│   │   ├── zustand/               # Global state management
+│   │   └── config/                # App configuration and wallet setup
+│   ├── docs/                      # 📚 Game documentation
+│   │   └── game_docs/             # Detailed game mechanics and lore
+│   └── public/                    # Game assets and images
+├── ⚙️ contract/                   # Cairo smart contracts
+│   ├── src/
+│   │   ├── models/                # Data models (Player, Team, Match, Events)
+│   │   ├── systems/               # Game logic and mechanics
+│   │   └── store.cairo            # Data layer abstraction
+│   ├── scripts/                   # Deployment and seeding scripts
+│   └── bindings/                  # Generated TypeScript bindings
+└── README.md                      # This file
 ```
 
-### Common Issues Resolved
+## 🚀 Getting Started
 
-1. **Visibility Errors**: Removed `pub` modifiers from trait implementation functions
-2. **Type Casting**: Implemented safe `apply_delta_u32` helper for stat modifications
-3. **Import Dependencies**: Added missing trait and model imports
-4. **Variable Lifecycle**: Fixed unused variable warnings with `_` prefix
-5. **Field Naming**: Corrected model field names to match schema
-6. **Debug Printing**: Removed unsupported `ContractAddress` from debug output
+### Prerequisites
 
-## Frontend Implementation (React/TypeScript)
+- **Node.js** (v18+)
+- **Rust** (latest stable)
+- **Cairo** (v2.10.1)
+- **Dojo** (v1.5.0)
 
-### State Management (Zustand)
+### Quick Setup
 
-```typescript
-interface GameState {
-  last_non_match_outcome: {
-    outcome_id: u8;
-    outcome_name: string;
-    outcome_description: string;
-    event_id: u8;
-    event_name: string;
-    event_description: string;
-  } | null;
-  // ... other state
-}
-```
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd overgoal_game_repo
+   ```
 
-### Contract Bindings
+2. **Install frontend dependencies**
+   ```bash
+   cd client
+   npm install
+   ```
 
-Updated `contracts.gen.ts` with proper Dojo patterns:
-```typescript
-export const build_game_execute_non_match_event_calldata = (eventId: number) => {
-  return [eventId];
-};
+### 🔧 Local Development Setup
 
-export const game_execute_non_match_event = async (
-  sdk: SDK<SchemaType>,
-  props: {
-    account: Account;
-    eventId: number;
-  }
-) => {
-  return sdk.execute(
-    props.account,
-    "game",
-    "execute_non_match_event",
-    build_game_execute_non_match_event_calldata(props.eventId)
-  );
-};
-```
+Follow these steps **in order** to run the game locally:
 
-### Transaction Handling
-
-#### ❌ Incorrect Pattern (Causes Hanging)
-```typescript
-const tx = await executeNonMatchEvent(account, eventId);
-await account.waitForTransaction(tx.transaction_hash); // HANGS
-```
-
-#### ✅ Correct Dojo Pattern
-```typescript
-const tx = await client!.game.executeNonMatchEvent(account, eventId);
-if (tx && tx.code === "SUCCESS") {
-  // Success logic
-} else {
-  throw new Error(`Transaction failed: ${tx?.code}`);
-}
-```
-
-## Critical Debugging Process
-
-### Transaction Hanging Issue
-
-**Problem**: Transactions would hang at `account.waitForTransaction()` call.
-
-**Root Cause**: Using low-level Starknet transaction patterns instead of Dojo SDK patterns.
-
-**Solution**: Consulted Dojo Sensei (MCP) and adopted standard Dojo transaction handling patterns used throughout the codebase.
-
-### Data Persistence and Navigation
-
-**Issues Encountered**:
-1. **Route Mismatch**: URL parameters not matching navigation calls
-2. **State Persistence**: Zustand state not persisting across navigation
-3. **Race Conditions**: UI checking for data before it's fully loaded
-
-**Solutions Applied**:
-```typescript
-// Fixed persistence configuration
-partialize: (state) => ({
-  // ... other fields
-  last_non_match_outcome: state.last_non_match_outcome,
-}),
-
-// Added timing controls
-setTimeout(() => navigate('/non-match-result'), 100);
-
-// Added loading states in components
-if (!outcome) {
-  return <div>Loading outcome...</div>;
-}
-```
-
-### Data Format Handling
-
-**Discovery**: Contract returns hex-encoded strings for event/outcome names and descriptions.
-
-**Examples**:
-- `0x5061727479` = "Party"
-- `0x476f20746f20612050656f6461737` = "Go to a Podcast"
-
-**Solution**: GraphQL automatically decodes hex strings, so removed redundant hex decoding in UI components.
-
-## UI/UX Enhancements
-
-### NonMatchResult Screen Features
-
-1. **Filtered Stats Display**: Only shows statistics that changed (delta ≠ 0)
-2. **Color-Coded Changes**:
-   - 🟢 Green: Positive changes
-   - 🔴 Red: Negative changes  
-   - ⚪ White: No change
-3. **Delta Indicators**: Shows change amounts like "50 (+5)" or "30 (-3)"
-4. **Special Cases**: Injury status shows "YES"/"NO" without delta text
-
-```typescript
-const getDeltaColor = (delta: number): string => {
-  if (delta > 0) return 'text-green-400';
-  if (delta < 0) return 'text-red-400';
-  return 'text-white';
-};
-```
-
-## Match Creation System
-
-### Location: `MainScreen.tsx`
-- **UI Element**: "Play Match" button
-- **Handler**: `handleNewMatch()` function (lines 89-119)
-- **Logic Flow**:
-  1. Validates player requirements (stamina, team membership)
-  2. Finds opponent team
-  3. Generates unique match ID
-  4. Calls `executeCreateGameMatch`
-  5. Navigates to match preparation screen
-
-### Known Issues
-- **Opponent Selection**: Currently always selects team ID 1 as opponent
-- **Randomization**: Needs improvement for varied gameplay experience
-
-## Development Best Practices Learned
-
-### 1. Transaction Patterns
-- Always use Dojo SDK patterns instead of low-level Starknet calls
-- Check transaction codes instead of waiting for transaction hashes
-- Handle errors gracefully with proper error messages
-
-### 2. State Management
-- Include all persistent data in Zustand partialize configuration
-- Use loading states to handle async data fetching
-- Add timing controls for navigation to prevent race conditions
-
-### 3. Cairo Development
-- Use helper functions for type-safe operations
-- Prefix unused variables with `_` to suppress warnings
-- Import only necessary dependencies to avoid compilation errors
-- Test contract functions thoroughly before frontend integration
-
-### 4. Data Handling
-- Understand data encoding formats (hex strings in this case)
-- Leverage GraphQL automatic decoding when available
-- Implement proper error handling for data fetching operations
-
-## Future Improvements
-
-1. **Enhanced Randomization**: Implement more sophisticated random number generation
-2. **Event Balancing**: Add cooldowns and restrictions to prevent exploitation
-3. **Visual Effects**: Add animations for stat changes and outcome reveals
-4. **Event Categories**: Organize events by type (training, social, business, etc.)
-5. **Opponent Variety**: Improve match opponent selection algorithm
-6. **Achievement System**: Track player progress and milestones
-
-## Useful Commands
-
+#### 1. Build the Contracts
 ```bash
-# Contract development
 cd contract
 sozo build
-sozo migrate apply
-
-# Frontend development  
-cd client
-npm run dev
-
-# Testing
-cd contract
-sozo test
 ```
 
-## Resources
+#### 2. Start Local Blockchain (Katana)
+```bash
+# In contract directory
+katana --config katana.toml
+```
+*Keep this terminal running - this is your local blockchain*
 
-- [Dojo Documentation](https://book.dojoengine.org/)
-- [Cairo Language Reference](https://book.cairo-lang.org/)
-- [Starknet Developer Docs](https://docs.starknet.io/)
+#### 3. Deploy Contracts
+```bash
+# In contract directory (new terminal)
+sozo migrate
+```
+*Note the World address from the output*
+
+#### 4. Start the Indexer (Torii)
+```bash
+# In contract directory
+torii --world "WORLD_ADDRESS_FROM_STEP_3"
+```
+*Replace WORLD_ADDRESS_FROM_STEP_3 with the actual address*
+*Keep this terminal running - this indexes blockchain data*
+
+#### 5. Seed Game Data
+```bash
+# In contract directory (new terminal)
+./scripts/seed_teams.sh
+./scripts/seed_non_match_events.sh
+```
+
+#### 6. Start Frontend
+```bash
+# In client directory
+npm run dev:https
+```
+
+#### 7. Access the Game
+- **IMPORTANT**: You MUST access via HTTPS: `https://localhost:5173`
+- The game is designed for **mobile devices** - use mobile view or mobile emulation
+- Connect your Cartridge Controller wallet to start playing
+
+## 🎯 Game Features
+
+### ⚽ Match System
+- **Strategic Gameplay**: Matches involve stamina management and tactical decisions
+- **Real Consequences**: Match results affect your stats, reputation, and career prospects
+- **Dynamic Opponents**: Face different teams with varying difficulty levels
+- **Performance Tracking**: Detailed match statistics and player ratings
+
+### 🎭 Non-Match Events
+Choose from various life events that shape your character:
+- 🎉 **Party**: Social events that can boost charisma but risk injury
+- 🏋️ **Training**: Improve specific skills (dribbling, shooting, energy)
+- 🎙️ **Media**: Podcast appearances and interviews that affect fame
+- 💰 **Business**: Brand deals and sponsorship opportunities
+- 🧘 **Wellness**: Rest and recovery activities
+
+### 📊 Character Progression
+Manage multiple interconnected stats:
+- **Physical**: Stamina, Energy, Injury Status
+- **Skills**: Dribbling, Shooting, Passing, Free Kick
+- **Mental**: Intelligence, Charisma
+- **Social**: Fame, Team Relationship
+- **Financial**: Coins/Money
+
+### 🏆 Career Management
+- **Seasonal Structure**: Progress through football seasons
+- **Team Transfers**: Move between clubs based on performance
+- **Reputation System**: Your choices affect how teams and fans perceive you
+- **Achievement System**: Unlock badges and milestones
+
+## 🌐 Deployment
+
+### Sepolia Testnet
+The project includes configuration for Sepolia deployment:
+
+1. **Set environment variables**
+   ```bash
+   export DEPLOYER_ACCOUNT_ADDRESS="your_account_address"
+   export DEPLOYER_PRIVATE_KEY="your_private_key"
+   ```
+
+2. **Deploy to Sepolia**
+   ```bash
+   cd contract
+   npm run sepolia
+   ```
+
+## 🔍 Known Issues & Future Improvements
+
+### Current Limitations
+- **Frontend Match Simulation**: Matches are currently simulated in the frontend and need to be moved to backend contracts
+- **Limited Team Variety**: Opponent selection algorithm needs improvement for better variety
+- **Mobile Optimization**: Some UI elements need further mobile refinement
+
+### Roadmap
+- [ ] Move match simulation logic to Cairo contracts
+- [ ] Implement more sophisticated opponent selection
+- [ ] Add more non-match event types
+- [ ] Enhance mobile UI/UX
+- [ ] Add multiplayer features
+- [ ] Implement tournament system
+
+## 📚 Documentation
+
+- **[Game Overview](./client/docs/game_docs/game_overview.md)** - High-level game concept
+- **[Gameplay Flow](./client/docs/game_docs/gameplay_flow.md)** - Detailed game mechanics
+- **[Character System](./client/docs/game_docs/characters.md)** - Player progression system
+- **[Match Mechanics](./client/docs/game_docs/match_mechanics_calculations.md)** - Combat and match systems
+- **[Teams & Universe](./client/docs/game_docs/teams.md)** - Game world and lore
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🔗 Links
+
+- **[Starknet](https://starknet.io)** - Layer 2 blockchain platform
+- **[Dojo Engine](https://dojoengine.org)** - Onchain game development framework
+- **[Cairo](https://cairo-lang.org)** - Smart contract programming language
+- **[Cartridge](https://cartridge.gg)** - Gaming-focused wallet
 
 ---
 
-*This implementation guide documents the complete development process, including all challenges faced and solutions implemented during the Non-Match Event feature development.*
+**Will you become a sporting hero—or fall into the shadows of corruption?**
+**Play Overgoal and find out! ⚽🌟**
