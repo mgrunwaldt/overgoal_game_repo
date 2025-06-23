@@ -148,7 +148,7 @@ const MatchComponent = () => {
           </div>
         </div>
         <img src="/match/Logo.png" alt="Logo" className="w-24 h-24" />
-        {timer === 0 && (
+        {timer === 90 && (
           <div className="w-full flex justify-end mt-12">
             <button
               onClick={() => {
