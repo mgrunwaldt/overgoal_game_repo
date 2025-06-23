@@ -10,11 +10,11 @@ import StaminaBar from "../ui/StaminaBar";
 
 const getPlayerImage = (playerType: String): String => {
   switch (playerType) {
-    case "striker":
+    case "Striker":
       return "/preMatch/Player 9.png";
-    case "dribble":
+    case "Dribbler":
       return "/preMatch/Player 11.png";
-    case "playmaker":
+    case "Playmaker":
       return "/preMatch/Player 10.png";
     default:
       return "/preMatch/Player 10.png"; // optional default case
@@ -58,7 +58,9 @@ export default function NewMatch() {
 
   useEffect(() => {
     if (player && teams.length > 0) {
+      console.log("🎯 playerTypeMati", player.player_type);
       const image = getPlayerImage(player.player_type.toString());
+      console.log("🎯 image", image);
       setPlayerImage(image);
       setStamina(player.stamina);
       // Find the player's selected team (Team 1)
