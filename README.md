@@ -132,7 +132,7 @@ npm run dev:https
 ```
 
 #### 7. Access the Game
-- **IMPORTANT**: You MUST access via HTTPS: `https://localhost:5173`
+- **IMPORTANT**: You MUST access via HTTPS
 - The game is designed for **mobile devices** - use mobile view or mobile emulation
 - Connect your Cartridge Controller wallet to start playing
 
