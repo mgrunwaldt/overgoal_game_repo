@@ -19,11 +19,11 @@ interface StatsPopupProps {
 
 const getPlayerImage = (playerType: String): String => {
   switch (playerType) {
-    case "striker":
+    case "Striker":
       return "/preMatch/Player 9.png";
-    case "dribble":
+    case "Dribbler":
       return "/preMatch/Player 11.png";
-    case "playmaker":
+    case "Playmaker":
       return "/preMatch/Player 10.png";
     default:
       return "/preMatch/Player 10.png"; // optional default case
@@ -54,7 +54,7 @@ const StatsPopup: React.FC<StatsPopupProps> = ({
 
   return (
     <div
-      className="min-h-screen w-full flex flex-col items-center justify-start pt-12 p-8 bg-cover bg-center"
+      className="absolute min-h-screen w-full flex flex-col items-center justify-start pt-12 p-8 bg-cover bg-center"
       style={{ backgroundImage: "url('/nonMatchResult/BackGround.png')" }}
     >
       <div className="w-full max-w-lg flex flex-col items-center">
@@ -70,7 +70,7 @@ const StatsPopup: React.FC<StatsPopupProps> = ({
               <div className="flex flex-col text-center items-center p-2 ">
                 <span className="text-white text-lg font-bold">{teamName}</span>
                 <span className="text-yellow-300 text-2xl font-bold">
-                  {teamPoints}
+                  Points: {teamPoints}
                 </span>
               </div>
             </div>
