@@ -3,7 +3,7 @@ import { useAccount } from "@starknet-react/core";
 import { useNavigate } from "react-router-dom";
 import { useDojoSDK } from "@dojoengine/sdk/react";
 import useAppStore from "../../zustand/store";
-import { usePlayer } from "./usePlayer";
+import { usePlayer, fetchPlayerEventHistory } from "./usePlayer";
 import { fetchNonMatchEventOutcomes } from "./useNonMatchEvents";
 
 type ExecutionState = 'idle' | 'executing' | 'success' | 'error';
@@ -45,7 +45,7 @@ export const useExecuteNonMatchEventAction = (): UseExecuteNonMatchEventActionRe
       console.log("$$$$$ Transaction response received:", tx);
 
       if (tx && tx.code === "SUCCESS") {
-        console.log("$$$$$ Transaction successful, now fetching outcome data");
+        console.log("$$$$$ Transaction successful, now fetching player event history");
 
         // Wait a bit for the transaction to be indexed
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -54,34 +54,33 @@ export const useExecuteNonMatchEventAction = (): UseExecuteNonMatchEventActionRe
         console.log("$$$$$ Refetching player data");
         await refetchPlayer();
 
-        // Fetch all possible outcomes for this event
-        console.log("$$$$$ Fetching outcome data for event_id:", eventId);
-        const outcomes = await fetchNonMatchEventOutcomes(eventId);
-        console.log("$$$$$ Fetched outcomes:", outcomes);
+        // Get the player address for fetching event history
+        const playerAddress = account.address;
+        console.log("$$$$$ Fetching PlayerEventHistory for player:", playerAddress);
 
-        if (outcomes.length === 0) {
-          throw new Error("No outcomes found for this event");
+        // Fetch the player's event history to get the last outcome_id
+        const eventHistory = await fetchPlayerEventHistory(playerAddress);
+        console.log("$$$$$ Fetched event history:", eventHistory);
+
+        if (!eventHistory) {
+          throw new Error("No event history found for player");
         }
 
-        // For now, we'll use the first outcome. 
-        // TODO: We need to get the actual outcome_id from the transaction response
-        // The contract returns (outcome_id, outcome_name, outcome_description) but we need to extract this
-        const chosenOutcome = outcomes[0]; // This is a temporary solution
+        // Now fetch the specific outcome using event_id and outcome_id from history
+        console.log("$$$$$ Fetching specific outcome for event_id:", eventHistory.last_event_id, "outcome_id:", eventHistory.last_outcome_id);
+        const outcomes = await fetchNonMatchEventOutcomes(eventHistory.last_event_id);
+        const specificOutcome = outcomes.find(outcome => outcome.outcome_id === eventHistory.last_outcome_id);
+
+        if (!specificOutcome) {
+          throw new Error(`No outcome found for event_id: ${eventHistory.last_event_id}, outcome_id: ${eventHistory.last_outcome_id}`);
+        }
         
-        console.log("$$$$$ Using outcome:", chosenOutcome);
-        setLastNonMatchOutcome(chosenOutcome);
+        console.log("$$$$$ Found specific outcome:", specificOutcome);
+        setLastNonMatchOutcome(specificOutcome);
         console.log("$$$$$ Outcome data has been set in store");
 
-        // Verify the state was actually set by getting it back from the store
-        const { last_non_match_outcome } = useAppStore.getState();
-        console.log("$$$$$ Verification - outcome in store after setting:", last_non_match_outcome);
-
-        // Add a longer delay to ensure state updates propagate before navigation
+        // Add a delay to ensure state updates propagate before navigation
         await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Verify again after delay
-        const { last_non_match_outcome: outcomeAfterDelay } = useAppStore.getState();
-        console.log("$$$$$ Verification - outcome in store after delay:", outcomeAfterDelay);
         
         setState('success');
         console.log("$$$$$ Navigating to NonMatchResult");

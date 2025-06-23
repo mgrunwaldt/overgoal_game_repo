@@ -45,6 +45,22 @@ const PLAYER_QUERY = `
     }
 `;
 
+// Add GraphQL query for PlayerEventHistory
+const PLAYER_EVENT_HISTORY_QUERY = `
+    query GetPlayerEventHistory($playerOwner: ContractAddress!) {
+        fullStarterReactPlayerEventHistoryModels(where: { player: $playerOwner }) {
+            edges {
+                node {
+                    player
+                    last_event_id
+                    last_outcome_id
+                    last_execution_timestamp
+                }
+            }
+        }
+    }
+`;
+
 // Helper to convert hex values to numbers
 const hexToNumber = (hexValue: string | number): number => {
   if (typeof hexValue === 'number') return hexValue;
@@ -117,6 +133,48 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
 
   } catch (error) {
     console.error("❌ Error fetching player:", error);
+    throw error;
+  }
+};
+
+// ✅ ADD: Function to fetch PlayerEventHistory data from GraphQL
+export const fetchPlayerEventHistory = async (playerOwner: string): Promise<{ last_event_id: number; last_outcome_id: number; last_execution_timestamp: number } | null> => {
+  try {
+    console.log("🔍 Fetching player event history with owner:", playerOwner);
+
+    const response = await fetch(TORII_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: PLAYER_EVENT_HISTORY_QUERY,
+        variables: { playerOwner }
+      }),
+    });
+
+    const result = await response.json();
+    console.log("📡 PlayerEventHistory GraphQL response:", result);
+
+    if (!result.data?.fullStarterReactPlayerEventHistoryModels?.edges?.length) {
+      console.log("❌ No player event history found in response");
+      return null;
+    }
+
+    // Extract player event history data
+    const rawHistoryData = result.data.fullStarterReactPlayerEventHistoryModels.edges[0].node;
+    console.log("📄 Raw player event history data:", rawHistoryData);
+
+    // Convert hex values to numbers
+    const historyData = {
+      last_event_id: hexToNumber(rawHistoryData.last_event_id),
+      last_outcome_id: hexToNumber(rawHistoryData.last_outcome_id),
+      last_execution_timestamp: hexToNumber(rawHistoryData.last_execution_timestamp),
+    };
+
+    console.log("✅ Player event history data after conversion:", historyData);
+    return historyData;
+
+  } catch (error) {
+    console.error("❌ Error fetching player event history:", error);
     throw error;
   }
 };

@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x7a1ca8c8d3f6ca4cbab278fa0916de89123b4ae7beaec20bbeeee4aeb3c6072",
-      "class_hash": "0x3c6c6ff098398bac3757e6bb5481fa73aef7577e1b924a329bfd7267f5c5afa",
+      "address": "0x1125d7329f91b2cf5295eb89fdded766efed796cda83332f5e04d64dcd83f49",
+      "class_hash": "0x7c0e6a4bb1b66689c293d4b9a05419ef7c8d79dedcc991b940fa4423e24a93a",
       "abi": [
         {
           "type": "impl",
@@ -2099,7 +2099,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x6b87c1d096930eb64c02bddb01749845ccc1e34725461bb47a77216b419170d",
+      "class_hash": "0x10bfa40ae0459f4041cbf03dd11291b665b036904526a67d841da157980a213",
       "tag": "full_starter_react-PlayerEventHistory",
       "selector": "0x5082c8f2762ea0c286a65e12ef0bf2d91f909321d7006195e18f573e1660b2b"
     },
@@ -2113,9 +2113,9 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x182e33f29314422b84da0f5aed2ca5701828178fed179f3dcdb8eb0a03f3fa2",
-      "tag": "full_starter_react-NonMatchEventExecuted",
-      "selector": "0x1f3fe556421c1b01bad04fa207a430208fea2c0fb9811ccfb809e1612e6220f"
+      "class_hash": "0x1da8515c80a5ebae5db8f638a06625fbcb44b6f617874a238f99eed05a9b1d",
+      "tag": "full_starter_react-PlayerEventHistoryUpdated",
+      "selector": "0x4caed07830a01b7dd70b0e98f8f9e161956f88a9009660dd1ae1363aecac307"
     },
     {
       "members": [],
