@@ -36,10 +36,10 @@ const NonMatchResult = () => {
     );
   }
 
-
-
-  const outcomeType = last_non_match_outcome?.outcome_type === 1 ? "Positive" : "Negative";
-  const outcomeColor = outcomeType === "Positive" ? "text-green-400" : "text-red-400";
+  const outcomeType =
+    last_non_match_outcome?.outcome_type === 1 ? "Positive" : "Negative";
+  const outcomeColor =
+    outcomeType === "Positive" ? "text-green-400" : "text-red-400";
 
   // Helper function to get color based on delta
   const getDeltaColor = (delta: number): string => {
@@ -48,84 +48,91 @@ const NonMatchResult = () => {
     return "text-white"; // neutral/no change
   };
 
-  const allStats = player && last_non_match_outcome ? [
-    { 
-      name: 'CHARISMA', 
-      value: player.charisma, 
-      delta: last_non_match_outcome.charisma_delta,
-      color: getDeltaColor(last_non_match_outcome.charisma_delta)
-    },
-    { 
-      name: 'MONEY', 
-      value: player.coins, 
-      delta: last_non_match_outcome.coins_delta,
-      color: getDeltaColor(last_non_match_outcome.coins_delta)
-    },
-    { 
-      name: 'DRIBBLING', 
-      value: player.dribble, 
-      delta: last_non_match_outcome.dribble_delta,
-      color: getDeltaColor(last_non_match_outcome.dribble_delta)
-    },
-    { 
-      name: 'ENERGY', 
-      value: player.energy, 
-      delta: last_non_match_outcome.energy_delta,
-      color: getDeltaColor(last_non_match_outcome.energy_delta)
-    },
-    { 
-      name: 'FAME', 
-      value: player.fame, 
-      delta: last_non_match_outcome.fame_delta,
-      color: getDeltaColor(last_non_match_outcome.fame_delta)
-    },
-    { 
-      name: 'FREE KICK', 
-      value: player.free_kick, 
-      delta: last_non_match_outcome.free_kick_delta,
-      color: getDeltaColor(last_non_match_outcome.free_kick_delta)
-    },
-    { 
-      name: 'INTELLIGENCE', 
-      value: player.intelligence, 
-      delta: last_non_match_outcome.intelligence_delta,
-      color: getDeltaColor(last_non_match_outcome.intelligence_delta)
-    },
-    { 
-      name: 'PASSING', 
-      value: player.passing, 
-      delta: last_non_match_outcome.passing_delta,
-      color: getDeltaColor(last_non_match_outcome.passing_delta)
-    },
-    { 
-      name: 'INJURED', 
-      value: player.is_injured ? 'YES' : 'NO', 
-      delta: last_non_match_outcome.sets_injured ? 1 : 0,
-      color: last_non_match_outcome.sets_injured ? "text-red-400" : "text-white",
-      isInjury: true
-    },
-    { 
-      name: 'SHOOTING', 
-      value: player.shoot, 
-      delta: last_non_match_outcome.shoot_delta,
-      color: getDeltaColor(last_non_match_outcome.shoot_delta)
-    },
-    { 
-      name: 'STAMINA', 
-      value: player.stamina, 
-      delta: last_non_match_outcome.stamina_delta,
-      color: getDeltaColor(last_non_match_outcome.stamina_delta)
-    },
-    { 
-      name: 'TEAM RELATIONSHIP', 
-      value: player.team_relationship, 
-      delta: last_non_match_outcome.team_relationship_delta,
-      color: getDeltaColor(last_non_match_outcome.team_relationship_delta)
-    },
-  ] : [];
+  const allStats =
+    player && last_non_match_outcome
+      ? [
+          {
+            name: "CHARISMA",
+            value: player.charisma,
+            delta: last_non_match_outcome.charisma_delta,
+            color: getDeltaColor(last_non_match_outcome.charisma_delta),
+          },
+          {
+            name: "MONEY",
+            value: player.coins,
+            delta: last_non_match_outcome.coins_delta,
+            color: getDeltaColor(last_non_match_outcome.coins_delta),
+          },
+          {
+            name: "DRIBBLING",
+            value: player.dribble,
+            delta: last_non_match_outcome.dribble_delta,
+            color: getDeltaColor(last_non_match_outcome.dribble_delta),
+          },
+          {
+            name: "ENERGY",
+            value: player.energy,
+            delta: last_non_match_outcome.energy_delta,
+            color: getDeltaColor(last_non_match_outcome.energy_delta),
+          },
+          {
+            name: "FAME",
+            value: player.fame,
+            delta: last_non_match_outcome.fame_delta,
+            color: getDeltaColor(last_non_match_outcome.fame_delta),
+          },
+          {
+            name: "FREE KICK",
+            value: player.free_kick,
+            delta: last_non_match_outcome.free_kick_delta,
+            color: getDeltaColor(last_non_match_outcome.free_kick_delta),
+          },
+          {
+            name: "INTELLIGENCE",
+            value: player.intelligence,
+            delta: last_non_match_outcome.intelligence_delta,
+            color: getDeltaColor(last_non_match_outcome.intelligence_delta),
+          },
+          {
+            name: "PASSING",
+            value: player.passing,
+            delta: last_non_match_outcome.passing_delta,
+            color: getDeltaColor(last_non_match_outcome.passing_delta),
+          },
+          {
+            name: "INJURED",
+            value: player.is_injured ? "YES" : "NO",
+            delta: last_non_match_outcome.sets_injured ? 1 : 0,
+            color: last_non_match_outcome.sets_injured
+              ? "text-red-400"
+              : "text-white",
+            isInjury: true,
+          },
+          {
+            name: "SHOOTING",
+            value: player.shoot,
+            delta: last_non_match_outcome.shoot_delta,
+            color: getDeltaColor(last_non_match_outcome.shoot_delta),
+          },
+          {
+            name: "STAMINA",
+            value: player.stamina,
+            delta: last_non_match_outcome.stamina_delta,
+            color: getDeltaColor(last_non_match_outcome.stamina_delta),
+          },
+          {
+            name: "TEAM RELATIONSHIP",
+            value: player.team_relationship,
+            delta: last_non_match_outcome.team_relationship_delta,
+            color: getDeltaColor(
+              last_non_match_outcome.team_relationship_delta
+            ),
+          },
+        ]
+      : [];
 
   // Filter to only show stats with non-zero deltas
-  const stats = allStats.filter(stat => 
+  const stats = allStats.filter((stat) =>
     stat.isInjury ? last_non_match_outcome?.sets_injured : stat.delta !== 0
   );
 
@@ -137,18 +144,18 @@ const NonMatchResult = () => {
       <img
         src="/nonMatchResult/Npc.png"
         alt="Character"
-        className="absolute top-10 left-5 w-24 z-10"
+        className="absolute top-6 left-5 w-24 z-10"
       />
-      <div className="w-full max-w-lg flex flex-col items-center">
+      <div className="w-full max-w-lg flex flex-col items-center text-center">
         {/* Character Display */}
         <div className="relative w-full mb-4 pt-16">
-          <div className="rounded-xl bg-black/80 p-4 pt-16 border-2 border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+          <div className="rounded-xl bg-black/80 p-10 border-2 border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.4)]">
             <h3
               className={`text-xl font-bold text-center mb-2 ${outcomeColor}`}
             >
               {outcomeType} Outcome!
             </h3>
-            <p className="text-white text-lg ml-8 text-center px-4">
+            <p className="text-white text-lg text-center px-4">
               {last_non_match_outcome?.description ||
                 "No outcome description available."}
             </p>
@@ -157,10 +164,10 @@ const NonMatchResult = () => {
 
         {/* Stats Board */}
         <div
-          className="w-full h-auto bg-contain bg-black/80 bg-no-repeat bg-center flex flex-col items-center justify-center p-12"
+          className="w-[300px] h-[300px]  bg-contain  bg-black/80 rounded-xl g-no-repeat bg-center flex flex-col items-center justify-center p-12"
           style={{ backgroundImage: "url('/nonMatchResult/Stats board.png')" }}
         >
-          <ul className="w-full space-y-2">
+          <ul className="w-full space-y-2 ">
             {stats.map((stat) => (
               <li
                 key={stat.name}
@@ -169,8 +176,14 @@ const NonMatchResult = () => {
                 <span className="text-cyan-300 text-lg font-bold">
                   {stat.name}
                 </span>
-                <span className={`text-2xl font-bold ${stat.color}`} style={{ textShadow: '0 0 10px #0ff' }}>
-                  {stat.value} {stat.isInjury ? '' : `(${stat.delta > 0 ? '+' : ''}${stat.delta})`}
+                <span
+                  className={`text-2xl font-bold ${stat.color}`}
+                  style={{ textShadow: "0 0 10px #0ff" }}
+                >
+                  {stat.value}{" "}
+                  {stat.isInjury
+                    ? ""
+                    : `(${stat.delta > 0 ? "+" : ""}${stat.delta})`}
                 </span>
               </li>
             ))}
@@ -178,7 +191,7 @@ const NonMatchResult = () => {
         </div>
 
         {/* Next Button */}
-        <div className="w-full flex justify-end mt-4">
+        <div className="w-full flex justify-end mt-12">
           <button
             onClick={() => {
               navigate("/main");

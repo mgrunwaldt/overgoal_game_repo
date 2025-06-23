@@ -16,10 +16,7 @@ import NewMatch from "../components/pages/NewMatch";
 import MatchEnd from "../components/pages/MatchEnd";
 import NonMatchEventSelector from "../components/pages/NonMatchEventSelector";
 import MatchComponent from "../components/pages/MatchComponent";
-import MatchDecision from "../components/pages/MatchDecision";
 import NonMatchResult from "../components/pages/NonMatchResult";
-import NonMatchEvent from "../components/pages/NonMatchEvent";
-import StatsPopup from "../components/StatsPopup";
 
 function App() {
   const { account, status } = useAccount();
@@ -67,14 +64,14 @@ function App() {
 
         <Route path="/new-match/:matchId" element={<NewMatch />} />
 
+        <Route path="/match/:matchId" element={<MatchComponent />} />
+
         <Route path="/match-end/:matchId" element={<MatchEnd />} />
 
         <Route
           path="/non-match-event-selector"
           element={<NonMatchEventSelector />}
         />
-
-        <Route path="/match/:matchId" element={<MatchComponent />} />
 
         <Route path="/non-match-result" element={<NonMatchResult />} />
       </Routes>
