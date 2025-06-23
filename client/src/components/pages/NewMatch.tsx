@@ -145,7 +145,7 @@ export default function NewMatch() {
 
       // Navigate to MatchEnd screen after successful simulation
       if (simulateGameMatchState === "success") {
-        navigate("/match-end");
+        navigate(`/match/${currentGameMatch.match_id}`);
       }
     } catch (error) {
       console.error("Failed to simulate match:", error);
@@ -160,10 +160,10 @@ export default function NewMatch() {
     );
     if (simulateGameMatchState === "success" && currentGameMatch) {
       console.log(
-        "✅ Match simulation successful, navigating to match-end with ID:",
+        "✅ Match simulation successful, navigating to match with ID:",
         currentGameMatch.match_id
       );
-      navigate(`/match-end/${currentGameMatch.match_id}`);
+      navigate(`/match/${currentGameMatch.match_id}`);
     }
   }, [simulateGameMatchState, navigate, currentGameMatch]);
 

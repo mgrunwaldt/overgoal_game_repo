@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import MatchEventIten from "../ui/matchEventIten";
 import StaminaBar from "../ui/StaminaBar";
 import MatchDecision from "./MatchDecision";
+import { useNavigate, useParams } from "react-router-dom";
+import useCountdown from "../../hooks/useCountdown";
 
 interface MatchEvent {
   text: string;
@@ -41,6 +43,9 @@ const MatchComponent = () => {
   const [stamina, setStamina] = useState<number>(100);
   const [isDecisionOpen, setDecisionOpen] = useState(false);
   const eventContainerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const { matchId } = useParams();
+  const timer = useCountdown();
 
   useEffect(() => {
     const eventInterval = setInterval(() => {
@@ -93,25 +98,25 @@ const MatchComponent = () => {
               className="text-white text-4xl font-bold -mt-2"
               style={{ textShadow: "0 0 10px #0ff" }}
             >
-              2 - 0
+              0- 0
             </p>
             <p
               className="text-white text-2xl"
               style={{ textShadow: "0 0 10px #0ff" }}
             >
-              34:09
+              {timer}
             </p>
           </div>
 
           {/* Match Simulation */}
           <div
-            className="w-[400px] h-[400px] bg-contain bg-no-repeat bg-center flex items-center justify-center"
+            className="w-[350px] h-[350px] bg-contain bg-no-repeat bg-center flex items-center justify-center  px-10"
             style={{ backgroundImage: "url('/match/Match sim.png')" }}
           >
             <img
               src="/match/matchGame.png"
               alt="Match Simulation"
-              className="h-full w-full object-contain p-10"
+              className="object-contain"
             />
           </div>
 
@@ -143,20 +148,20 @@ const MatchComponent = () => {
           </div>
         </div>
         <img src="/match/Logo.png" alt="Logo" className="w-24 h-24" />
+        {timer === 0 && (
+          <div className="w-full flex justify-end mt-12">
+            <button
+              onClick={() => {
+                navigate(`/match-end/${matchId}`);
+              }}
+              className="w-40 h-14 bg-contain bg-no-repeat bg-center text-white text-lg font-bold flex items-center justify-center pr-4 transition-transform transform hover:scale-105"
+              style={{
+                backgroundImage: "url('/nonMatchResult/Next Button.png')",
+              }}
+            ></button>
+          </div>
+        )}
       </div>
-
-      {/* Debug Button BORRARLO DESPUES DE QUE ESTEN */}
-      <button
-        onClick={() => setDecisionOpen(true)}
-        className="absolute bottom-10 right-10 bg-cyan-500 text-black font-bold py-2 px-4 rounded-lg shadow-lg hover:bg-cyan-400 transition-all z-10"
-      >
-        Debug: Open Decision
-      </button>
-
-      <MatchDecision
-        isOpen={isDecisionOpen}
-        onClose={() => setDecisionOpen(false)}
-      />
     </div>
   );
 };
