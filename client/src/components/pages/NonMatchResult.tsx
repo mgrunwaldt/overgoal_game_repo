@@ -164,14 +164,14 @@ const NonMatchResult = () => {
 
         {/* Stats Board */}
         <div
-          className="w-[300px] h-[300px]  bg-contain  bg-black/80 rounded-xl g-no-repeat bg-center flex flex-col items-center justify-center p-12"
+          className="w-[300px] h-[300px]  bg-contain  bg-black/80 rounded-xl g-no-repeat bg-center flex flex-col items-center justify-center px-6"
           style={{ backgroundImage: "url('/nonMatchResult/Stats board.png')" }}
         >
-          <ul className="w-full space-y-2 ">
+          <ul className="w-full space-y-6 p-2 ">
             {stats.map((stat) => (
               <li
                 key={stat.name}
-                className="flex justify-between items-center w-full"
+                className="flex justify-between items-center w-full "
               >
                 <span className="text-cyan-300 text-lg font-bold">
                   {stat.name}

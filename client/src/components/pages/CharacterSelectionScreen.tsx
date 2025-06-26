@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '../ui/button';
-import { useSpawnPlayer } from '../../dojo/hooks/useSpawnPlayer';
-import { useStarknetConnect } from '../../dojo/hooks/useStarknetConnect';
-import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSpawnPlayer } from "../../dojo/hooks/useSpawnPlayer";
+import { useStarknetConnect } from "../../dojo/hooks/useStarknetConnect";
+import { Loader2 } from "lucide-react";
 
 interface CharacterType {
   id: string;
@@ -21,31 +20,58 @@ interface CharacterType {
 
 const characterTypes: CharacterType[] = [
   {
-    id: 'striker',
-    name: 'STRIKER',
-    description: 'Powerful finisher focused on scoring goals. High shooting accuracy with moderate skills.',
-    stats: { shooting: 60, dribbling: 20, passing: 30, energy: 50, charisma: 25 },
-    characterImage: '/playerTypes/9.png'
+    id: "striker",
+    name: "STRIKER",
+    description:
+      "Powerful finisher focused on scoring goals. High shooting accuracy with moderate skills.",
+    stats: {
+      shooting: 60,
+      dribbling: 20,
+      passing: 30,
+      energy: 50,
+      charisma: 25,
+    },
+    characterImage: "/playerTypes/9.png",
   },
   {
-    id: 'dribbler', 
-    name: 'DRIBBLER',
-    description: 'Flashy show-boat winger with exceptional dribbling and charisma. Loves the spotlight.',
-    stats: { shooting: 20, dribbling: 50, passing: 40, energy: 40, charisma: 50 },
-    characterImage: '/playerTypes/11.png'
+    id: "dribbler",
+    name: "DRIBBLER",
+    description:
+      "Flashy show-boat winger with exceptional dribbling and charisma. Loves the spotlight.",
+    stats: {
+      shooting: 20,
+      dribbling: 50,
+      passing: 40,
+      energy: 40,
+      charisma: 50,
+    },
+    characterImage: "/playerTypes/11.png",
   },
   {
-    id: 'playmaker',
-    name: 'PLAYMAKER', 
-    description: 'Team-oriented chance creator with balanced skills. High energy and stamina for the long game.',
-    stats: { shooting: 30, dribbling: 30, passing: 60, energy: 50, charisma: 40 },
-    characterImage: '/playerTypes/10.png'
-  }
+    id: "playmaker",
+    name: "PLAYMAKER",
+    description:
+      "Team-oriented chance creator with balanced skills. High energy and stamina for the long game.",
+    stats: {
+      shooting: 30,
+      dribbling: 30,
+      passing: 60,
+      energy: 50,
+      charisma: 40,
+    },
+    characterImage: "/playerTypes/10.png",
+  },
 ];
 
 export default function CharacterSelectionScreen() {
   const navigate = useNavigate();
-  const { spawnPlayerWithCharacter, isInitializing, error, txStatus, playerExists } = useSpawnPlayer();
+  const {
+    spawnPlayerWithCharacter,
+    isInitializing,
+    error,
+    txStatus,
+    playerExists,
+  } = useSpawnPlayer();
   const { handleDisconnect } = useStarknetConnect();
   const [currentCharacterIndex, setCurrentCharacterIndex] = useState(0);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
@@ -55,8 +81,8 @@ export default function CharacterSelectionScreen() {
   useEffect(() => {
     console.log("🎯 CharacterSelectionScreen rendered");
     console.log("🎯 PlayerExist:", playerExists);
-  
-    if(playerExists === true){
+
+    if (playerExists === true) {
       navigate("/main", { replace: true });
     }
   }, []);
@@ -64,17 +90,17 @@ export default function CharacterSelectionScreen() {
   const handleCharacterSelect = async () => {
     try {
       console.log(`🎯 Creating ${currentCharacter.name} character...`);
-      
+
       const result = await spawnPlayerWithCharacter(currentCharacter.id);
       console.log(result);
-      
+
       if (result.success) {
         console.log("🎉 Character created successfully!");
-        
+
         // Wait a bit longer to ensure player data is fully updated in the store
         console.log("⏳ Waiting for player data to be fully updated...");
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         console.log("🚀 Redirecting to game...");
         navigate("/select-team", { replace: true });
       } else {
@@ -89,17 +115,17 @@ export default function CharacterSelectionScreen() {
     try {
       console.log("🔙 Back to Login clicked - disconnecting...");
       setIsDisconnecting(true);
-      
+
       // First disconnect the wallet and clear data (same as status-bar)
       await handleDisconnect();
-      
+
       // Then navigate to login
       console.log("🔄 Navigating to login...");
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
       console.error("❌ Error during logout:", error);
       // Navigate anyway in case of error
-      navigate('/login');
+      navigate("/login");
     } finally {
       setIsDisconnecting(false);
     }
@@ -110,54 +136,53 @@ export default function CharacterSelectionScreen() {
   };
 
   const prevCharacter = () => {
-    setCurrentCharacterIndex((prev) => (prev - 1 + characterTypes.length) % characterTypes.length);
+    setCurrentCharacterIndex(
+      (prev) => (prev - 1 + characterTypes.length) % characterTypes.length
+    );
   };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Background */}
 
-
-      
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: "url('/CharacterSelection/Background.png')"
+          backgroundImage: "url('/CharacterSelection/Background.png')",
         }}
       />
-      
+
       {/* Back Button */}
-      <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
+      {/* <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
         <button
           onClick={handleGoBack}
           disabled={isInitializing || isDisconnecting}
           className="transform hover:scale-105 transition-transform duration-200"
         >
-          <img 
-            src="/CharacterSelection/Back Button.png" 
+          <img
+            src="/CharacterSelection/Back Button.png"
             alt="Back"
             className="w-32 h-16 md:w-24 md:h-12 object-contain"
           />
         </button>
-      </div>
+      </div> */}
 
       {/* Main Content Container */}
-      <div className="relative z-10 flex flex-col md:flex-row items-center justify-center min-h-screen px-4 py-8">
-        
+      <div className="relative z-10 flex flex-col md:flex-row items-start justify-center min-h-screen px-4 py-8">
         {/* Mobile: Character Navigation */}
-        <div className="flex md:hidden items-center justify-between w-full mb-6">
+        <div className="flex md:hidden items-center justify-between w-full mb-auto">
           <button
             onClick={prevCharacter}
             disabled={isInitializing}
             className="transform hover:scale-110 transition-transform duration-200 disabled:opacity-50"
           >
-            <img 
-              src="/CharacterSelection/Left Arrow.png" 
+            <img
+              src="/CharacterSelection/Left Arrow.png"
               alt="Previous Character"
               className="w-12 h-12 object-contain"
             />
           </button>
-          
+
           <div className="text-center">
             <h2 className="text-2xl font-bold text-cyan-300 tracking-wider">
               {currentCharacter.name}
@@ -166,138 +191,22 @@ export default function CharacterSelectionScreen() {
               {currentCharacterIndex + 1} / {characterTypes.length}
             </div>
           </div>
-          
+
           <button
             onClick={nextCharacter}
             disabled={isInitializing}
             className="transform hover:scale-110 transition-transform duration-200 disabled:opacity-50"
           >
-            <img 
-              src="/CharacterSelection/Right Arrow.png" 
+            <img
+              src="/CharacterSelection/Right Arrow.png"
               alt="Next Character"
               className="w-12 h-12 object-contain"
             />
           </button>
         </div>
 
-        {/* Desktop: Full Layout */}
-        <div className="hidden md:flex items-center justify-between w-full max-w-7xl">
-          
-          {/* Left Arrow */}
-          <button
-            onClick={prevCharacter}
-            disabled={isInitializing}
-            className="transform hover:scale-110 transition-transform duration-200 disabled:opacity-50"
-          >
-            <img 
-              src="/CharacterSelection/Left Arrow.png" 
-              alt="Previous Character"
-              className="w-16 h-16 lg:w-20 lg:h-20 object-contain"
-            />
-          </button>
-
-          {/* Center Content */}
-          <div className="flex items-center justify-center space-x-8 lg:space-x-16">
-            
-        
-
-            {/* Character Display */}
-            <div className="relative">
-              {/* Character Image */}
-              <div className="relative w-64 h-80 lg:w-80 lg:h-96 flex items-end justify-center">
-                <img
-                  src={currentCharacter.characterImage}
-                  alt={currentCharacter.name}
-                  className="w-full h-full object-contain"
-                />
-                
-                {/* Loading Overlay */}
-                {isInitializing && (
-                  <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
-                    <div className="text-center space-y-4">
-                      <Loader2 className="w-12 h-12 animate-spin text-cyan-400 mx-auto" />
-                      <div className="text-cyan-300 font-bold text-lg">
-                        Creating {currentCharacter.name}...
-                        {txStatus && (
-                          <div className="text-sm text-cyan-400 mt-2">
-                            Status: {txStatus}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Stats Panel */}
-            <div className="relative">
-              {/* Stats Background */}
-              <div 
-                className="relative w-64 h-80 lg:w-80 lg:h-96 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center"
-                style={{
-                }}
-              >
-           
-                {/* Stats Content */}
-                <div className="relative z-10 space-y-4 lg:space-y-6 px-6 lg:px-8">
-                  
-                  {/* Character Name */}
-                  <div className="text-center mb-6 lg:mb-8">
-                    <h2 className="text-2xl lg:text-4xl font-bold text-cyan-300 tracking-wider">
-                      {currentCharacter.name} 
-                    </h2>
-                  </div>
-
-                  {/* Stats List */}
-                  <div className="space-y-3 lg:space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">SHOOTING</span>
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentCharacter.stats.shooting}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">DRIBBLING</span>
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentCharacter.stats.dribbling}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">PASSING</span>
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentCharacter.stats.passing}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">ENERGY</span>
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentCharacter.stats.energy}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">CHARISMA</span>
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentCharacter.stats.charisma}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Arrow */}
-          <button
-            onClick={nextCharacter}
-            disabled={isInitializing}
-            className="transform hover:scale-110 transition-transform duration-200 disabled:opacity-50"
-          >
-            <img 
-              src="/CharacterSelection/Right Arrow.png" 
-              alt="Next Character"
-              className="w-16 h-16 lg:w-20 lg:h-20 object-contain"
-            />
-          </button>
-        </div>
-
         {/* Mobile: Character and Stats */}
-        <div className="md:hidden flex flex-col items-center space-y-6 w-full">
-          
+        <div className="md:hidden flex flex-col h-full mb-auto items-center justify-center space-y-6 w-full">
           {/* Character Display */}
           <div className="relative">
             <div className="relative w-64 h-80 flex items-end justify-center">
@@ -306,7 +215,7 @@ export default function CharacterSelectionScreen() {
                 alt={currentCharacter.name}
                 className="w-full h-full object-contain"
               />
-              
+
               {/* Loading Overlay */}
               {isInitializing && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
@@ -328,45 +237,64 @@ export default function CharacterSelectionScreen() {
 
           {/* Stats Panel */}
           <div className="relative w-full max-w-sm">
-            <div 
-              className="relative w-full h-64 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center"
+            <div
+              className="relative w-full h-64 bg-cover bg-center rounded-xl border-2 border-cyan-400/20 bg-no-repeat flex flex-col justify-center items-center"
               style={{
                 zIndex: 1000,
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                backgroundImage: "url('/CharacterSelection/statsContainer.png')",
+                backgroundColor: "#001B36",
+                backgroundImage:
+                  "url('/CharacterSelection/statsContainer.png')",
                 backgroundSize: "cover",
-                backgroundPosition: "center"
+                backgroundPosition: "center",
               }}
             >
               {/* Stats Content */}
-              <div className="relative z-10 space-y-3 px-6 w-full" style={{
-              }}>
-             
+              <div className="relative z-10 space-y-2 px-6 w-full">
                 {/* Stats List */}
                 <div className="space-y-2 ">
                   <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-cyan-300 tracking-wider">SHOOTING</span>
-                    <span className="text-3xl font-bold text-cyan-300">{currentCharacter.stats.shooting}</span>
+                    <span className="text-2xl font-bold text-cyan-300 tracking-wider">
+                      SHOOTING
+                    </span>
+                    <span className="text-2xl font-bold text-cyan-300">
+                      {currentCharacter.stats.shooting}
+                    </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-cyan-300 tracking-wider">DRIBBLING</span>
-                    <span className="text-3xl font-bold text-cyan-300">{currentCharacter.stats.dribbling}</span>
+                    <span className="text-2xl font-bold text-cyan-300 tracking-wider">
+                      DRIBBLING
+                    </span>
+                    <span className="text-2xl font-bold text-cyan-300">
+                      {currentCharacter.stats.dribbling}
+                    </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-cyan-300 tracking-wider">PASSING</span>
-                    <span className="text-3xl font-bold text-cyan-300">{currentCharacter.stats.passing}</span>
+                    <span className="text-2xl font-bold text-cyan-300 tracking-wider">
+                      PASSING
+                    </span>
+                    <span className="text-2xl font-bold text-cyan-300">
+                      {currentCharacter.stats.passing}
+                    </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-cyan-300 tracking-wider">ENERGY</span>
-                    <span className="text-3xl font-bold text-cyan-300">{currentCharacter.stats.energy}</span>
+                    <span className="text-2xl font-bold text-cyan-300 tracking-wider">
+                      ENERGY
+                    </span>
+                    <span className="text-2xl font-bold text-cyan-300">
+                      {currentCharacter.stats.energy}
+                    </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
-                      <span className="text-3xl font-bold text-cyan-300 tracking-wider">CHARISMA</span>
-                      <span className="text-3xl font-bold text-cyan-300">{currentCharacter.stats.charisma}</span>
+                    <span className="text-2xl font-bold text-cyan-300 tracking-wider">
+                      CHARISMA
+                    </span>
+                    <span className="text-2xl font-bold text-cyan-300">
+                      {currentCharacter.stats.charisma}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -382,8 +310,8 @@ export default function CharacterSelectionScreen() {
           disabled={isInitializing}
           className="transform hover:scale-105 transition-transform duration-200 disabled:opacity-50"
         >
-          <img 
-            src="/CharacterSelection/Next Button.png" 
+          <img
+            src="/CharacterSelection/Next Button.png"
             alt="Next"
             className="w-32 h-18 md:w-32 md:h-16 object-contain"
           />

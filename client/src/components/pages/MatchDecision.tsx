@@ -54,18 +54,14 @@ const MatchDecision: React.FC<MatchDecisionProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Player Display */}
-        <div className="w-[380px] h-[450px] bg-contain bg-no-repeat bg-center flex items-center justify-center">
+        <div className="w-[380px] h-[450px] bg-contain bg-no-repeat bg-center flex items-center justify-center rounded-xl">
           {/* NOTE: Replace with actual character image */}
-          <img
-            src="https://storage.googleapis.com/proudcity/mebanenc/uploads/2021/03/placeholder-image.png"
-            alt="Player"
-            className="h-full w-auto"
-          />
+          <img src="/match/chance.jpeg" alt="Player" />
         </div>
 
         {/* Decision Panel */}
         <div
-          className="w-[460px] h-[500px] bg-contain bg-no-repeat bg-center -mt-24 flex flex-col items-center justify-center p-24"
+          className="w-[460px] h-[500px] bg-contain bg-no-repeat bg-center -mt-24 flex flex-col items-center justify-center p-16"
           style={{ backgroundImage: "url('/matchDecision/Decision pop.png')" }}
         >
           <p

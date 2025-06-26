@@ -40,6 +40,10 @@ const MatchComponent = () => {
     { text: "Foul at midfield", playable: true, team: "player" },
   ]);
 
+  const [matchDecisions, setMatchDecisions] = useState<string[]>([
+    "   Number 7 is getting close to the goalkeeper with the ball. What do you want to do?",
+  ]);
+
   const [stamina, setStamina] = useState<number>(100);
   const [isDecisionOpen, setDecisionOpen] = useState(false);
   const eventContainerRef = useRef<HTMLDivElement>(null);
@@ -52,9 +56,9 @@ const MatchComponent = () => {
       // 20% chance for an important enemy event
 
       // 40% chance to open a popup
-      if (Math.random() < 0.4) {
-        setDecisionOpen(true); // Or your own popup handling logic
-      }
+      // if (Math.random() < 0.1) {
+      //   setDecisionOpen(true); // Or your own popup handling logic
+      // }
 
       if (Math.random() < 0.2) {
         const newEventText =
@@ -169,10 +173,10 @@ const MatchComponent = () => {
         )}
       </div>
 
-      <MatchDecision
+      {/* <MatchDecision
         isOpen={isDecisionOpen}
         onClose={() => setDecisionOpen(false)}
-      />
+      /> */}
     </div>
   );
 };

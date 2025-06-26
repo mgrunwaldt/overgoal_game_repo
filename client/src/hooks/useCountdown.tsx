@@ -12,7 +12,7 @@ const useCountdown = () => {
         }
         return prev - 1;
       });
-    }, 667); // 667ms ≈ 60s / 90 steps
+    }, 250); // 667ms ≈ 60s / 90 steps
 
     return () => clearInterval(interval);
   }, []);
