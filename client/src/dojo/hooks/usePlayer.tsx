@@ -100,7 +100,6 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
 
     // Extract player data
     const rawPlayerData = result.data.fullStarterReactPlayerModels.edges[0].node;
-    console.log("📄 Raw player data:", rawPlayerData);
 
   
 
@@ -128,7 +127,6 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
       player_type: (rawPlayerData.player_type !== undefined ? rawPlayerData.player_type : PlayerType.Striker) as PlayerType,
     };
 
-    console.log("✅ Player data after conversion:", playerData);
     return playerData;
 
   } catch (error) {
@@ -208,19 +206,13 @@ export const usePlayer = (): UsePlayerReturn => {
       setError(null);
 
       const playerData = await fetchPlayerData(userAddress);
-      console.log("🎮 Player data fetched:", playerData);
 
       setPlayer(playerData);
-
-      const updatedPlayer = useAppStore.getState().player;
-      console.log("💾 Player in store after update:", updatedPlayer);
       
       // Small delay to ensure state updates propagate before navigation
       await new Promise(resolve => setTimeout(resolve, 100));
       
       setPlayerFetched(true);
-
-      console.log("🎯 player fetched", playerFetched);
 
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error occurred');
@@ -228,7 +220,6 @@ export const usePlayer = (): UsePlayerReturn => {
       setError(error);
       setPlayer(null);
     } finally {
-      console.log("setting loading to false - finally");
       setIsLoading(false);
     }
   };
@@ -252,7 +243,6 @@ export const usePlayer = (): UsePlayerReturn => {
       console.log("❌ No account, clearing player data");
       setPlayer(null);
       setError(null);
-      console.log("setting loading to false - no account");
       setIsLoading(false);
     }
   }, [account, setPlayer]);

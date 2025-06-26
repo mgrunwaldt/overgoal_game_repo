@@ -116,7 +116,10 @@ export interface GameMatch {
     next_match_action: number;
     next_match_action_minute: number;
     current_time: number;
+    prev_time: number;
     match_status: number;
+    player_participation: number;
+    action_team: number;
 }
 
 export enum MatchStatus {
@@ -133,6 +136,8 @@ export enum MatchAction {
     FreeKick = 3,
     Penalty = 4,
     OpenDefense = 5,
+    HalfTime = 6,      // 🆕 NEW
+    MatchEnd = 7,      // 🆕 NEW
 }
 
 export enum MatchDecision {
@@ -146,6 +151,18 @@ export enum MatchDecision {
     TackleFan = 7,
     JoinBrawl = 8,
     StayOut = 9,
+}
+
+export enum PlayerParticipation {
+    NotParticipating = 0,
+    Participating = 1,
+    Observing = 2,
+}
+
+export enum ActionTeam {
+    MyTeam = 0,
+    OpponentTeam = 1,
+    Neutral = 2,
 }
 
 export interface NonMatchEvent {
@@ -254,7 +271,10 @@ export const schema: SchemaType = {
             next_match_action: 0,
             next_match_action_minute: 0,
             current_time: 0,
+            prev_time: 0,
             match_status: 0,
+            player_participation: 0,
+            action_team: 0,
 		},
 		NonMatchEvent: {
 			event_id: 0,

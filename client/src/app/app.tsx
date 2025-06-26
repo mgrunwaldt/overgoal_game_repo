@@ -24,17 +24,7 @@ function App() {
   const isConnected = status === "connected" && account;
   const hasValidPlayer = player !== null && player.is_player_created === true;
 
-  console.log("🎯 App Router State:", {
-    status,
-    isConnected,
-    hasValidPlayer,
-    playerLoading,
-    playerExists: !!player,
-    isPlayerCreated: player?.is_player_created,
-    accountAddress: account?.address
-      ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}`
-      : "none",
-  });
+
 
   // Loading component
   const LoadingScreen = ({ message }: { message: string }) => (
