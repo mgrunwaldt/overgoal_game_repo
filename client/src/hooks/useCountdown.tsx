@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 
 const useCountdown = () => {
-  const [timer, setTimer] = useState(90); // Start at 90
+  const [timer, setTimer] = useState(0); // Start at 90
 
   useEffect(() => {
     const interval = setInterval(() => {
       setTimer((prev) => {
-        if (prev <= 0) {
+        if (prev >= 90) {
           clearInterval(interval);
-          return 0;
+          return 90;
         }
-        return prev - 1;
+        return prev + 1;
       });
-    }, 667); // 667ms ≈ 60s / 90 steps
+    }, 300); // 667ms ≈ 60s / 90 steps
 
     return () => clearInterval(interval);
   }, []);

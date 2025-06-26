@@ -22,8 +22,8 @@ const MatchEventIten: React.FC<MatchEventItemProps> = ({ text, playable = false,
 
   const buttonClasses =
     'ml-4 px-3 py-1 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-sm rounded-md shadow-[0_0_10px_rgba(34,211,238,0.7)] transition-all duration-300 transform hover:scale-105';
-
-  return (
+    
+    return (
     <li className={`${baseClasses} ${getTeamStyles()}`}>
       <span className="font-sans tracking-wider">{text}</span>
       {playable && (
