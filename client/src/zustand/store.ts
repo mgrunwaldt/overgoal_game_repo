@@ -50,7 +50,10 @@ export interface GameMatch {
   next_match_action: number;
   next_match_action_minute: number;
   current_time: number;
+  prev_time: number;
   match_status: number;
+  player_participation: number;
+  action_team: number;
 }
 
 export enum MatchStatus {
@@ -67,6 +70,8 @@ export enum MatchAction {
   FreeKick = 3,
   Penalty = 4,
   OpenDefense = 5,
+  HalfTime = 6,      // 🆕 NEW
+  MatchEnd = 7,      // 🆕 NEW
 }
 
 export enum MatchDecision {
@@ -80,6 +85,18 @@ export enum MatchDecision {
   TackleFan = 7,
   JoinBrawl = 8,
   StayOut = 9,
+}
+
+export enum PlayerParticipation {
+  NotParticipating = 0,
+  Participating = 1,
+  Observing = 2,
+}
+
+export enum ActionTeam {
+  MyTeam = 0,
+  OpponentTeam = 1,
+  Neutral = 2,
 }
 
 export interface NonMatchEventOutcome {

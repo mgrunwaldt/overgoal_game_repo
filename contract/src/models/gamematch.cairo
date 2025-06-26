@@ -9,9 +9,12 @@ pub struct GameMatch {
     pub my_team_score: u8,                // Goals for my team
     pub opponent_team_score: u8,          // Goals for opponent team
     pub next_match_action: MatchAction,   // Next in-game event to resolve
-    pub next_match_action_minute: u8,     // In-game minute when next action triggers
+    pub next_match_action_minute: u8,
     pub current_time: u8,                 // Current minute on the match clock (0-90)
+    pub prev_time: u8,                    // Previous time - used by frontend to start timer
     pub match_status: MatchStatus,        // Lifecycle flag
+    pub player_participation: PlayerParticipation,  // Whether player participates in next action
+    pub action_team: ActionTeam,          // Which team has the next action
 }
 
 // Match Status Enum - lifecycle flag
@@ -23,15 +26,33 @@ pub enum MatchStatus {
     Finished,
 }
 
+// Player Participation Enum - whether player is involved in next action
+#[derive(Copy, Drop, Serde, Introspect, PartialEq, Debug)]
+pub enum PlayerParticipation {
+    NotParticipating,  // Player is not involved in this action
+    Participating,     // Player is directly involved in this action
+    Observing,         // Player is watching but can influence the action
+}
+
+// Action Team Enum - which team has the next action
+#[derive(Copy, Drop, Serde, Introspect, PartialEq, Debug)]
+pub enum ActionTeam {
+    MyTeam,       // My team has possession/action
+    OpponentTeam, // Opponent team has possession/action
+    Neutral,      // Neutral situation (kickoff, throw-in, etc.)
+}
+
 // Match Action Enum - in-game events
 #[derive(Copy, Drop, Serde, Introspect, PartialEq, Debug)]
 pub enum MatchAction {
-    OpenPlay,
-    Jumper,
-    Brawl,
-    FreeKick,
-    Penalty,
-    OpenDefense,
+    OpenPlay,      // 0
+    Jumper,        // 1
+    Brawl,         // 2
+    FreeKick,      // 3
+    Penalty,       // 4
+    OpenDefense,   // 5
+    HalfTime,      // 6 - Signals halftime break
+    MatchEnd,      // 7 - Signals match finished
 }
 
 // Match Decision Enum - player choices during actions
@@ -49,6 +70,31 @@ pub enum MatchDecision {
     StayOut,
 }
 
+// 🆕 NEW: Individual action event in a batch
+#[derive(Drop, Serde, Debug, Introspect)]
+pub struct MatchActionEvent {
+    pub action: MatchAction,
+    pub minute: u8,
+    pub team: ActionTeam,
+    pub player_participation: PlayerParticipation,
+}
+
+// 🆕 NEW: Batch of match actions processed together
+#[derive(Drop, Serde, Debug)]
+#[dojo::model]
+pub struct MatchActionBatch {
+    #[key]
+    pub match_id: u32,
+    #[key] 
+    pub batch_id: u32,                    // Incremental batch identifier
+    pub actions: Array<MatchActionEvent>, // List of actions in this batch
+    pub actions_count: u8,                // Number of actions (for efficient reading)
+    pub final_current_time: u8,           // Time after all actions processed
+    pub final_prev_time: u8,              // Starting time for this batch
+    pub requires_user_input: bool,        // True if last action needs user input
+    pub created_timestamp: u64,           // When batch was created
+}
+
 // Implement Into trait for MatchStatus to felt252 conversion
 impl MatchStatusIntoFelt252 of Into<MatchStatus, felt252> {
     fn into(self: MatchStatus) -> felt252 {
@@ -57,6 +103,28 @@ impl MatchStatusIntoFelt252 of Into<MatchStatus, felt252> {
             MatchStatus::InProgress => 1,
             MatchStatus::HalfTime => 2,
             MatchStatus::Finished => 3,
+        }
+    }
+}
+
+// Implement Into trait for PlayerParticipation to felt252 conversion
+impl PlayerParticipationIntoFelt252 of Into<PlayerParticipation, felt252> {
+    fn into(self: PlayerParticipation) -> felt252 {
+        match self {
+            PlayerParticipation::NotParticipating => 0,
+            PlayerParticipation::Participating => 1,
+            PlayerParticipation::Observing => 2,
+        }
+    }
+}
+
+// Implement Into trait for ActionTeam to felt252 conversion
+impl ActionTeamIntoFelt252 of Into<ActionTeam, felt252> {
+    fn into(self: ActionTeam) -> felt252 {
+        match self {
+            ActionTeam::MyTeam => 0,
+            ActionTeam::OpponentTeam => 1,
+            ActionTeam::Neutral => 2,
         }
     }
 }
@@ -71,6 +139,8 @@ impl MatchActionIntoFelt252 of Into<MatchAction, felt252> {
             MatchAction::FreeKick => 3,
             MatchAction::Penalty => 4,
             MatchAction::OpenDefense => 5,
+            MatchAction::HalfTime => 6,        // 🆕 NEW
+            MatchAction::MatchEnd => 7,        // 🆕 NEW
         }
     }
 }
@@ -130,7 +200,10 @@ pub impl GameMatchImpl of GameMatchTrait {
             next_match_action: MatchAction::OpenPlay,
             next_match_action_minute: 1,
             current_time: 0,
+            prev_time: 0,
             match_status: MatchStatus::NotStarted,
+            player_participation: PlayerParticipation::NotParticipating,
+            action_team: ActionTeam::MyTeam,
         }
     }
 
@@ -140,6 +213,8 @@ pub impl GameMatchImpl of GameMatchTrait {
         self.current_time = 1;
         self.next_match_action = MatchAction::OpenPlay;
         self.next_match_action_minute = 1;
+        self.player_participation = PlayerParticipation::Participating;
+        self.action_team = ActionTeam::MyTeam;
         
         (self.next_match_action, self.next_match_action_minute)
     }
@@ -219,4 +294,113 @@ pub impl GameMatchImpl of GameMatchTrait {
     fn total_goals(self: GameMatch) -> u8 {
         self.my_team_score + self.opponent_team_score
     }
-} 
+
+    /// Set player participation for next action
+    fn set_player_participation(ref self: GameMatch, participation: PlayerParticipation) {
+        self.player_participation = participation;
+    }
+
+    /// Set which team has the next action
+    fn set_action_team(ref self: GameMatch, team: ActionTeam) {
+        self.action_team = team;
+    }
+
+    /// Check if player is participating in next action
+    fn is_player_participating(self: GameMatch) -> bool {
+        self.player_participation == PlayerParticipation::Participating
+    }
+
+    /// Check if next action belongs to my team
+    fn is_my_team_action(self: GameMatch) -> bool {
+        self.action_team == ActionTeam::MyTeam
+    }
+
+    /// Check if next action belongs to opponent team
+    fn is_opponent_team_action(self: GameMatch) -> bool {
+        self.action_team == ActionTeam::OpponentTeam
+    }
+
+    /// Update next action with team and participation info
+    fn set_next_action(
+        ref self: GameMatch, 
+        action: MatchAction, 
+        minute: u8, 
+        team: ActionTeam, 
+        participation: PlayerParticipation
+    ) {
+        self.next_match_action = action;
+        self.next_match_action_minute = minute;
+        self.action_team = team;
+        self.player_participation = participation;
+    }
+}
+
+// 🆕 NEW: MatchActionBatch Trait Implementation
+#[generate_trait]
+pub impl MatchActionBatchImpl of MatchActionBatchTrait {
+    /// Create a new empty batch
+    fn new(match_id: u32, batch_id: u32) -> MatchActionBatch {
+        MatchActionBatch {
+            match_id,
+            batch_id,
+            actions: ArrayTrait::new(),
+            actions_count: 0,
+            final_current_time: 0,
+            final_prev_time: 0,
+            requires_user_input: false,
+            created_timestamp: 0, // Will be set in store when saving
+        }
+    }
+
+    /// Add an action to the batch
+    fn add_action(
+        ref self: MatchActionBatch, 
+        action: MatchAction, 
+        minute: u8, 
+        team: ActionTeam, 
+        participation: PlayerParticipation
+    ) {
+        let event = MatchActionEvent {
+            action,
+            minute,
+            team,
+            player_participation: participation,
+        };
+        self.actions.append(event);
+        self.actions_count += 1;
+    }
+
+    /// Set the final state of the batch
+    fn set_final_state(
+        ref self: MatchActionBatch, 
+        current_time: u8, 
+        prev_time: u8, 
+        requires_input: bool
+    ) {
+        self.final_current_time = current_time;
+        self.final_prev_time = prev_time;
+        self.requires_user_input = requires_input;
+    }
+
+    /// Check if batch is empty
+    fn is_empty(self: @MatchActionBatch) -> bool {
+        *self.actions_count == 0
+    }
+
+    /// Check if batch requires user input
+    fn needs_user_input(self: @MatchActionBatch) -> bool {
+        *self.requires_user_input
+    }
+
+    /// Get the last action in the batch (if any)
+    fn get_last_action(self: @MatchActionBatch) -> Option<MatchActionEvent> {
+        if *self.actions_count == 0 {
+            Option::None
+        } else {
+            // Note: Cannot access array elements by index directly in Cairo
+            // This is a placeholder - actual implementation would need
+            // special handling to get the last element
+            Option::None
+        }
+    }
+}

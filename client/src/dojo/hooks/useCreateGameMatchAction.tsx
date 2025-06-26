@@ -77,7 +77,10 @@ export const useCreateGameMatchAction = (): UseCreateGameMatchActionReturn => {
                 next_match_action: 0, // OpenPlay
                 next_match_action_minute: 1,
                 current_time: 0,
+                prev_time: 0,
                 match_status: 0, // NotStarted
+                player_participation: 0, // NotParticipating
+                action_team: 0, // MyTeam
             };
 
             addGameMatch(newGameMatch);

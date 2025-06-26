@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { usePlayer } from "../../dojo/hooks/usePlayer";
 import { useTeams } from "../../dojo/hooks/useTeams";
-import { useSimulateGameMatchAction } from "../../dojo/hooks/useSimulateGameMatchAction";
+import { useStartGameMatchAction } from "../../dojo/hooks/useStartGameMatchAction";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Play, Info, Hash, Clock, Users } from "lucide-react";
 import useAppStore from "../../zustand/store";
@@ -47,24 +47,20 @@ const getRandomDifferentPlayerType = (playerType: string): string => {
 };
 
 export default function NewMatch() {
+  const { matchId } = useParams();
   const navigate = useNavigate();
-  const { matchId } = useParams<{ matchId: string }>();
   const { player } = usePlayer();
   const { teams } = useTeams();
   const { gameMatches } = useAppStore();
   const {
-    simulateGameMatchState,
-    executeSimulateGameMatch,
-    canSimulateGameMatch,
-    isLoading: isSimulating,
-    error: simulateError,
-  } = useSimulateGameMatchAction();
+    execute: executeStartGameMatch,
+    state: startGameMatchState,
+    error: startError,
+  } = useStartGameMatchAction();
 
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [opponentTeam, setOpponentTeam] = useState<Team | null>(null);
-  const [currentGameMatch, setCurrentGameMatch] = useState<GameMatch | null>(
-    null
-  );
+  const [currentGameMatch, setCurrentGameMatch] = useState<GameMatch | null>(null);
   const [playerImage, setPlayerImage] = useState<String>(
     "/preMatch/Player 10.png"
   );
@@ -74,6 +70,63 @@ export default function NewMatch() {
   const [enemyPlayerImage, setEnemyPlayerImage] = useState<string>(
     "/preMatch/Player 9 red.png"
   );
+
+  // Debug logging for component initialization
+  useEffect(() => {
+    console.log("🆕 [NEW_MATCH] Component initialized", {
+      matchId,
+      hasPlayer: !!player,
+      teamsCount: teams.length,
+      gameMatchesCount: gameMatches.length,
+      startGameMatchState
+    });
+  }, [matchId, player, teams.length, gameMatches.length, startGameMatchState]);
+
+  // Find and set up match data
+  useEffect(() => {
+    console.log("🔍 [NEW_MATCH] Setting up match data", {
+      matchId,
+      gameMatches: gameMatches.map(m => ({ id: m.match_id, status: m.match_status })),
+      teams: teams.map(t => ({ id: t.team_id, name: t.name }))
+    });
+
+    if (!matchId) {
+      console.error("❌ [NEW_MATCH] No match ID provided");
+      navigate("/");
+      return;
+    }
+
+    const match = gameMatches.find((m) => m.match_id === parseInt(matchId));
+    if (!match) {
+      console.error("❌ [NEW_MATCH] Match not found", { matchId, availableMatches: gameMatches.map(m => m.match_id) });
+      navigate("/");
+      return;
+    }
+
+    console.log("✅ [NEW_MATCH] Match found", { match });
+    setCurrentGameMatch(match);
+
+    const myTeam = teams.find((t) => t.team_id === match.my_team_id);
+    const opponent = teams.find((t) => t.team_id === match.opponent_team_id);
+
+    console.log("🏆 [NEW_MATCH] Teams resolved", {
+      myTeam: myTeam ? { id: myTeam.team_id, name: myTeam.name } : null,
+      opponent: opponent ? { id: opponent.team_id, name: opponent.name } : null
+    });
+
+    if (!myTeam || !opponent) {
+      console.error("❌ [NEW_MATCH] Teams not found", {
+        myTeamId: match.my_team_id,
+        opponentTeamId: match.opponent_team_id,
+        availableTeams: teams.map(t => ({ id: t.team_id, name: t.name }))
+      });
+      navigate("/");
+      return;
+    }
+
+    setSelectedTeam(myTeam);
+    setOpponentTeam(opponent);
+  }, [matchId, gameMatches, teams, navigate]);
 
   useEffect(() => {
     if (selectedTeam) {
@@ -102,70 +155,39 @@ export default function NewMatch() {
     }
   }, [player, teams]);
 
-  // Find the specific match by ID from URL parameter
-  useEffect(() => {
-    if (matchId && gameMatches.length > 0) {
-      const matchIdNumber = parseInt(matchId, 10);
-      const targetMatch = gameMatches.find(
-        (match) => match.match_id === matchIdNumber
-      );
-
-      console.log("🎯 targetMatch", targetMatch);
-
-      if (targetMatch) {
-        setCurrentGameMatch(targetMatch);
-
-        // Find opponent team based on the match data
-        const opponent = teams.find(
-          (team) => team.team_id === targetMatch.opponent_team_id
-        );
-        setOpponentTeam(opponent || null);
-      } else {
-        console.warn(`Match with ID ${matchIdNumber} not found in gameMatches`);
-        // Fallback: redirect to main if match not found
-        navigate("/main");
-      }
-    } else if (!matchId) {
-      // No match ID provided, redirect to main
-      console.warn("No match ID provided in URL");
-      navigate("/main");
-    }
-  }, [matchId, gameMatches, teams, navigate]);
-
-  // Handle play match (simulate) - IDENTICAL to MainScreen pattern
+  // Handle play match (start) - NEW MATCH FLOW
   const handlePlayMatch = async () => {
+    console.log("🎮 [NEW_MATCH] Play button clicked", {
+      hasCurrentGameMatch: !!currentGameMatch,
+      hasSelectedTeam: !!selectedTeam,
+      hasOpponentTeam: !!opponentTeam,
+      matchId: currentGameMatch?.match_id,
+      startGameMatchState
+    });
+
     if (!currentGameMatch) {
-      console.error("No match found to simulate");
+      console.error("❌ [NEW_MATCH] No match found to start");
       return;
     }
 
     try {
-      console.log("🎮 Simulating match...");
-      await executeSimulateGameMatch(currentGameMatch.match_id);
-
-      // Navigate to MatchEnd screen after successful simulation
-      if (simulateGameMatchState === "success") {
-        navigate(`/match/${currentGameMatch.match_id}`);
-      }
+      console.log("⏳ [NEW_MATCH] Starting match...");
+      await executeStartGameMatch(currentGameMatch.match_id);
     } catch (error) {
-      console.error("Failed to simulate match:", error);
+      console.error("❌ [NEW_MATCH] Failed to start match:", {
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined
+      });
     }
   };
 
-  // Navigate to MatchEnd when simulation is successful
+  // Monitor state changes
   useEffect(() => {
-    console.log(
-      "🔍 NewMatch useEffect triggered - simulateGameMatchState:",
-      simulateGameMatchState
-    );
-    if (simulateGameMatchState === "success" && currentGameMatch) {
-      console.log(
-        "✅ Match simulation successful, navigating to match with ID:",
-        currentGameMatch.match_id
-      );
-      navigate(`/match/${currentGameMatch.match_id}`);
-    }
-  }, [simulateGameMatchState, navigate, currentGameMatch]);
+    console.log("📊 [NEW_MATCH] State changed", {
+      startGameMatchState,
+      error: startError
+    });
+  }, [startGameMatchState, startError]);
 
   const getMatchStatusText = (status: number): string => {
     switch (status) {
@@ -284,14 +306,13 @@ export default function NewMatch() {
               !selectedTeam ||
               !opponentTeam ||
               !currentGameMatch ||
-              !canSimulateGameMatch ||
-              isSimulating
+              startGameMatchState === 'executing'
             }
             className="disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSimulating ? (
+            {startGameMatchState === 'executing' ? (
               <div className="text-white bg-black/50 rounded-lg p-4">
-                Creating Match...
+                Starting Match...
               </div>
             ) : (
               <img
@@ -302,9 +323,9 @@ export default function NewMatch() {
             )}
           </button>
           {/* Error display */}
-          {simulateError && (
+          {startError && (
             <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-              {simulateError}
+              {startError}
             </div>
           )}
         </div>
