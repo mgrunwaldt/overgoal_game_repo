@@ -38,7 +38,7 @@ pub struct NonMatchEventOutcome {
     pub passing_delta: i32,
     pub free_kick_delta: i32,
     pub team_relationship_delta: i32,
-    pub intelligence_delta: i32,
+    pub intelligence_delta: u32,
     pub sets_injured: bool,      // Whether this outcome sets is_injured = true
 }
 
@@ -100,7 +100,7 @@ pub impl NonMatchEventOutcomeImpl of NonMatchEventOutcomeTrait {
         passing_delta: i32,
         free_kick_delta: i32,
         team_relationship_delta: i32,
-        intelligence_delta: i32,
+        intelligence_delta: u32,
         sets_injured: bool,
     ) -> NonMatchEventOutcome {
         NonMatchEventOutcome {
