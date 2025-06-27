@@ -338,16 +338,6 @@ pub impl StoreImpl of StoreTrait {
         // Update player
         self.world.write_model(@player);
 
-        // Update player event history
-        let mut history = self.read_player_event_history(caller, event_id);
-        if history.is_zero() {
-            // Create new history entry
-            history = PlayerEventHistoryTrait::new(caller, event_id, 1, outcome_id, current_day);
-        } else {
-            // Update existing history
-            history.increment_triggers();
-            history.update_last_outcome(outcome_id, current_day);
-        }
         self.world.write_model(@history);
     }
 
