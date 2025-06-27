@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { dojoConfig } from "../dojoConfig";
+import { hexToNumber, hexToString } from "../../utils/utils";
 
 // Constants
 const TORII_URL = dojoConfig.toriiUrl + "/graphql";
@@ -64,45 +65,6 @@ const PLAYER_EVENT_HISTORY_QUERY = `
   }
 `;
 
-// Helper to convert hex values to numbers
-const hexToNumber = (hexValue: string | number): number => {
-  if (typeof hexValue === 'number') return hexValue;
-  if (typeof hexValue === 'string' && hexValue.startsWith('0x')) {
-    return parseInt(hexValue, 16);
-  }
-  if (typeof hexValue === 'string') {
-    return parseInt(hexValue, 10);
-  }
-  return 0;
-};
-
-// Helper to convert hex strings to readable text
-const hexToString = (hexValue: string): string => {
-  if (!hexValue || typeof hexValue !== 'string') return '';
-  
-  // Remove 0x prefix if present
-  const cleanHex = hexValue.startsWith('0x') ? hexValue.slice(2) : hexValue;
-  
-  // If it's not a hex string, return as is
-  if (!/^[0-9a-fA-F]*$/.test(cleanHex)) return hexValue;
-  
-  try {
-    // Convert hex to bytes and then to string
-    let result = '';
-    for (let i = 0; i < cleanHex.length; i += 2) {
-      const hexPair = cleanHex.substr(i, 2);
-      const charCode = parseInt(hexPair, 16);
-      if (charCode !== 0) { // Skip null bytes
-        result += String.fromCharCode(charCode);
-      }
-    }
-    return result || hexValue; // Return original if conversion fails
-  } catch (error) {
-    console.warn('Failed to convert hex to string:', hexValue, error);
-    return hexValue; // Return original hex if conversion fails
-  }
-};
-
 // Helper function to shuffle an array and get the first N items
 //todo: this should be defined in the backend, with this implementation anywone with access to the client can choose the nme they want
 
@@ -164,7 +126,7 @@ const fetchNonMatchEvents = async (): Promise<NonMatchEvent[]> => {
       console.error("GraphQL Errors:", result.errors);
       throw new Error("Failed to fetch non-match events due to GraphQL errors.");
     }
-
+    
     if (!result.data?.fullStarterReactNonMatchEventModels?.edges?.length) {
       console.log("No non-match events returned from GraphQL.");
       return [];

@@ -8,194 +8,152 @@ import useAppStore from "../../zustand/store";
 import { usePlayer } from "../../dojo/hooks/usePlayer";
 import { useProcessMatchAction } from "../../dojo/hooks/useProcessMatchAction";
 import { useGameMatch } from "../../dojo/hooks/useGameMatch";
+import { MatchTimelineEvent } from "../../dojo/hooks/types";
 
-interface MatchEvent {
+interface UIMatchEvent {
   text: string;
   playable: boolean;
-  team: "player" | "enemy";
+  team: "player" | "enemy" | "neutral";
 }
 
 // Removed static event arrays - now using real match data
 
 const MatchComponent = () => {
-  const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([]);
+  const [displayedEvents, setDisplayedEvents] = useState<UIMatchEvent[]>([]);
   const [isDecisionOpen, setDecisionOpen] = useState(false);
-  const [displayTime, setDisplayTime] = useState<number>(1); // Live timer that counts up
+  const [displayTime, setDisplayTime] = useState<number>(0);
   const [isWaitingForAction, setIsWaitingForAction] = useState(false);
+  
+  // ✅ NEW: Proper state management for timeline events processing
+  const [processingQueue, setProcessingQueue] = useState<MatchTimelineEvent[]>([]);
+  const [isProcessingEvents, setIsProcessingEvents] = useState(false);
+  
   const eventContainerRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
   const { matchId } = useParams();
-  const { currentMatch, gameMatches } = useAppStore();
+  const { currentMatch, matchTimelineEvents } = useAppStore();
   const { player } = usePlayer();
   const { execute: processNextAction, state: processState } = useProcessMatchAction();
-  const { fetchGameMatch } = useGameMatch();
+  const { getGameMatch } = useGameMatch(matchId ? parseInt(matchId) : 0);
 
-  // Find the current match
-  const match = currentMatch || gameMatches.find(m => m.match_id === parseInt(matchId || "0"));
   const stamina = player?.stamina || 100;
-
-  // Force fetch fresh match data on component mount
-  useEffect(() => {
-    if (matchId) {
-      console.log("🔄 [MATCH_COMPONENT] Fetching fresh match data on mount", { matchId });
-      fetchGameMatch(parseInt(matchId));
-    }
-  }, [matchId, fetchGameMatch]);
 
   // Debug logging for match component initialization
   React.useEffect(() => {
-    console.log("🏟️ [MATCH_COMPONENT] Component initialized", {
-      matchId: matchId,
-      hasCurrentMatch: !!currentMatch,
-      hasFoundMatch: !!match,
-      matchData: match,
-      gameMatchesCount: gameMatches.length,
-      playerStamina: stamina
-    });
-  }, [matchId, currentMatch, match, gameMatches.length, stamina]);
+    if (matchTimelineEvents.length > 0) {
+      console.log("📊 Timeline Events RAW:", matchTimelineEvents);
+    }
+  }, [matchTimelineEvents]);
 
-  // Match flow logic - simplified and fixed
+  // ✅ NEW: Initialize processing queue when match data changes
   useEffect(() => {
-    console.log("⚽ [MATCH_FLOW] Effect triggered", {
-      hasMatch: !!match,
-      currentTime: match?.current_time,
-      prevTime: match?.prev_time,
-      nextActionMinute: match?.next_match_action_minute,
-      matchStatus: match?.match_status
-    });
-
-    if (!match) {
-      console.warn("⚠️ [MATCH_FLOW] No match data available");
+    if (!currentMatch) {
       return;
     }
 
-    // Initialize display time to previous time (where timer should start from)
-    const startTime = match.prev_time !== undefined ? match.prev_time : match.current_time || 1;
-    console.log("🎯 [MATCH_FLOW] Setting initial display time", {
-      prevTime: match.prev_time,
-      currentTime: match.current_time,
-      calculatedStartTime: startTime,
-      nextActionMinute: match.next_match_action_minute
-    });
-    setDisplayTime(startTime);
+    console.log("📝 [START_MATCH] Current match updated with real data:", currentMatch);
 
-    // If match is finished, navigate to match end
-    if (match.current_time >= 90) {
-      console.log("🏁 [MATCH_FLOW] Match finished, navigating to match end");
-      navigate(`/match-end/${match.match_id}`);
-      return;
+    // Create processing queue: events that happen after prev_time and before next action
+    const eventsToProcess = [...matchTimelineEvents]
+      .filter(event => event.minute > currentMatch.prev_time && event.minute < currentMatch.next_match_action_minute)
+      .sort((a, b) => a.minute - b.minute);
+
+    setProcessingQueue(eventsToProcess);
+    setDisplayTime(currentMatch.prev_time);
+    setIsWaitingForAction(false);
+    setIsProcessingEvents(false);
+
+    // Start the processing algorithm
+    startEventProcessing();
+
+  }, [currentMatch, matchTimelineEvents]);
+
+  // ✅ NEW: The main algorithm implementation
+  const startEventProcessing = () => {
+    if (!currentMatch) return;
+
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
     }
 
-    // Check timer logic conditions
-    const hasNextAction = !!match.next_match_action_minute;
-    const shouldStartTimer = hasNextAction && startTime < match.next_match_action_minute;
-    const shouldShowAction = hasNextAction && startTime >= match.next_match_action_minute;
+    setIsProcessingEvents(true);
     
-    console.log("🔍 [MATCH_FLOW] Timer decision logic", {
-      hasNextAction,
-      shouldStartTimer,
-      shouldShowAction,
-      startTime,
-      nextActionMinute: match.next_match_action_minute
-    });
+    // Start the minute-by-minute timer
+    timerRef.current = setInterval(() => {
+      setDisplayTime(prevTime => {
+        const nextMinute = prevTime + 1;
 
-    // If we have a next action time, start counting UP to it
-    if (shouldStartTimer) {
-      console.log("⏰ [MATCH_FLOW] Starting timer count up", {
-        startTime: startTime,
-        targetTime: match.next_match_action_minute
-      });
-      
-      setIsWaitingForAction(false);
-
-      const countUpInterval = setInterval(() => {
-        setDisplayTime(prevDisplayTime => {
-          const nextTime = prevDisplayTime + 1;
+        // Check if we have events for this minute in our processing queue
+        setProcessingQueue(currentQueue => {
+          const eventsThisMinute = currentQueue.filter(event => event.minute === nextMinute);
           
-          console.log("⏳ [MATCH_FLOW] Timer counting up:", nextTime, "target:", match.next_match_action_minute);
-          
-          // When we reach the target time, show action button
-          if (nextTime >= match.next_match_action_minute) {
-            console.log("🔔 [MATCH_FLOW] Reached action time, ready for action");
-            clearInterval(countUpInterval);
-            setIsWaitingForAction(true);
+          if (eventsThisMinute.length > 0) {
+            // Show the events in UI
+            const newDisplayedEvents: UIMatchEvent[] = eventsThisMinute.map(evt => ({
+              text: `${evt.minute}' - ${getTimelineEventText(evt.action, evt.team)}`,
+              playable: false,
+              team: evt.team === 0 ? "player" : evt.team === 1 ? "enemy" : "neutral"
+            }));
+            setDisplayedEvents(prev => [...prev, ...newDisplayedEvents]);
+            
+            // Remove processed events from queue
+            return currentQueue.filter(event => event.minute !== nextMinute);
           }
           
-          return nextTime;
+          return currentQueue;
         });
-      }, 500); // 🏃‍♂️ Count up every 0.5 seconds (2x faster)
 
-      return () => {
-        console.log("🧹 [MATCH_FLOW] Cleaning up count up interval");
-        clearInterval(countUpInterval);
-      };
-    } else if (shouldShowAction) {
-      // Already time for next action
-      console.log("⚡ [MATCH_FLOW] Already time for next action!");
+        // Check if we've reached the action minute or if queue is empty
+        if (nextMinute >= (currentMatch?.next_match_action_minute || 90)) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+          }
+          setIsProcessingEvents(false);
+          setIsWaitingForAction(true);
+        }
+
+        return nextMinute;
+      });
+    }, 500); // 0.5 seconds per minute (twice as fast)
+  };
+
+  // ✅ Check if queue is empty and we should show action button
+  useEffect(() => {
+    if (!isProcessingEvents && processingQueue.length === 0 && currentMatch && displayTime < currentMatch.next_match_action_minute) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
       setIsWaitingForAction(true);
-    } else {
-      console.log("🤔 [MATCH_FLOW] No next action minute set or invalid condition", {
-        hasNextActionMinute: !!match.next_match_action_minute,
-        nextActionMinute: match.next_match_action_minute,
-        startTime,
-        comparison: startTime < match.next_match_action_minute
-      });
     }
-  }, [match, navigate]);
+  }, [processingQueue.length, isProcessingEvents, currentMatch, displayTime]);
 
-  // Handle processing next action
+  // Handle processing next action (the user-interactive one)
   const handleNextAction = async () => {
-    console.log("🎯 [HANDLE_ACTION] Action button clicked", {
-      hasMatch: !!match,
-      isWaitingForAction,
-      matchId: match?.match_id,
-      displayTime: displayTime,
-      nextAction: match?.next_match_action,
-      playerParticipation: match?.player_participation,
-      actionTeam: match?.action_team
-    });
-
-    if (!match || !isWaitingForAction) {
-      console.warn("⚠️ [HANDLE_ACTION] Cannot process action", {
-        hasMatch: !!match,
-        isWaitingForAction
-      });
-      return;
-    }
+    if (!currentMatch || !isWaitingForAction) return;
 
     try {
-      console.log("⏳ [HANDLE_ACTION] Processing action...");
-      await processNextAction(match.match_id);
+      console.log("🎮 [ACTION] User clicked next action");
       setIsWaitingForAction(false);
       
-      // Add event to the list based on the action
-      const newEvent: MatchEvent = {
-        text: getActionText(match.next_match_action || 0),
-        playable: match.player_participation === 1, // Participating
-        team: match.action_team === 0 ? "player" : "enemy"
+      // ✅ FIX: Add the interactive event to displayed events when user clicks
+      const interactiveEvent: UIMatchEvent = {
+        text: `${currentMatch.next_match_action_minute}' - ${getTimelineEventText(currentMatch.next_match_action, currentMatch.action_team)} - YOU PARTICIPATED`,
+        playable: false,
+        team: currentMatch.action_team === 0 ? "player" : currentMatch.action_team === 1 ? "enemy" : "neutral"
       };
+      setDisplayedEvents(prev => [...prev, interactiveEvent]);
       
-      console.log("📝 [HANDLE_ACTION] Adding new event to list", {
-        event: newEvent,
-        currentEventsCount: matchEvents.length
-      });
+      // Process the action, which will trigger the simulation for the *next* batch of events
+      await processNextAction(currentMatch.match_id);
       
-      setMatchEvents(prev => {
-        const newEvents = [...prev, newEvent];
-        console.log("📋 [HANDLE_ACTION] Updated events list", {
-          previousCount: prev.length,
-          newCount: newEvents.length,
-          latestEvent: newEvent
-        });
-        return newEvents;
-      });
+      // After processing, manually refetch the match state
+      await getGameMatch();
       
-      console.log("✅ [HANDLE_ACTION] Action processed successfully");
+      console.log("✅ [ACTION] Action processed, new match data should trigger re-initialization");
     } catch (error) {
-      console.error("❌ [HANDLE_ACTION] Failed to process action:", {
-        error: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined
-      });
+      setIsWaitingForAction(true); // Re-enable button on error
     }
   };
 
@@ -208,30 +166,65 @@ const MatchComponent = () => {
       case 3: return "Free Kick opportunity";
       case 4: return "Penalty awarded";
       case 5: return "Defensive play";
-      case 6: return "🕐 HALF TIME - Take a break"; // 🆕 NEW
-      case 7: return "⏱️ FULL TIME - Match finished"; // 🆕 NEW
+      case 6: return "🕐 HALF TIME - Take a break";
+      case 7: return "⏱️ FULL TIME - Match finished";
+      case 8: return "Player substitution";
       default: return "Match action";
     }
   };
 
+  // ✅ NEW: Helper function specifically for timeline events
+  const getTimelineEventText = (action: number, team: number): string => {
+    // Handle neutral team (action_team = 2)
+    if (team === 2) {
+      switch (action) {
+        case 0: return "Open play continues";
+        case 1: return "Player jumps for the ball";
+        case 2: return "Brawl breaks out on the field";
+        case 3: return "Free kick awarded";
+        case 4: return "Penalty awarded";
+        case 5: return "Defensive play occurs";
+        case 6: return "🕐 HALF TIME - Players take a break";
+        case 7: return "⏱️ FULL TIME - Match has ended";
+        case 8: return "Player substitution made";
+        default: return "Match action occurs";
+      }
+    }
+    
+    // Handle team-specific actions (team 0 = Your team, team 1 = Opponent team)
+    const teamText = team === 0 ? "Your team" : "Opponent team";
+    
+    switch (action) {
+      case 0: return `${teamText} continues with open play`;
+      case 1: return `${teamText} player jumps for the ball`;
+      case 2: return `Brawl breaks out on the field`;
+      case 3: return `${teamText} gets a free kick`;
+      case 4: return `${teamText} awarded a penalty`;
+      case 5: return `${teamText} makes a defensive play`;
+      case 6: return "🕐 HALF TIME - Players take a break";
+      case 7: return "⏱️ FULL TIME - Match has ended";
+      case 8: return `${teamText} makes a substitution`;
+      default: return `${teamText} match action`;
+    }
+  };
+
+  // Auto-scroll to bottom when new events are added
   useEffect(() => {
     if (eventContainerRef.current) {
-      eventContainerRef.current.scrollTop =
-        eventContainerRef.current.scrollHeight;
+      eventContainerRef.current.scrollTop = eventContainerRef.current.scrollHeight;
     }
-  }, [matchEvents]);
+  }, [displayedEvents]);
 
-  // Log UI state changes
+  // Cleanup timer on unmount
   useEffect(() => {
-    console.log("🎨 [MATCH_UI] UI state update", {
-      isWaitingForAction,
-      displayTime,
-      processState,
-      showActionButton: isWaitingForAction && match && match.current_time < 90,
-      showFinishButton: (match?.current_time || 1) >= 90,
-      matchEventsCount: matchEvents.length
-    });
-  }, [isWaitingForAction, displayTime, processState, match?.current_time, matchEvents.length]);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
+  // Cleanup timer on unmount
 
   return (
     <div className="relative min-h-screen">
@@ -251,7 +244,7 @@ const MatchComponent = () => {
               className="text-white text-4xl font-bold -mt-2"
               style={{ textShadow: "0 0 10px #0ff" }}
             >
-              {match?.my_team_score || 0} - {match?.opponent_team_score || 0}
+              {currentMatch?.my_team_score || 0} - {currentMatch?.opponent_team_score || 0}
             </p>
             <p
               className="text-white text-2xl"
@@ -288,7 +281,8 @@ const MatchComponent = () => {
               className="w-full h-[90%] rounded-lg p-4 overflow-y-auto"
             >
               <ul className="text-white space-y-1 text-lg font-sans font-normal tracking-wide">
-                {matchEvents.map((event, index) => (
+                {/* Render the dynamically displayed timeline events */}
+                {displayedEvents.map((event, index) => (
                   <MatchEventIten
                     key={index}
                     text={event.text}
@@ -296,13 +290,22 @@ const MatchComponent = () => {
                     team={event.team}
                   />
                 ))}
+                {/* Optionally, display the interactive event when its time comes */}
+                {isWaitingForAction && currentMatch && (
+                   <MatchEventIten
+                    key="interactive"
+                    text={`${currentMatch.next_match_action_minute}' - ${getTimelineEventText(currentMatch.next_match_action, currentMatch.action_team)}`}
+                    playable={true}
+                    team={currentMatch.action_team === 0 ? "player" : currentMatch.action_team === 1 ? "enemy" : "neutral"}
+                  />
+                )}
               </ul>
             </div>
           </div>
         </div>
 
         {/* Action button for when it's time for next action */}
-        {isWaitingForAction && match && match.current_time < 90 && (
+        {isWaitingForAction && currentMatch && currentMatch.current_time < 90 && (
           <div className="w-full flex justify-center mt-4">
             <button
               onClick={handleNextAction}
@@ -315,7 +318,7 @@ const MatchComponent = () => {
         )}
 
         <img src="/match/Logo.png" alt="Logo" className="w-24 h-24" />
-        {(match?.current_time || 1) >= 90 && (
+        {(currentMatch?.current_time || 1) >= 90 && (
           <div className="w-full flex justify-end mt-12">
             <button
               onClick={() => {

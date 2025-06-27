@@ -26,9 +26,9 @@ export default function TeamSelection() {
   
   useEffect(() => {
     if (teams.length > 0) {
-      const currentTeamImage = getTeamImage(currentTeamIndex);
-      setTeamImage(currentTeamImage);
-      console.log("🎯 Current team image:", currentTeamImage);
+    const currentTeamImage = getTeamImage(currentTeamIndex);
+    setTeamImage(currentTeamImage);
+    console.log("🎯 Current team image:", currentTeamImage);
     }
   }, [currentTeamIndex, teams]);
  
@@ -49,7 +49,7 @@ export default function TeamSelection() {
     try {
       console.log("🎯 Selecting team", currentTeam.name, "with ID", currentTeam.team_id);
       await executeSelectTeam(currentTeam.team_id);
-
+      
       // The useEffect hook will handle navigation once the player state is updated.
     } catch (error) {
       console.error("❌ Error selecting team:", error);

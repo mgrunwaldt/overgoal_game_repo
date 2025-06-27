@@ -40,9 +40,10 @@ export const useProcessMatchAction = (): UseProcessMatchActionReturn => {
       console.log("⏳ [PROCESS_ACTION] Calling contract function...");
 
       // 1️⃣ EXECUTE CONTRACT TRANSACTION
-      // For now, we're calling startGamematch again to advance the match
-      // TODO: Replace with actual processMatchAction when implemented
-      const tx = await client!.game.startGamematch(account, matchId);
+      // ✅ FIX: Call processMatchAction instead of startGamematch
+      // For now, we use decision 2 (Simulate) as default until decision UI is implemented
+      const matchDecision = 2; // 2 = Simulate (default action)
+      const tx = await client!.game.processMatchAction(account, matchId, matchDecision);
       console.log("📡 [PROCESS_ACTION] Transaction response:", {
         code: tx?.code,
         transactionHash: tx?.transaction_hash,
@@ -60,10 +61,11 @@ export const useProcessMatchAction = (): UseProcessMatchActionReturn => {
         // 3️⃣ FETCH REAL GAMEMATCH DATA FROM TORII
         console.log("🔄 [PROCESS_ACTION] Fetching real GameMatch data from Torii...");
         try {
-          const realGameMatchData = await fetchGameMatch(matchId);
-          console.log("📊 [PROCESS_ACTION] Real GameMatch data fetched:", realGameMatchData);
+          const result = await fetchGameMatch(matchId);
+          console.log("📊 [PROCESS_ACTION] Real GameMatch result fetched:", result);
           
-          if (realGameMatchData) {
+          if (result && result.gameMatchData) {
+            const realGameMatchData = result.gameMatchData;
             // 4️⃣ UPDATE STORE WITH REAL DATA
             console.log("🔄 [PROCESS_ACTION] Updating store with real data");
             updateGameMatch(matchId, realGameMatchData);

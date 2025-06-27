@@ -29,7 +29,7 @@ type props = {
 
 
 const NonMatchEventItem = ( { event_id, title, onClick }: props ) => {
-    
+
     return (
         <div onClick={onClick} className="w-full h-full bg-contain bg-no-repeat bg-center cursor-pointer transition-transform transform hover:scale-105" style={{ backgroundImage: "url('/nonMatchEvent/Event Item.png')" }}>
             <img src={getEventImage(event_id)} alt={title} />

@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAccount } from "@starknet-react/core";
 import useAppStore from "../../zustand/store";
-import type { Team } from "../../zustand/store";
 import { dojoConfig } from "../dojoConfig";
-
 
 // GraphQL query to fetch all teams
 const TORII_URL = dojoConfig.toriiUrl + "/graphql";
@@ -66,6 +64,15 @@ const feltToString = (felt: string): string => {
     return felt; // Return original if conversion fails
   }
 };
+
+export interface Team {
+    team_id: number;
+    name: string;
+    offense: number;
+    defense: number;
+    intensity: number;
+    current_league_points: number;
+}
 
 interface UseTeamsReturn {
   teams: Team[];

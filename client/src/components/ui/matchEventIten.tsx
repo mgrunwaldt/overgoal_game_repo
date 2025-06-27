@@ -3,7 +3,7 @@ import React from 'react'
 interface MatchEventItemProps {
   text: string;
   playable?: boolean;
-  team?: 'player' | 'enemy';
+  team?: 'player' | 'enemy' | 'neutral';
 }
 
 const MatchEventIten: React.FC<MatchEventItemProps> = ({ text, playable = false, team = 'player' }) => {
@@ -13,6 +13,12 @@ const MatchEventIten: React.FC<MatchEventItemProps> = ({ text, playable = false,
   const getTeamStyles = () => {
     if (team === 'enemy') {
       return 'bg-red-900/40 border-red-500/50 text-red-300 shadow-[0_0_15px_rgba(239,68,68,0.4)]';
+    }
+    if (team === 'player') {
+      return 'bg-green-900/40 border-green-500/50 text-green-300 shadow-[0_0_15px_rgba(34,197,94,0.4)]';
+    }
+    if (team === 'neutral') {
+      return 'bg-blue-900/40 border-blue-400/50 text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.4)]';
     }
     if (playable) {
       return 'bg-cyan-900/40 border-cyan-400/50 text-cyan-200 shadow-[0_0_15px_rgba(34,211,238,0.4)] hover:bg-cyan-800/60 cursor-pointer';

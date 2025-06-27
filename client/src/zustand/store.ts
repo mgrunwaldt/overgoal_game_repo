@@ -1,5 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import {
+  GameMatch,
+  MatchTimelineEvent,
+} from "../dojo/hooks/useGameMatch";
+import { Team } from '../dojo/hooks/useTeams';
+import { NonMatchEventOutcome } from '../dojo/hooks/useNonMatchEvents';
 
 // Player Type Enum
 export enum PlayerType {
@@ -30,30 +36,6 @@ export interface Player {
   team_relationship: number;
   intelligence: number;
   player_type: PlayerType;  // ✅ ADD NEW FIELD
-}
-
-export interface Team {
-  team_id: number;
-  name: string;
-  offense: number;
-  defense: number;
-  intensity: number;
-  current_league_points: number;
-}
-
-export interface GameMatch {
-  match_id: number;
-  my_team_id: number;
-  opponent_team_id: number;
-  my_team_score: number;
-  opponent_team_score: number;
-  next_match_action: number;
-  next_match_action_minute: number;
-  current_time: number;
-  prev_time: number;
-  match_status: number;
-  player_participation: number;
-  action_team: number;
 }
 
 export enum MatchStatus {
@@ -99,26 +81,6 @@ export enum ActionTeam {
   Neutral = 2,
 }
 
-export interface NonMatchEventOutcome {
-  event_id: number;
-  outcome_id: number;
-  outcome_type: number;
-  name: string;
-  description: string;
-  coins_delta: number;
-  shoot_delta: number;
-  dribble_delta: number;
-  energy_delta: number;
-  stamina_delta: number;
-  charisma_delta: number;
-  fame_delta: number;
-  passing_delta: number;
-  free_kick_delta: number;
-  team_relationship_delta: number;
-  intelligence_delta: number;
-  sets_injured: boolean;
-}
-
 // Application state
 interface AppState {
   // Player data
@@ -138,7 +100,8 @@ interface AppState {
   
   // Game state
   gameStarted: boolean;
-  last_non_match_outcome: NonMatchEventOutcome | null;
+  lastNonMatchOutcome: NonMatchEventOutcome | null;
+  matchTimelineEvents: MatchTimelineEvent[];
 }
 
 // Store actions
@@ -190,6 +153,9 @@ interface AppActions {
   
   // Utility actions
   resetStore: () => void;
+  
+  // New actions
+  setMatchTimelineEvents: (events: MatchTimelineEvent[]) => void;
 }
 
 // Combine state and actions
@@ -205,7 +171,8 @@ const initialState: AppState = {
   isLoading: false,
   error: null,
   gameStarted: false,
-  last_non_match_outcome: null,
+  lastNonMatchOutcome: null,
+  matchTimelineEvents: [],
 };
 
 // Create the store
@@ -359,10 +326,13 @@ const useAppStore = create<AppStore>()(
       // Game actions
       startGame: () => set({ gameStarted: true }),
       endGame: () => set({ gameStarted: false }),
-      setLastNonMatchOutcome: (outcome) => set({ last_non_match_outcome: outcome }),
+      setLastNonMatchOutcome: (outcome) => set({ lastNonMatchOutcome: outcome }),
 
       // Utility actions
       resetStore: () => set(initialState),
+
+      // New actions
+      setMatchTimelineEvents: (events) => set({ matchTimelineEvents: events }),
     }),
     {
       name: 'dojo-starter-store',
@@ -373,7 +343,8 @@ const useAppStore = create<AppStore>()(
         gameMatches: state.gameMatches,
         currentMatch: state.currentMatch,
         gameStarted: state.gameStarted,
-        last_non_match_outcome: state.last_non_match_outcome, // ✅ FIX: Include in persistence
+        lastNonMatchOutcome: state.lastNonMatchOutcome,
+        matchTimelineEvents: state.matchTimelineEvents,
       }),
     }
   )

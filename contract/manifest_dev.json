@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x3dbf80da32f4f6b08ff44ad297c200807666940d7a64acbfbbb7df34c093b3c",
-      "class_hash": "0x22832e2bdbad3e1ecc00597808ca5f558f97c692cd4f3c9cc9b705780f553be",
+      "address": "0x55eb37a5e117f0bcf0bef7ae4ecf0b77c659c1b91fd8c08cd9663a18b91c6e3",
+      "class_hash": "0x1cdf6a8ea8b7188eacc49d27214df5ca51eabf52cb084768da82476aac59167",
       "abi": [
         {
           "type": "impl",
@@ -2075,15 +2075,15 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x5cee435ad5c0fcb4a3a79b17774134a45b93acbd98a1d5d2820c2a8732efe39",
+      "class_hash": "0x4fb9435fe06a3ab3db02f6a2d25026d4f3c9594974cd2af1050c58262898a46",
       "tag": "full_starter_react-GameMatch",
       "selector": "0x19ef2f63e63acbbdc49d2d8c7bb6506f1483f0597ef9e9b11c1af48e7b14f21"
     },
     {
       "members": [],
-      "class_hash": "0x293eabe31086963dc4a0c5943a0fe03586ebedaccde639398a43066995235b5",
-      "tag": "full_starter_react-MatchActionBatch",
-      "selector": "0x15058e56afcdd337551dd5262313050cb6cb1b7f4f3b6f1015e01fcca56c0d0"
+      "class_hash": "0x2e85042fd78b739a6b76005cc7e5702ec27538370eb027d58c8c1d8b2b83408",
+      "tag": "full_starter_react-MatchTimelineEvent",
+      "selector": "0x24aa56e9c7990f2f4e1727596c80114b9cc90e4ccc263e1a2444aed2d865630"
     },
     {
       "members": [],

@@ -10,7 +10,8 @@ use dojo::model::ModelStorage;
 use full_starter_react::models::player::{Player, PlayerTrait, PlayerEventHistory, PlayerEventHistoryTrait};
 use full_starter_react::models::team::{Team, TeamTrait, TeamImpl};
 use full_starter_react::models::gamematch::{
-    GameMatch, GameMatchTrait, GameMatchImpl, MatchAction, MatchDecision, MatchStatus, PlayerParticipation, ActionTeam
+    GameMatch, GameMatchTrait, GameMatchImpl, MatchAction, MatchDecision, MatchStatus, PlayerParticipation, ActionTeam,
+    MatchTimelineEvent
 };
 use full_starter_react::models::non_match_event::{
     NonMatchEvent, NonMatchEventImpl, NonMatchEventTrait, NonMatchEventOutcome,
@@ -442,42 +443,44 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(@new_gamematch);
     }
 
-    fn start_gamematch(mut self: Store, match_id: u32) -> (MatchAction, u8, PlayerParticipation, ActionTeam) {
+    fn start_gamematch(mut self: Store, match_id: u32) {
         let mut gamematch = self.read_gamematch(match_id);
-        
-        // Set initial match state
         gamematch.match_status = MatchStatus::InProgress;
-        gamematch.current_time = 1;
+        gamematch.current_time = 0;
+
+        // Generate the first batch of events
+        self.generate_events_until_input_required(match_id);
         
-        // Call the core event generation loop
-        let (next_action, next_minute, participation, team, updated_current_time, updated_prev_time) = self.get_next_match_action(match_id);
-        
-        // Update match with results including the updated times
-        gamematch.set_next_action(next_action, next_minute, team, participation);
-        gamematch.current_time = updated_current_time;
-        gamematch.prev_time = updated_prev_time;
         self.world.write_model(@gamematch);
-        
-        (next_action, next_minute, participation, team)
     }
 
-    fn process_match_action(mut self: Store, match_id: u32, match_decision: MatchDecision) -> (MatchAction, u8) {
-        let mut gamematch = self.read_gamematch(match_id);
+    fn process_match_action(mut self: Store, match_id: u32, match_decision: MatchDecision) {
+        // ✅ STEP 1: Process player's decision and simulate the outcome
+        // TODO: Process player's decision here (e.g., if they chose to shoot, calculate outcome)
+        // For now, we just simulate a basic outcome
         
-        // Process the current action (TODO - this will be expanded later with real logic)
-        // For now, just update prev_time to current_time
-        gamematch.prev_time = gamematch.current_time;
+        // ✅ STEP 2: Decrement stamina for participation
+        let mut player = self.read_player();
+        player.remove_stamina(5); // Example stamina cost
+        self.world.write_model(@player);
+
+        // ✅ STEP 3: Generate all events until the next time user input is needed
+        // This function will update the match state internally (current_time, next_action, etc.)
+        self.generate_events_until_input_required(match_id);
         
-        // Call get_next_match_action to find the next event and advance the match
-        let (next_action, next_minute, participation, team, updated_current_time, updated_prev_time) = self.get_next_match_action(match_id);
+        // ✅ STEP 4: IMPORTANT - Save the updated match state AFTER generation
+        // The generate_events_until_input_required function has already updated:
+        // - current_time (progressed through minutes)
+        // - next_match_action (set to the action that needs user input)
+        // - next_match_action_minute (set to when user input is needed)
+        // - match_status (potentially changed to HalfTime/Finished)
+        // - player_participation (set based on the next action)
+        // - action_team (set based on the next action)
+        // - event_counter (incremented for each timeline event created)
         
-        // Update match with results including the updated times
-        gamematch.set_next_action(next_action, next_minute, team, participation);
-        gamematch.current_time = updated_current_time;
-        gamematch.prev_time = updated_prev_time;
-        self.world.write_model(@gamematch);
-        
-        (next_action, next_minute)
+        // We need to read the updated match and save it to persist all these changes
+        let updated_match = self.read_gamematch(match_id);
+        self.world.write_model(@updated_match);
     }
 
     fn finish_gamematch(mut self: Store, match_id: u32) {
@@ -511,82 +514,95 @@ pub impl StoreImpl of StoreTrait {
 
     // --------- Core Match Logic Functions ---------
     
-    fn get_next_match_action(mut self: Store, match_id: u32) -> (MatchAction, u8, PlayerParticipation, ActionTeam, u8, u8) {
+    fn generate_events_until_input_required(mut self: Store, gamematch: GameMatch) {
         let mut gamematch = self.read_gamematch(match_id);
         let my_team = self.read_team(gamematch.my_team_id);
         let opponent_team = self.read_team(gamematch.opponent_team_id);
         let player = self.read_player();
         
-        // Save the starting time as prev_time (this is where frontend timer should start from)
-        let prev_time = gamematch.current_time;
-        
-        // 🎯 SIMPLE FIX: Advance current_time by 1 to ensure timer progression
-        gamematch.current_time += 1;
-        
-        // Constants
-        let _BASE_ATTACK_EVENT_PROBABILITY: u32 = 7; // 7 out of 90 minutes
-        
+        // ✅ FIX: Store the STARTING time for frontend timer reference
+        // This is where the timer should start from (where we left off)
+        let starting_time = gamematch.current_time;
+
         loop {
-            // 🆕 CHECK FOR HALF TIME (first time reaching minute 45)
-            if gamematch.current_time == 45 && gamematch.match_status == MatchStatus::InProgress {
-                gamematch.match_status = MatchStatus::HalfTime;
-                self.world.write_model(@gamematch);
-                break (MatchAction::HalfTime, 45, PlayerParticipation::NotParticipating, ActionTeam::Neutral, gamematch.current_time, prev_time);
-            }
-            
-            // 🆕 CHECK FOR SECOND HALF START (when user clicks Next Action during halftime)
-            if gamematch.match_status == MatchStatus::HalfTime {
-                // Transition back to InProgress for second half
-                gamematch.match_status = MatchStatus::InProgress;
-                gamematch.current_time = 46; // Start second half at minute 46
-                self.world.write_model(@gamematch);
-                // Continue the loop to find the next event in second half
-            }
-            
-            // 🆕 CHECK FOR MATCH END  
-            if gamematch.current_time >= 90 {
-                gamematch.match_status = MatchStatus::Finished;
-                self.world.write_model(@gamematch);
-                break (MatchAction::MatchEnd, 90, PlayerParticipation::NotParticipating, ActionTeam::Neutral, gamematch.current_time, prev_time);
-            }
-            
-            // 1. CHECK MY TEAM ATTACK EVENT
-            let my_attack_result = self.check_my_team_attack_event(
-                gamematch.current_time, my_team, opponent_team, player
-            );
-            
-            if my_attack_result.has_event {
-                // Found an event - return it with event minute and prev_time as starting time
-                break (
-                    my_attack_result.action_type, 
-                    my_attack_result.event_minute,
-                    if my_attack_result.player_participates { PlayerParticipation::Participating } else { PlayerParticipation::NotParticipating },
-                    ActionTeam::MyTeam,
-                    gamematch.current_time,
-                    prev_time
-                );
-            }
-            
-            // 2. CHECK OPPONENT TEAM ATTACK EVENT
-            let opponent_attack_result = self.check_opponent_team_attack_event(
-                gamematch.current_time, my_team, opponent_team, player
-            );
-            
-            if opponent_attack_result.has_event {
-                // Found an event - return it with event minute and prev_time as starting time
-                break (
-                    opponent_attack_result.action_type,
-                    opponent_attack_result.event_minute,
-                    if opponent_attack_result.player_participates { PlayerParticipation::Participating } else { PlayerParticipation::NotParticipating },
-                    ActionTeam::OpponentTeam,
-                    gamematch.current_time,
-                    prev_time
-                );
-            }
-            
-            // No events this minute - advance time and continue
+            // ✅ STEP 1: Increase timer FIRST
             gamematch.current_time += 1;
-        }
+
+            // ✅ STEP 2: Check if match is finished or timer == 90 - set next action and break
+            if gamematch.match_status == MatchStatus::Finished || gamematch.current_time >= 90 {
+                gamematch.match_status = MatchStatus::Finished;
+                gamematch.set_next_action(MatchAction::MatchEnd, 90, ActionTeam::Neutral, PlayerParticipation::Observing);
+                break;
+            }
+
+            // ✅ STEP 3: Check if halftime or timer == 45 - set next action and break
+            if gamematch.match_status == MatchStatus::HalfTime || (gamematch.current_time == 45 && gamematch.match_status == MatchStatus::InProgress) {
+                gamematch.match_status = MatchStatus::HalfTime;
+                gamematch.set_next_action(MatchAction::HalfTime, 45, ActionTeam::Neutral, PlayerParticipation::Observing);
+                break;
+            }
+
+            // ✅ STEP 4: Check if player.stamina == 0 - set next match action and break
+            if player.stamina <= 0 {
+                gamematch.set_next_action(MatchAction::Substitute, gamematch.current_time, ActionTeam::MyTeam, PlayerParticipation::Observing);
+                continue;
+            }
+
+            // ✅ STEP 5: Check for MY TEAM attack event FIRST
+            let my_attack_result = self.check_my_team_attack_event(gamematch.current_time, my_team, opponent_team, player, match_id);
+            if my_attack_result.has_event {
+                // ✅ STEP 5.1: If I participate, break
+                if my_attack_result.player_participates {
+                    gamematch.set_next_action(my_attack_result.action_type, gamematch.current_time, ActionTeam::MyTeam, PlayerParticipation::Participating);
+                    break; // Exit loop, wait for user input
+                } else {
+                    // ✅ STEP 5.2: If I don't participate, add timeline event
+                    gamematch.event_counter += 1;
+                    let timeline_event = MatchTimelineEvent {
+                        match_id: match_id,
+                        event_id: gamematch.event_counter,
+                        action: my_attack_result.action_type,
+                        minute: gamematch.current_time,
+                        team: ActionTeam::MyTeam,
+                        description: 'Your team attacks!',
+                    };
+                    self.world.write_model(@timeline_event);
+                    self.simulate_ai_attack_outcome(match_id, my_team, my_attack_result.action_type, true);
+                    continue; // Continue to next minute
+                }
+            }
+
+            // ✅ STEP 6: If no my team event, check for OPPONENT TEAM attack event
+            let opponent_attack_result = self.check_opponent_team_attack_event(gamematch.current_time, my_team, opponent_team, player, match_id);
+            if opponent_attack_result.has_event {
+                // ✅ STEP 6.1: If I participate, break
+                if opponent_attack_result.player_participates {
+                    gamematch.set_next_action(opponent_attack_result.action_type, gamematch.current_time, ActionTeam::OpponentTeam, PlayerParticipation::Participating);
+                    break; // Exit loop, wait for user input
+                } else {
+                    // ✅ STEP 6.2: If I don't participate, add timeline event
+                    gamematch.event_counter += 1;
+                    let timeline_event = MatchTimelineEvent {
+                        match_id: match_id,
+                        event_id: gamematch.event_counter,
+                        action: opponent_attack_result.action_type,
+                        minute: gamematch.current_time,
+                        team: ActionTeam::OpponentTeam,
+                        description: 'Opponent attacks!',
+                    };
+                    self.world.write_model(@timeline_event);
+                    self.simulate_ai_attack_outcome(match_id, opponent_team, opponent_attack_result.action_type, false);
+                    continue; // Continue to next minute
+                }
+            }
+            
+            // No events this minute, continue to next minute
+        };
+
+        // ✅ CRITICAL FIX: Set prev_time to the STARTING time, not the ending time
+        // This tells the frontend where to start the timer from (where we left off)
+        gamematch.prev_time = starting_time;
+        self.world.write_model(@gamematch);
     }
 
     fn check_my_team_attack_event(
@@ -594,7 +610,8 @@ pub impl StoreImpl of StoreTrait {
         current_time: u8,
         my_team: Team,
         opponent_team: Team,
-        player: Player
+        player: Player,
+        match_id: u32
     ) -> AttackEventResult {
         // 1. Calculate attack event probability
         let base_probability = 7; // 7/90 base chance
@@ -608,14 +625,14 @@ pub impl StoreImpl of StoreTrait {
         if random_value >= attack_probability {
             return AttackEventResult { 
                 has_event: false, 
-                event_minute: 0, 
+                event_minute: current_time, 
                 action_type: MatchAction::OpenPlay, 
                 player_participates: false 
             };
         }
         
         // 3. Determine action type
-        let action_type = self.determine_attack_action_type(my_team, player);
+        let action_type = self.determine_attack_action_type(my_team, player, match_id);
         
         // 4. Check player participation
         let player_participates = self.check_player_attack_participation(player);
@@ -633,7 +650,8 @@ pub impl StoreImpl of StoreTrait {
         current_time: u8,
         my_team: Team,
         opponent_team: Team,
-        player: Player
+        player: Player,
+        match_id: u32
     ) -> AttackEventResult {
         // Opponent attack adjusted by my team's defense
         let base_probability = 7; // 7/90 base chance
@@ -649,17 +667,19 @@ pub impl StoreImpl of StoreTrait {
         if random_value >= attack_probability {
             return AttackEventResult { 
                 has_event: false, 
-                event_minute: 0, 
+                event_minute: current_time, 
                 action_type: MatchAction::OpenPlay, 
                 player_participates: false 
             };
         }
         
         // Determine action type using opponent team stats
-        let action_type = self.determine_attack_action_type(opponent_team, player);
-        
-        // Check defensive participation (15% base)
-        let player_participates = self.check_player_defense_participation(player);
+        let action_type = self.determine_attack_action_type(opponent_team, player, match_id);
+        let let player_participates = false
+        if (action_type == MatchAction::OpenPlay) {
+            player_participates = self.check_player_defense_participation(player);
+        }
+         
         
         AttackEventResult {
             has_event: true,
@@ -669,29 +689,53 @@ pub impl StoreImpl of StoreTrait {
         }
     }
 
-    fn determine_attack_action_type(self: Store, team: Team, player: Player) -> MatchAction {
+    fn determine_attack_action_type(self: Store, team: Team, player: Player, match_id: u32) -> MatchAction {
         let normalized_offense = self.normalize_team_stat(team.offense.into(), false);
-        let normalized_dribble = self.normalize_player_stat(player.dribble);
         
-        // 1. Check for penalty (4% base * team_offense * player_dribble)
-        let penalty_probability = 4 * normalized_offense * normalized_dribble / 10000;
+        // ✅ FIX: Use team-appropriate skill stats
+        // For MyTeam: use player's skills
+        // For OpponentTeam: use team's skills (converted to equivalent values)
+        let gamematch = self.read_gamematch(match_id);
+        let skill_factor = if team.team_id == gamematch.my_team_id {
+            // This is my team - use player dribble
+            self.normalize_player_stat(player.dribble)
+        } else {
+            // This is opponent team - use team offense as skill factor
+            self.normalize_team_stat(team.offense.into(), false)
+        };
+        
+        // 1. Check for penalty (4% base * team_offense * skill_factor)
+        let penalty_probability = 4 * normalized_offense * skill_factor / 10000;
         if self.generate_random(100, team.team_id.into()) < penalty_probability {
             return MatchAction::Penalty;
         }
         
-        // 2. Check for free kick (18% base * player_dribble)
-        let freekick_probability = 18 * normalized_dribble / 100;
+        // 2. Check for free kick (18% base * skill_factor)
+        let freekick_probability = 18 * skill_factor / 100;
         if self.generate_random(100, (team.team_id + 1).into()) < freekick_probability {
             return MatchAction::FreeKick;
         }
         
-        // 3. Default to open play
+        // 3. Check for brawl (5% base * intensity)
+        let normalized_intensity = self.normalize_team_stat(team.intensity.into(), false);
+        let brawl_probability = 5 * normalized_intensity / 100;
+        if self.generate_random(100, (team.team_id + 2).into()) < brawl_probability {
+            return MatchAction::Brawl;
+        }
+        
+        // 4. Check for jumper (8% base * offense)
+        let jumper_probability = 8 * normalized_offense / 100;
+        if self.generate_random(100, (team.team_id + 3).into()) < jumper_probability {
+            return MatchAction::Jumper;
+        }
+        
+        // 5. Default to open play
         MatchAction::OpenPlay
     }
 
     fn check_player_attack_participation(self: Store, player: Player) -> bool {
         // Can't participate if injured or no stamina
-        if player.is_injured || player.stamina == 0 {
+        if player.is_injured || player.stamina <= 0 {
             return false;
         }
         
@@ -705,7 +749,7 @@ pub impl StoreImpl of StoreTrait {
     }
 
     fn check_player_defense_participation(self: Store, player: Player) -> bool {
-        if player.is_injured || player.stamina == 0 {
+        if player.is_injured || player.stamina <= 0 {
             return false;
         }
         
