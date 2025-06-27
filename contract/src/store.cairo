@@ -273,7 +273,7 @@ pub impl StoreImpl of StoreTrait {
         let current_day = Timestamp::unix_timestamp_to_day(current_timestamp);
         
         // Read the outcome
-        let outcome = self.read_non_match_event_outcome(event_id, outcome_id);
+        //let outcome = self.read_non_match_event_outcome(event_id, outcome_id);
         
         // Apply stat changes to player
         let mut player = self.read_player();
