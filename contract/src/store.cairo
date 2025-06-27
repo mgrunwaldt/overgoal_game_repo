@@ -386,6 +386,17 @@ pub impl StoreImpl of StoreTrait {
         // if outcome.intelligence_delta != 0 {
         //     player.set_intelligence(0);
         // }
+        
+        player.shoot = self.apply_delta_u32(player.shoot, outcome.shoot_delta);
+        player.dribble = self.apply_delta_u32(player.dribble, outcome.dribble_delta);
+        player.energy = self.apply_delta_u32(player.energy, outcome.energy_delta);
+        player.stamina = self.apply_delta_u32(player.stamina, outcome.stamina_delta);
+        player.charisma = self.apply_delta_u32(player.charisma, outcome.charisma_delta);
+        player.fame = self.apply_delta_u32(player.fame, outcome.fame_delta);
+        player.passing = self.apply_delta_u32(player.passing, outcome.passing_delta);
+        player.free_kick = self.apply_delta_u32(player.free_kick, outcome.free_kick_delta);
+        player.team_relationship = self.apply_delta_u32(player.team_relationship, outcome.team_relationship_delta);
+        player.intelligence = self.apply_delta_u32(player.intelligence, outcome.intelligence_delta);
 
         
 
