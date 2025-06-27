@@ -12,7 +12,6 @@ use full_starter_react::models::team::{Team, TeamTrait};
 use full_starter_react::models::gamematch::{GameMatch, GameMatchTrait, MatchDecision, MatchAction};
 use full_starter_react::models::non_match_event::{
     NonMatchEvent, 
-    NonMatchEventOutcome,
     PlayerEventHistory
 };
 
@@ -48,10 +47,6 @@ pub impl StoreImpl of StoreTrait {
 
     fn read_non_match_event(self: Store, event_id: u32) -> NonMatchEvent {
         self.world.read_model(event_id)
-    }
-
-    fn read_non_match_event_outcome(self: Store, event_id: u32, outcome_id: u32) -> NonMatchEventOutcome {
-        self.world.read_model((event_id, outcome_id))
     }
 
     fn read_player_event_history(self: Store, player: ContractAddress, event_id: u32) -> PlayerEventHistory {
