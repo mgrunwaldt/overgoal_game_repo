@@ -365,10 +365,10 @@ const MatchComponent = () => {
         )}
       </div>
 
-      <MatchDecision
+      {/* <MatchDecision
         isOpen={isDecisionOpen}
         onClose={() => setDecisionOpen(false)}
-      />
+      /> */}
     </div>
   );
 };
