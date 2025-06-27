@@ -356,21 +356,21 @@ pub impl StoreImpl of StoreTrait {
         // }
 
         // Apply stat changes with clamping (0-100 range)
-        if outcome.shoot_delta != 0 {
-            player.shoot = self.apply_stat_delta(player.shoot, outcome.shoot_delta);
+        // if outcome.shoot_delta != 0 {
+        //     player.shoot = self.apply_stat_delta(player.shoot, outcome.shoot_delta);
+        // }
+        // if outcome.dribble_delta != 0 {
+        //     player.dribble = self.apply_stat_delta(player.dribble, outcome.dribble_delta);
+        // }
+        // if outcome.energy_delta != 0 {
+        //     player.energy = self.apply_stat_delta(player.energy, outcome.energy_delta);
         }
-        if outcome.dribble_delta != 0 {
-            player.dribble = self.apply_stat_delta(player.dribble, outcome.dribble_delta);
-        }
-        if outcome.energy_delta != 0 {
-            player.energy = self.apply_stat_delta(player.energy, outcome.energy_delta);
-        }
-        if outcome.stamina_delta != 0 {
-            player.stamina = self.apply_stat_delta(player.stamina, outcome.stamina_delta);
-        }
-        if outcome.charisma_delta != 0 {
-            player.charisma = self.apply_stat_delta(player.charisma, outcome.charisma_delta);
-        }
+        // if outcome.stamina_delta != 0 {
+        //     player.stamina = self.apply_stat_delta(player.stamina, outcome.stamina_delta);
+        // }
+        // if outcome.charisma_delta != 0 {
+        //     player.charisma = self.apply_stat_delta(player.charisma, outcome.charisma_delta);
+        // }
         if outcome.fame_delta != 0 {
             player.fame = self.apply_stat_delta(player.fame, outcome.fame_delta);
         }
@@ -388,9 +388,9 @@ pub impl StoreImpl of StoreTrait {
         }
 
         // Handle injury
-        if outcome.sets_injured {
-            player.set_injured(true);
-        }
+        // if outcome.sets_injured {
+        //     player.set_injured(true);
+        // }
 
         // Update player
         self.world.write_model(@player);
