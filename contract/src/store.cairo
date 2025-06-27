@@ -346,14 +346,14 @@ pub impl StoreImpl of StoreTrait {
         let mut player = self.read_player();
         
         // Apply all stat deltas (clamping to 0-100 range except coins)
-        if outcome.coins_delta != 0 {
-            if outcome.coins_delta > 0 {
-                player.add_coins(outcome.coins_delta.try_into().unwrap());
-            } else {
-                let abs_delta: u32 = (-outcome.coins_delta).try_into().unwrap();
-                player.remove_coins(abs_delta);
-            }
-        }
+        // if outcome.coins_delta != 0 {
+        //     if outcome.coins_delta > 0 {
+        //         player.add_coins(outcome.coins_delta.try_into().unwrap());
+        //     } else {
+        //         let abs_delta: u32 = (-outcome.coins_delta).try_into().unwrap();
+        //         player.remove_coins(abs_delta);
+        //     }
+        // }
 
         // Apply stat changes with clamping (0-100 range)
         if outcome.shoot_delta != 0 {
