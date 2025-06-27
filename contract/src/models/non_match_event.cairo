@@ -5,6 +5,12 @@ use core::num::traits::zero::Zero;
 // Constants imports
 use full_starter_react::constants;
 
+#[inline(always)]
+pub fn ZERO_ADDRESS() -> ContractAddress {
+    ContractAddress::from(0)
+}
+
+
 // Model for non-match events
 #[derive(Copy, Drop, Serde, IntrospectPacked, Debug)]
 #[dojo::model]
