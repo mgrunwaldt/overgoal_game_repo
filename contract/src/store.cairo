@@ -1,7 +1,6 @@
 // Starknet imports
 use starknet::{get_caller_address, get_block_timestamp};
 
-
 // Dojo imports
 use dojo::world::WorldStorage;
 use dojo::model::ModelStorage;
@@ -398,44 +397,29 @@ pub impl StoreImpl of StoreTrait {
     }
 
     // Helper function to apply stat delta with clamping (0-100)
-    // fn apply_stat_delta(self: Store, current_stat: u32, delta: i32) -> u32 {
-    //     if delta > 0 {
-    //         let new_value = current_stat + delta.try_into().unwrap();
-    //         if new_value > 100 {
-    //             100
-    //         } else {
-    //             new_value
-    //         }
-    //     } else {
-    //         let abs_delta: u32 = (-delta).try_into().unwrap();
-    //         if current_stat >= abs_delta {
-    //             current_stat - abs_delta
-    //         } else {
-    //             0
-    //         }
-    //     }
-    // }
-
     fn apply_stat_delta(self: Store, current_stat: u32, delta: i32) -> u32 {
-            if delta > 0 {
-                let delta_u32 = delta.try_into().expect('apply_stat_delta: delta > 0 but not convertible to u32');
-                let (new_value, overflow) = current_stat.overflowing_add(delta_u32);
-                assert(!overflow, 'apply_stat_delta: addition overflow');
-                if new_value > 100 {
-                    100
-                } else {
-                    new_value
-                }
+        if delta > 0 {
+            // Safe conversion: delta is positive
+            let delta_u32: u32 = delta.try_into().unwrap_or(0);
+            let new_value = current_stat + delta_u32;
+            if new_value > 100 {
+                100
             } else {
-                let abs_delta: u32 = (-delta).try_into().expect('apply_stat_delta: delta < 0 but not convertible to u32');
-                if current_stat >= abs_delta {
-                    current_stat - abs_delta
-                } else {
-                    0
-                }
+                new_value
             }
+        } else if delta < 0 {
+            // Safe conversion: -delta is positive or zero
+            let abs_delta: u32 = (-delta).try_into().unwrap_or(0);
+            if current_stat >= abs_delta {
+                current_stat - abs_delta
+            } else {
+                0
+            }
+        } else {
+            // delta == 0, return current_stat unchanged
+            current_stat
         }
-
+    }
     // --------- Internal helper functions ---------
     fn apply_delta_u32(self: Store, current_value: u32, delta: i32) -> u32 {
         if delta >= 0 {
