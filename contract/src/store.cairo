@@ -309,7 +309,7 @@ pub impl StoreImpl of StoreTrait {
         passing_delta: i32,
         free_kick_delta: i32,
         team_relationship_delta: i32,
-        intelligence_delta: u32,
+        intelligence_delta: i32,
         sets_injured: bool,
     ) {
         let new_outcome = NonMatchEventOutcomeTrait::new(
