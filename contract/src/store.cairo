@@ -12,8 +12,8 @@ use full_starter_react::models::team::{Team, TeamTrait};
 use full_starter_react::models::gamematch::{GameMatch, GameMatchTrait, MatchDecision, MatchAction};
 use full_starter_react::models::non_match_event::{
     NonMatchEvent, NonMatchEventTrait, 
-    NonMatchEventOutcome, NonMatchEventOutcomeTrait,
-    PlayerEventHistory, PlayerEventHistoryTrait
+    NonMatchEventOutcome,
+    PlayerEventHistory
 };
 
 // Helpers import
