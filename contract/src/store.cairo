@@ -347,79 +347,94 @@ pub impl StoreImpl of StoreTrait {
         let mut player = self.read_player();
         
         // Apply all stat deltas (clamping to 0-100 range except coins)
-        // if outcome.coins_delta != 0 {
-        //     if outcome.coins_delta > 0 {
-        //         player.add_coins(outcome.coins_delta.try_into().unwrap());
-        //     } else {
-        //         // Handle negative coins (subtract)
-        //         let abs_delta: u32 = (-outcome.coins_delta).try_into().unwrap();
-        //         if player.coins >= abs_delta {
-        //             player.coins -= abs_delta;
-        //         } else {
-        //             player.coins = 0;
-        //         }
-        //     }
-        // }
+        if outcome.coins_delta != 0 {
+            if outcome.coins_delta > 0 {
+                player.add_coins(outcome.coins_delta.try_into().unwrap());
+            } else {
+                let abs_delta: u32 = (-outcome.coins_delta).try_into().unwrap();
+                player.remove_coins(abs_delta);
+            }
+        }
 
         // Apply stat changes with clamping (0-100 range)
-        // if outcome.shoot_delta != 0 {
-        //     player.shoot = self.apply_stat_delta(player.shoot, outcome.shoot_delta);
-        // }
-        // if outcome.dribble_delta != 0 {
-        //     player.dribble = self.apply_stat_delta(player.dribble, outcome.dribble_delta);
-        // }
-        // if outcome.energy_delta != 0 {
-        //     player.energy = self.apply_stat_delta(player.energy, outcome.energy_delta);
-        // }
-        // if outcome.stamina_delta != 0 {
-        //     player.stamina = self.apply_stat_delta(player.stamina, outcome.stamina_delta);
-        // }
-        // if outcome.charisma_delta != 0 {
-        //     player.charisma = self.apply_stat_delta(player.charisma, outcome.charisma_delta);
-        // }
-        // if outcome.fame_delta != 0 {
-        //     player.fame = self.apply_stat_delta(player.fame, outcome.fame_delta);
-        // }
-        // if outcome.passing_delta != 0 {
-        //     player.passing = self.apply_stat_delta(player.passing, outcome.passing_delta);
-        // }
-        // if outcome.free_kick_delta != 0 {
-        //     player.free_kick = self.apply_stat_delta(player.free_kick, outcome.free_kick_delta);
-        // }
-        // if outcome.team_relationship_delta != 0 {
-        //     player.team_relationship = self.apply_stat_delta(player.team_relationship, outcome.team_relationship_delta);
-        // }
-        // if outcome.intelligence_delta != 0 {
-        //     player.intelligence = self.apply_stat_delta(player.intelligence, outcome.intelligence_delta);
-        // }
+        if outcome.shoot_delta != 0 {
+            player.shoot = self.apply_stat_delta(player.shoot, outcome.shoot_delta);
+        }
+        if outcome.dribble_delta != 0 {
+            player.dribble = self.apply_stat_delta(player.dribble, outcome.dribble_delta);
+        }
+        if outcome.energy_delta != 0 {
+            player.energy = self.apply_stat_delta(player.energy, outcome.energy_delta);
+        }
+        if outcome.stamina_delta != 0 {
+            player.stamina = self.apply_stat_delta(player.stamina, outcome.stamina_delta);
+        }
+        if outcome.charisma_delta != 0 {
+            player.charisma = self.apply_stat_delta(player.charisma, outcome.charisma_delta);
+        }
+        if outcome.fame_delta != 0 {
+            player.fame = self.apply_stat_delta(player.fame, outcome.fame_delta);
+        }
+        if outcome.passing_delta != 0 {
+            player.passing = self.apply_stat_delta(player.passing, outcome.passing_delta);
+        }
+        if outcome.free_kick_delta != 0 {
+            player.free_kick = self.apply_stat_delta(player.free_kick, outcome.free_kick_delta);
+        }
+        if outcome.team_relationship_delta != 0 {
+            player.team_relationship = self.apply_stat_delta(player.team_relationship, outcome.team_relationship_delta);
+        }
+        if outcome.intelligence_delta != 0 {
+            player.intelligence = self.apply_stat_delta(player.intelligence, outcome.intelligence_delta);
+        }
 
-        // // Handle injury
-        // if outcome.sets_injured {
-        //     player.set_injured(true);
-        // }
+        // Handle injury
+        if outcome.sets_injured {
+            player.set_injured(true);
+        }
 
         // Update player
         self.world.write_model(@player);
     }
 
     // Helper function to apply stat delta with clamping (0-100)
+    // fn apply_stat_delta(self: Store, current_stat: u32, delta: i32) -> u32 {
+    //     if delta > 0 {
+    //         let new_value = current_stat + delta.try_into().unwrap();
+    //         if new_value > 100 {
+    //             100
+    //         } else {
+    //             new_value
+    //         }
+    //     } else {
+    //         let abs_delta: u32 = (-delta).try_into().unwrap();
+    //         if current_stat >= abs_delta {
+    //             current_stat - abs_delta
+    //         } else {
+    //             0
+    //         }
+    //     }
+    // }
+
     fn apply_stat_delta(self: Store, current_stat: u32, delta: i32) -> u32 {
-        if delta > 0 {
-            let new_value = current_stat + delta.try_into().unwrap();
-            if new_value > 100 {
-                100
+            if delta > 0 {
+                let delta_u32 = delta.try_into().expect('apply_stat_delta: delta > 0 but not convertible to u32');
+                let (new_value, overflow) = current_stat.overflowing_add(delta_u32);
+                assert(!overflow, 'apply_stat_delta: addition overflow');
+                if new_value > 100 {
+                    100
+                } else {
+                    new_value
+                }
             } else {
-                new_value
-            }
-        } else {
-            let abs_delta: u32 = (-delta).try_into().unwrap();
-            if current_stat >= abs_delta {
-                current_stat - abs_delta
-            } else {
-                0
+                let abs_delta: u32 = (-delta).try_into().expect('apply_stat_delta: delta < 0 but not convertible to u32');
+                if current_stat >= abs_delta {
+                    current_stat - abs_delta
+                } else {
+                    0
+                }
             }
         }
-    }
 
     // --------- Internal helper functions ---------
     fn apply_delta_u32(self: Store, current_value: u32, delta: i32) -> u32 {

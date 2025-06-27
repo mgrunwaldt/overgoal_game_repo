@@ -195,6 +195,14 @@ pub impl PlayerImpl of PlayerTrait {
         self.coins += coins_amount;
     }
 
+    fn remove_coins(ref self: Player, coins_amount: u32) {
+        if self.coins >= coins_amount {
+            self.coins -= coins_amount;
+        } else {
+            self.coins = 0;
+        }
+    }
+
     fn add_experience(ref self: Player, experience_amount: u32) { 
         self.experience += experience_amount;
     }
