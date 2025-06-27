@@ -338,7 +338,6 @@ pub impl StoreImpl of StoreTrait {
         // Update player
         self.world.write_model(@player);
 
-        self.world.write_model(@history);
     }
 
     // Helper function to apply stat delta with clamping (0-100)
