@@ -11,7 +11,7 @@ use full_starter_react::models::player::{Player, PlayerTrait};
 use full_starter_react::models::team::{Team, TeamTrait};
 use full_starter_react::models::gamematch::{GameMatch, GameMatchTrait, MatchDecision, MatchAction};
 use full_starter_react::models::non_match_event::{
-    NonMatchEvent, NonMatchEventTrait, 
+    NonMatchEvent, 
     NonMatchEventOutcome,
     PlayerEventHistory
 };
@@ -224,11 +224,11 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(@player);
     }
 
-    // --------- Non-Match Event management functions ---------
-    fn create_non_match_event(mut self: Store, event_id: u32, name: felt252, description: felt252) {
-        let new_event = NonMatchEventTrait::new(event_id, name, description, true);
-        self.world.write_model(@new_event);
-    }
+    // // --------- Non-Match Event management functions ---------
+    // fn create_non_match_event(mut self: Store, event_id: u32, name: felt252, description: felt252) {
+    //     let new_event = NonMatchEventTrait::new(event_id, name, description, true);
+    //     self.world.write_model(@new_event);
+    // }
 
     // fn create_non_match_event_outcome(
     //     mut self: Store, 

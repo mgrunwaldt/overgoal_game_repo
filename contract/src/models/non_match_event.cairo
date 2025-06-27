@@ -53,30 +53,6 @@ pub struct PlayerEventHistory {
 }
 
 // Traits Implementation for NonMatchEvent
-#[generate_trait]
-pub impl NonMatchEventImpl of NonMatchEventTrait {
-    fn new(
-        event_id: u32,
-        name: felt252,
-        description: felt252,
-        is_available: bool,
-    ) -> NonMatchEvent {
-        NonMatchEvent {
-            event_id: event_id,
-            name: name,
-            description: description,
-            is_available: is_available,
-        }
-    }
-
-    fn enable(ref self: NonMatchEvent) {
-        self.is_available = true;
-    }
-
-    fn disable(ref self: NonMatchEvent) {
-        self.is_available = false;
-    }
-}
 
 
 
