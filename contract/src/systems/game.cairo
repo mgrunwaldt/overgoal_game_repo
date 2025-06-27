@@ -38,18 +38,6 @@ pub trait IGame<T> {
     fn add_opponent_team_goal(ref self: T, match_id: u32);
     // --------- Non-Match Event methods ---------
     fn trigger_non_match_event(ref self: T, event_id: u32, outcome_id: u32);
-    // Individual event methods
-    fn look_for_sponsor_deals(ref self: T, outcome_id: u32);
-    fn free_kick_practice(ref self: T, outcome_id: u32);
-    fn go_to_gym(ref self: T, outcome_id: u32);
-    fn meditate(ref self: T, outcome_id: u32);
-    fn party(ref self: T, outcome_id: u32);
-    fn penalty_practice(ref self: T, outcome_id: u32);
-    fn go_to_podcast(ref self: T, outcome_id: u32);
-    fn work_on_social_media(ref self: T, outcome_id: u32);
-    fn visit_parents_home(ref self: T, outcome_id: u32);
-    fn go_for_run(ref self: T, outcome_id: u32);
-    fn play_videogames(ref self: T, outcome_id: u32);
 }
 
 #[dojo::contract]
@@ -859,51 +847,6 @@ pub mod game {
                 achievement_store.progress(player.owner.into(), task_identifier, 1, get_block_timestamp());
                 achievement_id += 1;
             };
-        }
-
-        // Individual event methods (1-4 outcomes each)
-        fn look_for_sponsor_deals(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(1, outcome_id);
-        }
-
-        fn free_kick_practice(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(2, outcome_id);
-        }
-
-        fn go_to_gym(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(3, outcome_id);
-        }
-
-        fn meditate(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(4, outcome_id);
-        }
-
-        fn party(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(5, outcome_id);
-        }
-
-        fn penalty_practice(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(6, outcome_id);
-        }
-
-        fn go_to_podcast(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(7, outcome_id);
-        }
-
-        fn work_on_social_media(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(8, outcome_id);
-        }
-
-        fn visit_parents_home(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(9, outcome_id);
-        }
-
-        fn go_for_run(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(10, outcome_id);
-        }
-
-        fn play_videogames(ref self: ContractState, outcome_id: u32) {
-            self.trigger_non_match_event(11, outcome_id);
         }
     }
 }
