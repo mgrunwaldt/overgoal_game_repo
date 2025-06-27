@@ -247,6 +247,10 @@ pub impl PlayerImpl of PlayerTrait {
         self.selected_team_id = team_id;
     }
 
+    fn set_intelligence(ref self: Player, intelligence_amount: u32) {
+        self.intelligence = intelligence_amount;
+    }
+
     // ✅ ADD SETTER METHODS FOR NEW FIELDS
     fn set_injured(ref self: Player, injured: bool) {
         self.is_injured = injured;
