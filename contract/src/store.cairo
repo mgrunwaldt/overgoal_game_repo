@@ -356,33 +356,33 @@ pub impl StoreImpl of StoreTrait {
         // }
 
         // Apply stat changes with clamping (0-100 range)
-        if outcome.shoot_delta != 0 {
-            player.shoot = 0;
-        }
-        if outcome.dribble_delta != 0 {
-            player.dribble = 0;
-        }
-        if outcome.energy_delta != 0 {
-            player.energy = 0;
-        }
-        if outcome.stamina_delta != 0 {
-            player.stamina = 0;
-        }
-        if outcome.charisma_delta != 0 {
-            player.charisma = 0;
-        }
-        if outcome.fame_delta != 0 {
-            player.fame = 0;
-        }
-        if outcome.passing_delta != 0 {
-            player.passing = 0;
-        }
-        if outcome.free_kick_delta != 0 {
-            player.free_kick = 0;
-        }
-        if outcome.team_relationship_delta != 0 {
-            player.team_relationship = 0;
-        }
+        // if outcome.shoot_delta != 0 {
+        //     player.shoot = 0;
+        // }
+        // if outcome.dribble_delta != 0 {
+        //     player.dribble = 0;
+        // }
+        // if outcome.energy_delta != 0 {
+        //     player.energy = 0;
+        // }
+        // if outcome.stamina_delta != 0 {
+        //     player.stamina = 0;
+        // }
+        // if outcome.charisma_delta != 0 {
+        //     player.charisma = 0;
+        // }
+        // if outcome.fame_delta != 0 {
+        //     player.fame = 0;
+        // }
+        // if outcome.passing_delta != 0 {
+        //     player.passing = 0;
+        // }
+        // if outcome.free_kick_delta != 0 {
+        //     player.free_kick = 0;
+        // }
+        // if outcome.team_relationship_delta != 0 {
+        //     player.team_relationship = 0;
+        // }
         if outcome.intelligence_delta != 0 {
             player.set_intelligence(0);
         }
@@ -404,16 +404,7 @@ pub impl StoreImpl of StoreTrait {
     // }
     // --------- Internal helper functions ---------
     fn apply_delta_u32(self: Store, current_value: u32, delta: i32) -> u32 {
-        if delta >= 0 {
-            current_value + delta.try_into().unwrap()
-        } else {
-            let subtrahend: u32 = (-delta).try_into().unwrap();
-            if current_value >= subtrahend {
-                current_value - subtrahend
-            } else {
-                0
-            }
-        }
+       0
     }
 
     // --------- GameMatch management functions ---------
