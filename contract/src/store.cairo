@@ -383,9 +383,9 @@ pub impl StoreImpl of StoreTrait {
         // if outcome.team_relationship_delta != 0 {
         //     player.team_relationship = 0;
         // }
-        if outcome.intelligence_delta != 0 {
-            player.set_intelligence(0);
-        }
+        // if outcome.intelligence_delta != 0 {
+        //     player.set_intelligence(0);
+        // }
 
         
 
@@ -404,7 +404,16 @@ pub impl StoreImpl of StoreTrait {
     // }
     // --------- Internal helper functions ---------
     fn apply_delta_u32(self: Store, current_value: u32, delta: i32) -> u32 {
-       0
+        if delta >= 0 {
+            current_value + delta.try_into().unwrap()
+        } else {
+            let subtrahend: u32 = (-delta).try_into().unwrap();
+            if current_value >= subtrahend {
+                current_value - subtrahend
+            } else {
+                0
+            }
+        }
     }
 
     // --------- GameMatch management functions ---------
