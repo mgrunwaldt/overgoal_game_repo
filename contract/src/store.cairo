@@ -362,41 +362,41 @@ pub impl StoreImpl of StoreTrait {
         // }
 
         // Apply stat changes with clamping (0-100 range)
-        if outcome.shoot_delta != 0 {
-            player.shoot = self.apply_stat_delta(player.shoot, outcome.shoot_delta);
-        }
-        if outcome.dribble_delta != 0 {
-            player.dribble = self.apply_stat_delta(player.dribble, outcome.dribble_delta);
-        }
-        if outcome.energy_delta != 0 {
-            player.energy = self.apply_stat_delta(player.energy, outcome.energy_delta);
-        }
-        if outcome.stamina_delta != 0 {
-            player.stamina = self.apply_stat_delta(player.stamina, outcome.stamina_delta);
-        }
-        if outcome.charisma_delta != 0 {
-            player.charisma = self.apply_stat_delta(player.charisma, outcome.charisma_delta);
-        }
-        if outcome.fame_delta != 0 {
-            player.fame = self.apply_stat_delta(player.fame, outcome.fame_delta);
-        }
-        if outcome.passing_delta != 0 {
-            player.passing = self.apply_stat_delta(player.passing, outcome.passing_delta);
-        }
-        if outcome.free_kick_delta != 0 {
-            player.free_kick = self.apply_stat_delta(player.free_kick, outcome.free_kick_delta);
-        }
-        if outcome.team_relationship_delta != 0 {
-            player.team_relationship = self.apply_stat_delta(player.team_relationship, outcome.team_relationship_delta);
-        }
-        if outcome.intelligence_delta != 0 {
-            player.intelligence = self.apply_stat_delta(player.intelligence, outcome.intelligence_delta);
-        }
+        // if outcome.shoot_delta != 0 {
+        //     player.shoot = self.apply_stat_delta(player.shoot, outcome.shoot_delta);
+        // }
+        // if outcome.dribble_delta != 0 {
+        //     player.dribble = self.apply_stat_delta(player.dribble, outcome.dribble_delta);
+        // }
+        // if outcome.energy_delta != 0 {
+        //     player.energy = self.apply_stat_delta(player.energy, outcome.energy_delta);
+        // }
+        // if outcome.stamina_delta != 0 {
+        //     player.stamina = self.apply_stat_delta(player.stamina, outcome.stamina_delta);
+        // }
+        // if outcome.charisma_delta != 0 {
+        //     player.charisma = self.apply_stat_delta(player.charisma, outcome.charisma_delta);
+        // }
+        // if outcome.fame_delta != 0 {
+        //     player.fame = self.apply_stat_delta(player.fame, outcome.fame_delta);
+        // }
+        // if outcome.passing_delta != 0 {
+        //     player.passing = self.apply_stat_delta(player.passing, outcome.passing_delta);
+        // }
+        // if outcome.free_kick_delta != 0 {
+        //     player.free_kick = self.apply_stat_delta(player.free_kick, outcome.free_kick_delta);
+        // }
+        // if outcome.team_relationship_delta != 0 {
+        //     player.team_relationship = self.apply_stat_delta(player.team_relationship, outcome.team_relationship_delta);
+        // }
+        // if outcome.intelligence_delta != 0 {
+        //     player.intelligence = self.apply_stat_delta(player.intelligence, outcome.intelligence_delta);
+        // }
 
-        // Handle injury
-        if outcome.sets_injured {
-            player.set_injured(true);
-        }
+        // // Handle injury
+        // if outcome.sets_injured {
+        //     player.set_injured(true);
+        // }
 
         // Update player
         self.world.write_model(@player);
