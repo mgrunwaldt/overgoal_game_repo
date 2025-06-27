@@ -388,9 +388,9 @@ pub impl StoreImpl of StoreTrait {
         // }
 
         // Handle injury
-        // if outcome.sets_injured {
-        //     player.set_injured(true);
-        // }
+        if outcome.sets_injured {
+            player.set_injured(true);
+        }
 
         // Update player
         self.world.write_model(@player);
