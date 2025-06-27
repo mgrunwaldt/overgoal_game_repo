@@ -230,47 +230,47 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(@new_event);
     }
 
-    fn create_non_match_event_outcome(
-        mut self: Store, 
-        event_id: u32, 
-        outcome_id: u32, 
-        outcome_type: u32,
-        name: felt252,
-        description: felt252,
-        coins_delta: i32,
-        shoot_delta: i32,
-        dribble_delta: i32,
-        energy_delta: i32,
-        stamina_delta: i32,
-        charisma_delta: i32,
-        fame_delta: i32,
-        passing_delta: i32,
-        free_kick_delta: i32,
-        team_relationship_delta: i32,
-        intelligence_delta: i32,
-        sets_injured: bool,
-    ) {
-        let new_outcome = NonMatchEventOutcomeTrait::new(
-            event_id,
-            outcome_id,
-            outcome_type,
-            name,
-            description,
-            coins_delta,
-            shoot_delta,
-            dribble_delta,
-            energy_delta,
-            stamina_delta,
-            charisma_delta,
-            fame_delta,
-            passing_delta,
-            free_kick_delta,
-            team_relationship_delta,
-            intelligence_delta,
-            sets_injured,
-        );
-        self.world.write_model(@new_outcome);
-    }
+    // fn create_non_match_event_outcome(
+    //     mut self: Store, 
+    //     event_id: u32, 
+    //     outcome_id: u32, 
+    //     outcome_type: u32,
+    //     name: felt252,
+    //     description: felt252,
+    //     coins_delta: i32,
+    //     shoot_delta: i32,
+    //     dribble_delta: i32,
+    //     energy_delta: i32,
+    //     stamina_delta: i32,
+    //     charisma_delta: i32,
+    //     fame_delta: i32,
+    //     passing_delta: i32,
+    //     free_kick_delta: i32,
+    //     team_relationship_delta: i32,
+    //     intelligence_delta: i32,
+    //     sets_injured: bool,
+    // ) {
+    //     let new_outcome = NonMatchEventOutcomeTrait::new(
+    //         event_id,
+    //         outcome_id,
+    //         outcome_type,
+    //         name,
+    //         description,
+    //         coins_delta,
+    //         shoot_delta,
+    //         dribble_delta,
+    //         energy_delta,
+    //         stamina_delta,
+    //         charisma_delta,
+    //         fame_delta,
+    //         passing_delta,
+    //         free_kick_delta,
+    //         team_relationship_delta,
+    //         intelligence_delta,
+    //         sets_injured,
+    //     );
+    //     self.world.write_model(@new_outcome);
+    // }
 
     fn trigger_non_match_event(mut self: Store, event_id: u32, outcome_id: u32) {
         let caller = get_caller_address();
