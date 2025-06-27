@@ -1,13 +1,15 @@
 // Starknet import
 use starknet::ContractAddress;
 use core::num::traits::zero::Zero;
+use starknet::ContractAddress;
+use starknet::contract_address_const;
 
 // Constants imports
 use full_starter_react::constants;
 
 #[inline(always)]
 pub fn ZERO_ADDRESS() -> ContractAddress {
-    ContractAddress::from(0)
+    contract_address_const::<0>()
 }
 
 
