@@ -27,17 +27,22 @@ const MatchComponent = () => {
   const { matchId } = useParams();
   const { currentMatch, gameMatches } = useAppStore();
   const { player } = usePlayer();
-  const { execute: processNextAction, state: processState } = useProcessMatchAction();
+  const { execute: processNextAction, state: processState } =
+    useProcessMatchAction();
   const { fetchGameMatch } = useGameMatch();
 
   // Find the current match
-  const match = currentMatch || gameMatches.find(m => m.match_id === parseInt(matchId || "0"));
+  const match =
+    currentMatch ||
+    gameMatches.find((m) => m.match_id === parseInt(matchId || "0"));
   const stamina = player?.stamina || 100;
 
   // Force fetch fresh match data on component mount
   useEffect(() => {
     if (matchId) {
-      console.log("🔄 [MATCH_COMPONENT] Fetching fresh match data on mount", { matchId });
+      console.log("🔄 [MATCH_COMPONENT] Fetching fresh match data on mount", {
+        matchId,
+      });
       fetchGameMatch(parseInt(matchId));
     }
   }, [matchId, fetchGameMatch]);
@@ -50,7 +55,7 @@ const MatchComponent = () => {
       hasFoundMatch: !!match,
       matchData: match,
       gameMatchesCount: gameMatches.length,
-      playerStamina: stamina
+      playerStamina: stamina,
     });
   }, [matchId, currentMatch, match, gameMatches.length, stamina]);
 
@@ -61,7 +66,7 @@ const MatchComponent = () => {
       currentTime: match?.current_time,
       prevTime: match?.prev_time,
       nextActionMinute: match?.next_match_action_minute,
-      matchStatus: match?.match_status
+      matchStatus: match?.match_status,
     });
 
     if (!match) {
@@ -70,12 +75,13 @@ const MatchComponent = () => {
     }
 
     // Initialize display time to previous time (where timer should start from)
-    const startTime = match.prev_time !== undefined ? match.prev_time : match.current_time || 1;
+    const startTime =
+      match.prev_time !== undefined ? match.prev_time : match.current_time || 1;
     console.log("🎯 [MATCH_FLOW] Setting initial display time", {
       prevTime: match.prev_time,
       currentTime: match.current_time,
       calculatedStartTime: startTime,
-      nextActionMinute: match.next_match_action_minute
+      nextActionMinute: match.next_match_action_minute,
     });
     setDisplayTime(startTime);
 
@@ -88,39 +94,48 @@ const MatchComponent = () => {
 
     // Check timer logic conditions
     const hasNextAction = !!match.next_match_action_minute;
-    const shouldStartTimer = hasNextAction && startTime < match.next_match_action_minute;
-    const shouldShowAction = hasNextAction && startTime >= match.next_match_action_minute;
-    
+    const shouldStartTimer =
+      hasNextAction && startTime < match.next_match_action_minute;
+    const shouldShowAction =
+      hasNextAction && startTime >= match.next_match_action_minute;
+
     console.log("🔍 [MATCH_FLOW] Timer decision logic", {
       hasNextAction,
       shouldStartTimer,
       shouldShowAction,
       startTime,
-      nextActionMinute: match.next_match_action_minute
+      nextActionMinute: match.next_match_action_minute,
     });
 
     // If we have a next action time, start counting UP to it
     if (shouldStartTimer) {
       console.log("⏰ [MATCH_FLOW] Starting timer count up", {
         startTime: startTime,
-        targetTime: match.next_match_action_minute
+        targetTime: match.next_match_action_minute,
       });
-      
+
       setIsWaitingForAction(false);
 
       const countUpInterval = setInterval(() => {
-        setDisplayTime(prevDisplayTime => {
+        setDisplayTime((prevDisplayTime) => {
           const nextTime = prevDisplayTime + 1;
-          
-          console.log("⏳ [MATCH_FLOW] Timer counting up:", nextTime, "target:", match.next_match_action_minute);
-          
+
+          console.log(
+            "⏳ [MATCH_FLOW] Timer counting up:",
+            nextTime,
+            "target:",
+            match.next_match_action_minute
+          );
+
           // When we reach the target time, show action button
           if (nextTime >= match.next_match_action_minute) {
-            console.log("🔔 [MATCH_FLOW] Reached action time, ready for action");
+            console.log(
+              "🔔 [MATCH_FLOW] Reached action time, ready for action"
+            );
             clearInterval(countUpInterval);
             setIsWaitingForAction(true);
           }
-          
+
           return nextTime;
         });
       }, 500); // 🏃‍♂️ Count up every 0.5 seconds (2x faster)
@@ -134,12 +149,15 @@ const MatchComponent = () => {
       console.log("⚡ [MATCH_FLOW] Already time for next action!");
       setIsWaitingForAction(true);
     } else {
-      console.log("🤔 [MATCH_FLOW] No next action minute set or invalid condition", {
-        hasNextActionMinute: !!match.next_match_action_minute,
-        nextActionMinute: match.next_match_action_minute,
-        startTime,
-        comparison: startTime < match.next_match_action_minute
-      });
+      console.log(
+        "🤔 [MATCH_FLOW] No next action minute set or invalid condition",
+        {
+          hasNextActionMinute: !!match.next_match_action_minute,
+          nextActionMinute: match.next_match_action_minute,
+          startTime,
+          comparison: startTime < match.next_match_action_minute,
+        }
+      );
     }
   }, [match, navigate]);
 
@@ -152,13 +170,13 @@ const MatchComponent = () => {
       displayTime: displayTime,
       nextAction: match?.next_match_action,
       playerParticipation: match?.player_participation,
-      actionTeam: match?.action_team
+      actionTeam: match?.action_team,
     });
 
     if (!match || !isWaitingForAction) {
       console.warn("⚠️ [HANDLE_ACTION] Cannot process action", {
         hasMatch: !!match,
-        isWaitingForAction
+        isWaitingForAction,
       });
       return;
     }
@@ -167,34 +185,34 @@ const MatchComponent = () => {
       console.log("⏳ [HANDLE_ACTION] Processing action...");
       await processNextAction(match.match_id);
       setIsWaitingForAction(false);
-      
+
       // Add event to the list based on the action
       const newEvent: MatchEvent = {
         text: getActionText(match.next_match_action || 0),
         playable: match.player_participation === 1, // Participating
-        team: match.action_team === 0 ? "player" : "enemy"
+        team: match.action_team === 0 ? "player" : "enemy",
       };
-      
+
       console.log("📝 [HANDLE_ACTION] Adding new event to list", {
         event: newEvent,
-        currentEventsCount: matchEvents.length
+        currentEventsCount: matchEvents.length,
       });
-      
-      setMatchEvents(prev => {
+
+      setMatchEvents((prev) => {
         const newEvents = [...prev, newEvent];
         console.log("📋 [HANDLE_ACTION] Updated events list", {
           previousCount: prev.length,
           newCount: newEvents.length,
-          latestEvent: newEvent
+          latestEvent: newEvent,
         });
         return newEvents;
       });
-      
+
       console.log("✅ [HANDLE_ACTION] Action processed successfully");
     } catch (error) {
       console.error("❌ [HANDLE_ACTION] Failed to process action:", {
         error: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       });
     }
   };
@@ -202,15 +220,24 @@ const MatchComponent = () => {
   // Helper function to convert action enum to text
   const getActionText = (action: number): string => {
     switch (action) {
-      case 0: return "Open Play continues";
-      case 1: return "Player jumps for the ball";
-      case 2: return "Brawl breaks out";
-      case 3: return "Free Kick opportunity";
-      case 4: return "Penalty awarded";
-      case 5: return "Defensive play";
-      case 6: return "🕐 HALF TIME - Take a break"; // 🆕 NEW
-      case 7: return "⏱️ FULL TIME - Match finished"; // 🆕 NEW
-      default: return "Match action";
+      case 0:
+        return "Open Play continues";
+      case 1:
+        return "Player jumps for the ball";
+      case 2:
+        return "Brawl breaks out";
+      case 3:
+        return "Free Kick opportunity";
+      case 4:
+        return "Penalty awarded";
+      case 5:
+        return "Defensive play";
+      case 6:
+        return "🕐 HALF TIME - Take a break"; // 🆕 NEW
+      case 7:
+        return "⏱️ FULL TIME - Match finished"; // 🆕 NEW
+      default:
+        return "Match action";
     }
   };
 
@@ -229,9 +256,15 @@ const MatchComponent = () => {
       processState,
       showActionButton: isWaitingForAction && match && match.current_time < 90,
       showFinishButton: (match?.current_time || 1) >= 90,
-      matchEventsCount: matchEvents.length
+      matchEventsCount: matchEvents.length,
     });
-  }, [isWaitingForAction, displayTime, processState, match?.current_time, matchEvents.length]);
+  }, [
+    isWaitingForAction,
+    displayTime,
+    processState,
+    match?.current_time,
+    matchEvents.length,
+  ]);
 
   return (
     <div className="relative min-h-screen">
@@ -282,7 +315,7 @@ const MatchComponent = () => {
           <div
             className="w-[380px] h-[320px] bg-black/30 bg-contain bg-no-repeat bg-center mt-4 flex justify-center items-start pt-16 px-10"
             style={{ backgroundImage: "url('/match/Match events.png')" }}
-    >
+          >
             <div
               ref={eventContainerRef}
               className="w-full h-[90%] rounded-lg p-4 overflow-y-auto"
@@ -306,10 +339,12 @@ const MatchComponent = () => {
           <div className="w-full flex justify-center mt-4">
             <button
               onClick={handleNextAction}
-              disabled={processState === 'executing'}
+              disabled={processState === "executing"}
               className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
             >
-              {processState === 'executing' ? 'Processing...' : `Next Action (${displayTime}')`}
+              {processState === "executing"
+                ? "Processing..."
+                : `Next Action (${displayTime}')`}
             </button>
           </div>
         )}
@@ -329,6 +364,11 @@ const MatchComponent = () => {
           </div>
         )}
       </div>
+
+      <MatchDecision
+        isOpen={isDecisionOpen}
+        onClose={() => setDecisionOpen(false)}
+      />
     </div>
   );
 };
