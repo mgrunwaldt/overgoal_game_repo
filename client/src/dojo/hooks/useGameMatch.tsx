@@ -101,6 +101,10 @@ export const fetchGameMatch = async (matchId: number) => {
             minute: hexToNumber(node.minute),
             team: convertEnumStringToNumber(node.team, "team", actionTeamMapping),
             description: hexToString(node.description),
+            team_score: hexToNumber(node.team_score),
+            opponent_team_score: hexToNumber(node.opponent_team_score),
+            team_scored: node.team_scored,
+            opponent_team_scored: node.opponent_team_scored,
           };
         }
       );

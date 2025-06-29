@@ -33,6 +33,10 @@ export const MATCH_TIMELINE_EVENTS_QUERY = `
                     minute
                     team
                     description
+                    team_score
+                    opponent_team_score
+                    team_scored
+                    opponent_team_scored
                 }
             }
         }

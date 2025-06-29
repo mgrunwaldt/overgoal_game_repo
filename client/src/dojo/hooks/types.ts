@@ -21,6 +21,10 @@ export interface MatchTimelineEvent {
     minute: number;
     team: number;
     description: string;
+    team_score: number;
+    opponent_team_score: number;
+    team_scored: boolean;
+    opponent_team_scored: boolean;
 }
 
 export const matchStatusMapping: { [key: string]: number } = {

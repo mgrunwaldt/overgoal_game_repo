@@ -84,6 +84,10 @@ pub struct MatchTimelineEvent {
     pub minute: u8,
     pub team: ActionTeam,
     pub description: felt252,           // e.g., "Team A scores a goal!"
+    pub team_score: u8,
+    pub opponent_team_score: u8,
+    pub team_scored: bool,  
+    pub opponent_team_scored: bool,
 }
 
 // Implement Into trait for MatchStatus to felt252 conversion

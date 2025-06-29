@@ -449,7 +449,7 @@ pub impl StoreImpl of StoreTrait {
         gamematch.current_time = 0;
 
         // Generate the first batch of events
-        self.generate_events_until_input_required(match_id);
+        self.generate_events_until_input_required(ref gamematch);
         
         self.world.write_model(@gamematch);
     }
@@ -458,15 +458,17 @@ pub impl StoreImpl of StoreTrait {
         // ✅ STEP 1: Process player's decision and simulate the outcome
         // TODO: Process player's decision here (e.g., if they chose to shoot, calculate outcome)
         // For now, we just simulate a basic outcome
-        
+        let mut gamematch = self.read_gamematch(match_id);
         // ✅ STEP 2: Decrement stamina for participation
         let mut player = self.read_player();
-        player.remove_stamina(5); // Example stamina cost
+        //player.remove_stamina(5); // Example stamina cost
         self.world.write_model(@player);
+
+        //mati: falta chequear si termino el partido
 
         // ✅ STEP 3: Generate all events until the next time user input is needed
         // This function will update the match state internally (current_time, next_action, etc.)
-        self.generate_events_until_input_required(match_id);
+        self.generate_events_until_input_required(ref gamematch);
         
         // ✅ STEP 4: IMPORTANT - Save the updated match state AFTER generation
         // The generate_events_until_input_required function has already updated:
@@ -479,8 +481,8 @@ pub impl StoreImpl of StoreTrait {
         // - event_counter (incremented for each timeline event created)
         
         // We need to read the updated match and save it to persist all these changes
-        let updated_match = self.read_gamematch(match_id);
-        self.world.write_model(@updated_match);
+        
+        self.world.write_model(@gamematch);
     }
 
     fn finish_gamematch(mut self: Store, match_id: u32) {
@@ -514,8 +516,8 @@ pub impl StoreImpl of StoreTrait {
 
     // --------- Core Match Logic Functions ---------
     
-    fn generate_events_until_input_required(mut self: Store, gamematch: GameMatch) {
-        let mut gamematch = self.read_gamematch(match_id);
+    fn generate_events_until_input_required(mut self: Store, ref gamematch: GameMatch) {
+    
         let my_team = self.read_team(gamematch.my_team_id);
         let opponent_team = self.read_team(gamematch.opponent_team_id);
         let player = self.read_player();
@@ -523,33 +525,56 @@ pub impl StoreImpl of StoreTrait {
         // ✅ FIX: Store the STARTING time for frontend timer reference
         // This is where the timer should start from (where we left off)
         let starting_time = gamematch.current_time;
+        let mut can_be_substituted = player.stamina > 0;
+        let mut random_counter = 0;
 
         loop {
             // ✅ STEP 1: Increase timer FIRST
             gamematch.current_time += 1;
+            random_counter += 1;
 
             // ✅ STEP 2: Check if match is finished or timer == 90 - set next action and break
-            if gamematch.match_status == MatchStatus::Finished || gamematch.current_time >= 90 {
+            if gamematch.current_time >= 90 {
                 gamematch.match_status = MatchStatus::Finished;
                 gamematch.set_next_action(MatchAction::MatchEnd, 90, ActionTeam::Neutral, PlayerParticipation::Observing);
                 break;
             }
 
             // ✅ STEP 3: Check if halftime or timer == 45 - set next action and break
-            if gamematch.match_status == MatchStatus::HalfTime || (gamematch.current_time == 45 && gamematch.match_status == MatchStatus::InProgress) {
+            if  gamematch.current_time == 45 && gamematch.match_status == MatchStatus::InProgress {
                 gamematch.match_status = MatchStatus::HalfTime;
                 gamematch.set_next_action(MatchAction::HalfTime, 45, ActionTeam::Neutral, PlayerParticipation::Observing);
                 break;
             }
 
+            //step 3.1 back from halftime
+            if gamematch.current_time == 46 && gamematch.match_status == MatchStatus::HalfTime {
+                gamematch.match_status = MatchStatus::InProgress;
+                continue;
+            }
+
             // ✅ STEP 4: Check if player.stamina == 0 - set next match action and break
-            if player.stamina <= 0 {
-                gamematch.set_next_action(MatchAction::Substitute, gamematch.current_time, ActionTeam::MyTeam, PlayerParticipation::Observing);
+            if player.stamina <= 0 && can_be_substituted{
+                can_be_substituted = false;
+                gamematch.event_counter += 1;
+                let timeline_event = MatchTimelineEvent {
+                    match_id: gamematch.match_id,
+                    event_id: gamematch.event_counter,
+                    action: MatchAction::Substitute,
+                    minute: gamematch.current_time,
+                    team: ActionTeam::MyTeam,
+                    description: 'You were substituted!',
+                    team_score: gamematch.my_team_score,
+                    opponent_team_score: gamematch.opponent_team_score,
+                    team_scored: false,
+                    opponent_team_scored: false,
+                };
+                self.world.write_model(@timeline_event);
                 continue;
             }
 
             // ✅ STEP 5: Check for MY TEAM attack event FIRST
-            let my_attack_result = self.check_my_team_attack_event(gamematch.current_time, my_team, opponent_team, player, match_id);
+            let my_attack_result = self.check_my_team_attack_event(gamematch.current_time, my_team, opponent_team, player, gamematch.match_id, random_counter);
             if my_attack_result.has_event {
                 // ✅ STEP 5.1: If I participate, break
                 if my_attack_result.player_participates {
@@ -558,50 +583,77 @@ pub impl StoreImpl of StoreTrait {
                 } else {
                     // ✅ STEP 5.2: If I don't participate, add timeline event
                     gamematch.event_counter += 1;
+                    let _goal_scored = self.simulate_ai_attack_outcome(gamematch.match_id, my_team, my_attack_result.action_type, true, gamematch.current_time, random_counter);
+                    if(_goal_scored){
+                        gamematch.my_team_score += 1;
+                    }
                     let timeline_event = MatchTimelineEvent {
-                        match_id: match_id,
+                        match_id: gamematch.match_id,
                         event_id: gamematch.event_counter,
                         action: my_attack_result.action_type,
                         minute: gamematch.current_time,
                         team: ActionTeam::MyTeam,
                         description: 'Your team attacks!',
+                        team_score: gamematch.my_team_score,
+                        opponent_team_score: gamematch.opponent_team_score,
+                        team_scored: _goal_scored,
+                        opponent_team_scored: false,
                     };
                     self.world.write_model(@timeline_event);
-                    self.simulate_ai_attack_outcome(match_id, my_team, my_attack_result.action_type, true);
                     continue; // Continue to next minute
                 }
             }
-
-            // ✅ STEP 6: If no my team event, check for OPPONENT TEAM attack event
-            let opponent_attack_result = self.check_opponent_team_attack_event(gamematch.current_time, my_team, opponent_team, player, match_id);
-            if opponent_attack_result.has_event {
-                // ✅ STEP 6.1: If I participate, break
-                if opponent_attack_result.player_participates {
-                    gamematch.set_next_action(opponent_attack_result.action_type, gamematch.current_time, ActionTeam::OpponentTeam, PlayerParticipation::Participating);
-                    break; // Exit loop, wait for user input
-                } else {
-                    // ✅ STEP 6.2: If I don't participate, add timeline event
-                    gamematch.event_counter += 1;
-                    let timeline_event = MatchTimelineEvent {
-                        match_id: match_id,
-                        event_id: gamematch.event_counter,
-                        action: opponent_attack_result.action_type,
-                        minute: gamematch.current_time,
-                        team: ActionTeam::OpponentTeam,
-                        description: 'Opponent attacks!',
-                    };
-                    self.world.write_model(@timeline_event);
-                    self.simulate_ai_attack_outcome(match_id, opponent_team, opponent_attack_result.action_type, false);
-                    continue; // Continue to next minute
+            else {
+                // ✅ STEP 6: If no my team event, check for OPPONENT TEAM attack event
+                let opponent_attack_result = self.check_opponent_team_attack_event(gamematch.current_time, my_team, opponent_team, player, gamematch.match_id, random_counter);
+                if opponent_attack_result.has_event {
+                    // ✅ STEP 6.1: If I participate, break
+                    if opponent_attack_result.player_participates {
+                        gamematch.set_next_action(opponent_attack_result.action_type, gamematch.current_time, ActionTeam::OpponentTeam, PlayerParticipation::Participating);
+                        break; // Exit loop, wait for user input
+                    } else {
+                        // ✅ STEP 6.2: If I don't participate, add timeline event
+                        gamematch.event_counter += 1;
+                        let _goal_scored = self.simulate_ai_attack_outcome(gamematch.match_id, opponent_team, opponent_attack_result.action_type, false, gamematch.current_time, random_counter);
+                        if(_goal_scored){
+                            gamematch.opponent_team_score += 1;
+                        }
+                        let timeline_event = MatchTimelineEvent {
+                            match_id: gamematch.match_id,
+                            event_id: gamematch.event_counter,
+                            action: opponent_attack_result.action_type,
+                            minute: gamematch.current_time,
+                            team: ActionTeam::OpponentTeam,
+                            description: 'Opponent attacks!',
+                            team_score: gamematch.my_team_score,
+                            opponent_team_score: gamematch.opponent_team_score,
+                            team_scored: false,
+                            opponent_team_scored: _goal_scored,
+                        };
+                        self.world.write_model(@timeline_event);
+                        continue; // Continue to next minute
+                    }
+                }
+                else{
+                    let random_event = self.check_random_event(gamematch.current_time, my_team, opponent_team, player, gamematch.match_id, random_counter);
+                    if random_event.has_event {
+                        gamematch.set_next_action(random_event.action_type, gamematch.current_time, ActionTeam::Neutral, PlayerParticipation::Participating);
+                        break;
+                    }
+                    else{
+                        continue;
+                    }
                 }
             }
+            
             
             // No events this minute, continue to next minute
         };
 
-        // ✅ CRITICAL FIX: Set prev_time to the STARTING time, not the ending time
+        // ✅ SENSEI MCP CRITICAL FIX: Set prev_time to the STARTING time, not the ending time
         // This tells the frontend where to start the timer from (where we left off)
         gamematch.prev_time = starting_time;
+        // ✅ SENSEI MCP: Write model ONLY ONCE at the end to ensure state persistence
         self.world.write_model(@gamematch);
     }
 
@@ -611,7 +663,8 @@ pub impl StoreImpl of StoreTrait {
         my_team: Team,
         opponent_team: Team,
         player: Player,
-        match_id: u32
+        match_id: u32,
+        mut random_counter: u32
     ) -> AttackEventResult {
         // 1. Calculate attack event probability
         let base_probability = 7; // 7/90 base chance
@@ -621,7 +674,8 @@ pub impl StoreImpl of StoreTrait {
         let attack_probability = base_probability * normalized_my_offense * normalized_my_intensity / 10000;
         
         // 2. Random check for event occurrence
-        let random_value = self.generate_random(100, current_time.into()); // 0-99
+        let random_value = self.generate_random(100, random_counter.into()); // 0-99
+        random_counter += 1;
         if random_value >= attack_probability {
             return AttackEventResult { 
                 has_event: false, 
@@ -632,10 +686,10 @@ pub impl StoreImpl of StoreTrait {
         }
         
         // 3. Determine action type
-        let action_type = self.determine_attack_action_type(my_team, player, match_id);
+        let action_type = self.determine_attack_action_type(my_team, player, match_id, current_time, random_counter);
         
         // 4. Check player participation
-        let player_participates = self.check_player_attack_participation(player);
+        let player_participates = self.check_player_attack_participation(player, current_time, random_counter);
         
         AttackEventResult {
             has_event: true,
@@ -651,7 +705,8 @@ pub impl StoreImpl of StoreTrait {
         my_team: Team,
         opponent_team: Team,
         player: Player,
-        match_id: u32
+        match_id: u32, 
+        mut random_counter: u32
     ) -> AttackEventResult {
         // Opponent attack adjusted by my team's defense
         let base_probability = 7; // 7/90 base chance
@@ -663,7 +718,8 @@ pub impl StoreImpl of StoreTrait {
         let attack_probability = base_probability * normalized_my_defense * normalized_my_intensity 
                                * normalized_opp_offense * normalized_opp_intensity / 100000000;
         
-        let random_value = self.generate_random(100, current_time.into());
+        let random_value = self.generate_random(100, random_counter.into());
+        random_counter += 1;
         if random_value >= attack_probability {
             return AttackEventResult { 
                 has_event: false, 
@@ -674,10 +730,10 @@ pub impl StoreImpl of StoreTrait {
         }
         
         // Determine action type using opponent team stats
-        let action_type = self.determine_attack_action_type(opponent_team, player, match_id);
-        let let player_participates = false
+        let action_type = self.determine_attack_action_type(opponent_team, player, match_id, current_time, random_counter);
+        let mut player_participates = false;
         if (action_type == MatchAction::OpenPlay) {
-            player_participates = self.check_player_defense_participation(player);
+            player_participates = self.check_player_defense_participation(player, current_time, random_counter);
         }
          
         
@@ -689,7 +745,44 @@ pub impl StoreImpl of StoreTrait {
         }
     }
 
-    fn determine_attack_action_type(self: Store, team: Team, player: Player, match_id: u32) -> MatchAction {
+    fn check_random_event(
+        self: Store,
+        current_time: u8,
+        my_team: Team,
+        opponent_team: Team,
+        player: Player,
+        match_id: u32,
+        mut random_counter: u32
+    ) -> AttackEventResult {
+        // Opponent attack adjusted by my team's defense
+        let base_probability = 1; // 0.1/90 base chance
+        
+        
+        let random_value = self.generate_random(100, random_counter.into());
+        random_counter += 1;
+        if random_value > base_probability {
+            return AttackEventResult { 
+                has_event: false, 
+                event_minute: current_time, 
+                action_type: MatchAction::OpenPlay, 
+                player_participates: false 
+            };
+        }
+        
+        // Determine action type using opponent team stats
+        let action_type = self.determine_random_action_type(opponent_team, player, match_id, current_time, random_counter);
+        let player_participates = true;
+      
+        
+        AttackEventResult {
+            has_event: true,
+            event_minute: current_time,
+            action_type: action_type,
+            player_participates: player_participates,
+        }
+    }
+
+    fn determine_attack_action_type(self: Store, team: Team, player: Player, match_id: u32, current_time: u8, mut random_counter: u32) -> MatchAction {
         let normalized_offense = self.normalize_team_stat(team.offense.into(), false);
         
         // ✅ FIX: Use team-appropriate skill stats
@@ -706,49 +799,53 @@ pub impl StoreImpl of StoreTrait {
         
         // 1. Check for penalty (4% base * team_offense * skill_factor)
         let penalty_probability = 4 * normalized_offense * skill_factor / 10000;
-        if self.generate_random(100, team.team_id.into()) < penalty_probability {
+
+        random_counter += 1;
+        if self.generate_random(100, random_counter.into()) < penalty_probability {
             return MatchAction::Penalty;
         }
         
         // 2. Check for free kick (18% base * skill_factor)
         let freekick_probability = 18 * skill_factor / 100;
-        if self.generate_random(100, (team.team_id + 1).into()) < freekick_probability {
+        random_counter += 1;
+        if self.generate_random(100, random_counter.into()) < freekick_probability {
             return MatchAction::FreeKick;
         }
         
-        // 3. Check for brawl (5% base * intensity)
-        let normalized_intensity = self.normalize_team_stat(team.intensity.into(), false);
-        let brawl_probability = 5 * normalized_intensity / 100;
-        if self.generate_random(100, (team.team_id + 2).into()) < brawl_probability {
-            return MatchAction::Brawl;
-        }
-        
-        // 4. Check for jumper (8% base * offense)
-        let jumper_probability = 8 * normalized_offense / 100;
-        if self.generate_random(100, (team.team_id + 3).into()) < jumper_probability {
-            return MatchAction::Jumper;
-        }
-        
         // 5. Default to open play
-        MatchAction::OpenPlay
+        return MatchAction::OpenPlay;
     }
 
-    fn check_player_attack_participation(self: Store, player: Player) -> bool {
-        // Can't participate if injured or no stamina
-        if player.is_injured || player.stamina <= 0 {
-            return false;
+
+    fn determine_random_action_type(self: Store, team: Team, player: Player, match_id: u32, current_time: u8, mut random_counter: u32) -> MatchAction {
+        //we already know there is a random action type. we need to check if it is a brawl or a jumper
+        // 3. Check for brawl (5% base * intensity)
+        let normalized_intensity = self.normalize_team_stat(team.intensity.into(), false);
+        let brawl_probability = 60 * normalized_intensity / 100;
+        random_counter += 1;
+        if self.generate_random(100, random_counter.into()) < brawl_probability {
+            return MatchAction::Brawl;
         }
+        return MatchAction::Jumper;
+
+    }
+
+    fn check_player_attack_participation(self: Store, player: Player, current_time: u8, mut random_counter: u32) -> bool {
+        // Can't participate if injured or no stamina
+      //  if player.is_injured || player.stamina <= 0 {
+      //      return false;
+      //  }
         
         let normalized_stamina = self.normalize_player_stat(player.stamina);
         let normalized_intelligence = self.normalize_player_stat(player.intelligence);
         let normalized_relationship = self.normalize_player_stat(player.team_relationship);
         
         let participation_probability = 100 * normalized_stamina * normalized_intelligence * normalized_relationship / 1000000;
-        
-        self.generate_random(100, player.stamina.into()) < participation_probability
+        random_counter += 1;
+       return self.generate_random(100, random_counter.into()) < participation_probability;
     }
 
-    fn check_player_defense_participation(self: Store, player: Player) -> bool {
+    fn check_player_defense_participation(self: Store, player: Player, current_time: u8, mut random_counter: u32) -> bool {
         if player.is_injured || player.stamina <= 0 {
             return false;
         }
@@ -757,8 +854,8 @@ pub impl StoreImpl of StoreTrait {
         let normalized_intelligence = self.normalize_player_stat(player.intelligence);
         
         let participation_probability = 15 * normalized_stamina * normalized_intelligence / 10000;
-        
-        self.generate_random(100, (player.stamina + 50).into()) < participation_probability
+        random_counter += 1;
+        self.generate_random(100, random_counter.into()) < participation_probability
     }
 
     fn simulate_ai_attack_outcome(
@@ -766,8 +863,10 @@ pub impl StoreImpl of StoreTrait {
         match_id: u32,
         attacking_team: Team,
         action_type: MatchAction,
-        is_my_team: bool
-    ) {
+        is_my_team: bool,
+        current_time: u8,
+        mut random_counter: u32
+    ) -> bool {
         let normalized_attack = self.normalize_team_stat(attacking_team.offense.into(), true); // 0.8-1.2 range
         
         let goal_probability = match action_type {
@@ -776,14 +875,17 @@ pub impl StoreImpl of StoreTrait {
             MatchAction::OpenPlay => 1 * normalized_attack / 100,      // 1% base
             _ => 1 * normalized_attack / 100,                          // Default 1%
         };
-        
-        if self.generate_random(100, attacking_team.team_id.into()) < goal_probability {
+        random_counter += 1;
+       // if self.generate_random(100, random_counter.into()) < goal_probability {
+        if true {
             if is_my_team {
-                self.add_my_team_goal(match_id);
+              //  self.add_my_team_goal(match_id);
             } else {
-                self.add_opponent_team_goal(match_id);
+               // self.add_opponent_team_goal(match_id);
             }
+            return true; // Goal scored
         }
+        return false; // No goal
     }
 
     // --------- Utility Functions ---------
