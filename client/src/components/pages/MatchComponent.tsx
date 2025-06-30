@@ -85,6 +85,22 @@ const MatchComponent = () => {
 
     console.log("🔄 === USEEFFECT TRIGGERED ===");
     console.log("🏁 Match data updated:", currentMatch.match_id, "Events:", matchTimelineEvents.length);
+
+    // 🚨 ALWAYS clear any existing timer FIRST (from previous matches/navigation)
+    if (timerRef.current) {
+      console.log("🧹 Clearing any existing timer from previous session");
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // 🔧 RESET ALL REFS FOR NEW MATCH
+    console.log("🔄 Resetting refs for new match");
+    console.log(`📍 OLD refs - minute: ${currentMinuteRef.current}, events: ${eventsToProcessRef.current.length}, processing: ${isProcessingGoalRef.current}`);
+    currentMinuteRef.current = currentMatch.prev_time;
+    eventsToProcessRef.current = [];
+    isProcessingGoalRef.current = false;
+    console.log(`📍 NEW refs - minute: ${currentMinuteRef.current}, events: ${eventsToProcessRef.current.length}, processing: ${isProcessingGoalRef.current}`);
+
     console.log("📊 Current match state:", {
       match_id: currentMatch.match_id,
       prev_time: currentMatch.prev_time,
@@ -98,13 +114,6 @@ const MatchComponent = () => {
       team_scored: e.team_scored,
       opponent_team_scored: e.opponent_team_scored
     })));
-
-    // Always clear any existing timer first
-    if (timerRef.current) {
-      console.log("⏹️ Clearing existing timer");
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
 
     // Calculate initial score from events that already happened (≤ prev_time)
     let initialScore = { myTeam: 0, opponent: 0 };
@@ -138,7 +147,6 @@ const MatchComponent = () => {
     setEventsToProcess(eventsForThisPhase);
     eventsToProcessRef.current = eventsForThisPhase;
     setCurrentMinute(currentMatch.prev_time);
-    currentMinuteRef.current = currentMatch.prev_time;
     setIsWaitingForUserAction(false);
 
     // Start fresh timer if we have events to process
@@ -146,8 +154,9 @@ const MatchComponent = () => {
       console.log("🎬 Starting timer - events to process");
       startTimer();
     } else {
-      console.log("⏸️ No events to process, waiting for user action");
-      setIsWaitingForUserAction(true);
+      console.log("⏸️ No events to process between minutes", currentMatch.prev_time, "and", currentMatch.next_match_action_minute);
+      console.log("🎬 Starting timer anyway - will tick until action minute");
+      startTimer();
     }
     console.log("🔄 === USEEFFECT COMPLETE ===");
 
@@ -236,7 +245,7 @@ const MatchComponent = () => {
     console.log(`⚽ Processing regular event ${evt.event_id} - setting 0.6s timeout`);
     setTimeout(() => {
       console.log(`📺 Displaying regular event ${evt.event_id}`);
-      const eventText = getTimelineEventText(evt.action, evt.team);
+      const eventText = getTimelineEventText(evt.action, evt.team, evt.event_id);
       const uiEvent: UIMatchEvent = {
         text: `${evt.minute}' - ${eventText}`,
         playable: false,
@@ -246,7 +255,7 @@ const MatchComponent = () => {
         console.log(`📺 Adding regular event to display: "${uiEvent.text}"`);
         return [...prev, uiEvent];
       });
-    }, 1000); // 0.6 seconds delay
+    }, 600); // 0.6 seconds delay
   };
 
   // 🎯 Process goal events (0.6s + 0.6s delays)
@@ -259,7 +268,7 @@ const MatchComponent = () => {
     // Step 1: Show regular event first (0.6s delay)
     setTimeout(() => {
       console.log(`📺 Step 1: Displaying regular part of goal event ${evt.event_id}`);
-      const eventText = getTimelineEventText(evt.action, evt.team);
+      const eventText = getTimelineEventText(evt.action, evt.team, evt.event_id);
       const regularEvent: UIMatchEvent = {
         text: `${evt.minute}' - ${eventText}`,
         playable: false,
@@ -311,9 +320,9 @@ const MatchComponent = () => {
         setIsProcessingGoal(false);
         isProcessingGoalRef.current = false;
         console.log(`✅ === GOAL EVENT ${evt.event_id} COMPLETE ===`);
-      }, 1200); // Another 0.6s delay
+      }, 600); // Another 0.6s delay
 
-    }, 1200); // Initial 0.6s delay
+    }, 600); // Initial 0.6s delay
   };
 
   // 🎯 Stop timer and wait for user
@@ -374,35 +383,214 @@ const MatchComponent = () => {
     }, 2500);
   };
 
-  const getTimelineEventText = (action: number, team: number): string => {
-    if (team === 2) {
-      switch (action) {
-        case 0: return "Open play continues";
-        case 1: return "Player jumps for the ball";
-        case 2: return "Brawl breaks out on the field";
-        case 3: return "Free kick awarded";
-        case 4: return "Penalty awarded";
-        case 5: return "Defensive play occurs";
-        case 6: return "🕐 HALF TIME - Players take a break";
-        case 7: return "⏱️ FULL TIME - Match has ended";
-        case 8: return "Player substitution made";
-        default: return "Match action occurs";
-      }
-    }
-    
-    const teamText = team === 0 ? "Your team" : "Opponent team";
+  // 🎯 Generate varied timeline event texts
+  const getVariedTimelineEventText = (action: number, team: number, eventId?: number): string => {
+    // Create a deterministic seed based on action, team, and optional eventId
+    // This ensures same text for same event, but different texts for different events
+    const baseSeed = action * 100 + team * 10;
+    const finalSeed = eventId !== undefined ? baseSeed + eventId : baseSeed + currentMinute;
+    const variation = finalSeed % 4; // Get 0, 1, 2, or 3
+
+    // Team 0 = Your team, Team 1 = Opponent team, Team 2 = Neutral
+    const teamName = team === 0 ? "Your team" : team === 1 ? "The opponent" : "Both teams";
+
     switch (action) {
-      case 0: return `${teamText} continues with open play`;
-      case 1: return `${teamText} player jumps for the ball`;
-      case 2: return "Brawl breaks out on the field";
-      case 3: return `${teamText} gets a free kick`;
-      case 4: return `${teamText} awarded a penalty`;
-      case 5: return `${teamText} makes a defensive play`;
-      case 6: return "🕐 HALF TIME - Players take a break";
-      case 7: return "⏱️ FULL TIME - Match has ended";
-      case 8: return `${teamText} makes a substitution`;
-      default: return `${teamText} match action`;
+      case 0: // OPENPLAY
+        if (team === 0) { // Your team
+          const texts = [
+            "Your team controls the ball in midfield, looking for an opening",
+            "Brilliant passing sequence by your players creates space",
+            "Your striker makes a clever run behind the defense",
+            "Your team builds up play patiently from the back"
+          ];
+          return texts[variation];
+        } else if (team === 1) { // Opponent team
+          const texts = [
+            "The opponent has the ball near the penalty area",
+            "No one can stop the rival star, they have a clear shot at goal",
+            "Dangerous attack developing from the opponent's left wing",
+            "The opposing midfielder threads a perfect through ball"
+          ];
+          return texts[variation];
+        } else { // Neutral
+          const texts = [
+            "Open play continues with both teams fighting for control",
+            "The ball moves from end to end in exciting fashion",
+            "Neither team can establish clear dominance",
+            "Fast-paced action with chances at both ends"
+          ];
+          return texts[variation];
+        }
+
+      case 1: // JUMPER
+        if (team === 0) {
+          const texts = [
+            "Your player wins a crucial header in the box",
+            "Excellent aerial ability displayed by your defender",
+            "Your striker outjumps the keeper for the ball",
+            "Perfect timing on the jump gives your team possession"
+          ];
+          return texts[variation];
+        } else if (team === 1) {
+          const texts = [
+            "The opponent's tall striker dominates in the air",
+            "Their center-back wins every aerial duel",
+            "Opposition player leaps highest to claim the ball",
+            "The rival's goalkeeper punches clear under pressure"
+          ];
+          return texts[variation];
+        } else {
+          const texts = [
+            "Players from both teams compete fiercely for the high ball",
+            "A crowded penalty box sees multiple players jumping",
+            "Aerial battle in midfield with no clear winner",
+            "The ball bounces around after a contested header"
+          ];
+          return texts[variation];
+        }
+
+      case 2: // BRAWL
+        const texts = [
+          "Tempers flare as players from both sides clash",
+          "The referee steps in to separate arguing players",
+          "A heated exchange breaks out near the touchline",
+          "Players need to be pulled apart after a hard tackle"
+        ];
+        return texts[variation];
+
+      case 3: // FREEKICK
+        if (team === 0) {
+          const texts = [
+            "Your team earns a dangerous free kick in a promising position",
+            "Excellent opportunity from the free kick for your side",
+            "Your players line up for what could be a crucial set piece",
+            "The referee awards your team a free kick after a foul"
+          ];
+          return texts[variation];
+        } else if (team === 1) {
+          const texts = [
+            "The opponent gets a free kick in a threatening area",
+            "Dangerous set piece opportunity for the opposing team",
+            "Their free kick specialist steps up to take the shot",
+            "The rival team has a chance to score from this free kick"
+          ];
+          return texts[variation];
+        } else {
+          const texts = [
+            "Free kick awarded after a controversial decision",
+            "The referee points to the spot for a free kick",
+            "Set piece situation developing in a key area",
+            "Players position themselves for the upcoming free kick"
+          ];
+          return texts[variation];
+        }
+
+      case 4: // PENALTY
+        if (team === 0) {
+          const texts = [
+            "PENALTY! Your team has been awarded a spot kick!",
+            "The referee points to the spot - huge chance for your team!",
+            "Penalty awarded after a clear foul in the box!",
+            "Your striker was brought down - it's a penalty!"
+          ];
+          return texts[variation];
+        } else if (team === 1) {
+          const texts = [
+            "PENALTY to the opponent! This could be dangerous!",
+            "The opposition has been given a penalty kick!",
+            "Spot kick awarded to the rival team after a foul",
+            "The opponent's striker was fouled - penalty given!"
+          ];
+          return texts[variation];
+        } else {
+          const texts = [
+            "Penalty situation under review by the referee",
+            "Controversial penalty decision being made",
+            "The referee consults before awarding the penalty",
+            "Penalty kick awarded after careful consideration"
+          ];
+          return texts[variation];
+        }
+
+      case 5: // OPENDEFENSE
+        if (team === 0) {
+          const texts = [
+            "Solid defensive work by your backline stops the attack",
+            "Your goalkeeper makes a crucial save to keep it level",
+            "Excellent tackle by your defender breaks up the play",
+            "Your team's defensive organization frustrates the opponent"
+          ];
+          return texts[variation];
+        } else if (team === 1) {
+          const texts = [
+            "The opponent's defense stands firm under pressure",
+            "Their goalkeeper pulls off a spectacular save",
+            "Resolute defending from the opposing team",
+            "The rival's backline clears the danger effectively"
+          ];
+          return texts[variation];
+        } else {
+          const texts = [
+            "Defensive play dominates as both teams stay compact",
+            "Neither attack can break through the organized defenses",
+            "Solid defending from both sides keeps the score level",
+            "The defensive phase of play sees few clear chances"
+          ];
+          return texts[variation];
+        }
+
+      case 6: // HALFTIME
+        const halftimeTexts = [
+          "🕐 HALF TIME - Players head to the dressing rooms",
+          "🕐 The referee blows for half time - time for a break",
+          "🕐 HALF TIME - Coaches prepare their tactical talks",
+          "🕐 The first half comes to an end - players rest up"
+        ];
+        return halftimeTexts[variation];
+
+      case 7: // MATCHEND
+        const endTexts = [
+          "⏱️ FULL TIME - The final whistle blows!",
+          "⏱️ MATCH FINISHED - What a game that was!",
+          "⏱️ FULL TIME - The referee ends the match",
+          "⏱️ THE MATCH IS OVER - Time to see the final result!"
+        ];
+        return endTexts[variation];
+
+      case 8: // SUBSTITUTE
+        if (team === 0) {
+          const texts = [
+            "Your coach makes a tactical substitution",
+            "Fresh legs brought on for your team",
+            "Strategic change as your team brings on a new player",
+            "Your manager opts for a substitution to change the game"
+          ];
+          return texts[variation];
+        } else if (team === 1) {
+          const texts = [
+            "The opponent makes a substitution to strengthen their team",
+            "Fresh player comes on for the opposing side",
+            "The rival coach makes a tactical change",
+            "Opposition brings on a substitute to alter their approach"
+          ];
+          return texts[variation];
+        } else {
+          const texts = [
+            "Substitution made as coaches look to impact the game",
+            "Player change occurs with tactical intentions",
+            "Fresh legs introduced to change the dynamic",
+            "Strategic substitution made by the coaching staff"
+          ];
+          return texts[variation];
+        }
+
+      default:
+        return `${teamName} action occurs`;
     }
+  };
+
+  const getTimelineEventText = (action: number, team: number, eventId?: number): string => {
+    return getVariedTimelineEventText(action, team, eventId);
   };
 
   // 🎯 Auto-scroll events
@@ -414,12 +602,18 @@ const MatchComponent = () => {
 
   // 🎯 Cleanup
   useEffect(() => {
+    // Cleanup function that runs when component unmounts OR when matchId changes
     return () => {
+      console.log("🧹 === COMPONENT CLEANUP ===");
       if (timerRef.current) {
+        console.log("🧹 Clearing timer on cleanup");
         clearInterval(timerRef.current);
+        timerRef.current = null;
+      } else {
+        console.log("🧹 No timer to clear on cleanup");
       }
     };
-  }, []);
+  }, [matchId]); // Re-run cleanup when matchId changes
 
   return (
     <div className="relative min-h-screen">
