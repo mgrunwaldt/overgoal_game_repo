@@ -55,6 +55,7 @@ pub enum MatchAction {
     HalfTime,      // 6 - Signals halftime break
     MatchEnd,      // 7 - Signals match finished
     Substitute,    // 8 - Signals player substitution due to low stamina
+    ResumeMatch,   // 9 - Signals match resumed after halftime
 }
 
 // Match Decision Enum - player choices during actions
@@ -88,6 +89,9 @@ pub struct MatchTimelineEvent {
     pub opponent_team_score: u8,
     pub team_scored: bool,  
     pub opponent_team_scored: bool,
+    pub player_participates:bool,
+    pub half_time: bool,
+    pub match_end: bool,
 }
 
 // Implement Into trait for MatchStatus to felt252 conversion
@@ -137,6 +141,7 @@ impl MatchActionIntoFelt252 of Into<MatchAction, felt252> {
             MatchAction::HalfTime => 6,
             MatchAction::MatchEnd => 7,
             MatchAction::Substitute => 8,
+            MatchAction::ResumeMatch => 9,
         }
     }
 }

@@ -10,7 +10,7 @@ use dojo::model::ModelStorage;
 use full_starter_react::models::player::{Player, PlayerTrait, PlayerEventHistory, PlayerEventHistoryTrait};
 use full_starter_react::models::team::{Team, TeamTrait, TeamImpl};
 use full_starter_react::models::gamematch::{
-    GameMatch, GameMatchTrait, GameMatchImpl, MatchAction, MatchDecision, MatchStatus, PlayerParticipation, ActionTeam,
+    GameMatch, GameMatchTrait, GameMatchImpl, MatchAction, MatchDecision, MatchStatus, ActionTeam,
     MatchTimelineEvent
 };
 use full_starter_react::models::non_match_event::{
@@ -454,6 +454,376 @@ pub impl StoreImpl of StoreTrait {
         self.world.write_model(@gamematch);
     }
 
+    fn process_match_decision(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision) -> bool{
+        //1) encontrar match_action
+        let match_action = gamematch.next_match_action;
+        let opponent_team = self.read_team(gamematch.opponent_team_id);
+        let my_team = self.read_team(gamematch.my_team_id);
+        let mut need_more_actions = true;
+        gamematch.event_counter += 1;
+
+        //2 segun match_action, llamar a process_action correspondiente
+        if(match_action == MatchAction::OpenPlay) {
+            need_more_actions = self.process_open_play(ref gamematch, ref player, match_decision, opponent_team, my_team);
+        } 
+        else{
+            gamematch.my_team_score += 1;
+            gamematch.event_counter += 1;
+            let timeline_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: match_action,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'GOOOAL!',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: true,
+                opponent_team_scored: false,
+                player_participates: false,
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@timeline_event);
+        }
+       // match match_action {
+        //    MatchAction::OpenPlay => self.process_open_play(ref gamematch, ref player, match_decision, opponent_team, my_team),
+        //    MatchAction::Jumper => self.process_jumper(ref gamematch, ref player, match_decision, opponent_team, my_team),
+        //    MatchAction::Brawl => self.process_brawl(ref gamematch, ref player, match_decision, opponent_team, my_team),
+        //    MatchAction::FreeKick => self.process_free_kick(ref gamematch, ref player, match_decision, opponent_team, my_team),
+        //    MatchAction::Penalty => self.process_penalty(ref gamematch, ref player, match_decision, opponent_team, my_team),
+        //    MatchAction::OpenDefense => self.process_open_defense(ref gamematch, ref player, match_decision, opponent_team, my_team),
+        //    MatchAction::HalfTime => self.process_half_time(ref gamematch, ref player, match_decision, opponent_team, my_team),
+        //    MatchAction::MatchEnd => self.process_match_end(ref gamematch, ref player, match_decision, opponent_team, my_team),
+        //    MatchAction::Substitute => self.process_substitute(ref gamematch, ref player, match_decision, opponent_team, my_team),
+        //}
+        return need_more_actions;
+        
+
+    }
+    fn process_open_play(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) -> bool {
+        let mut need_more_actions = true;
+        match match_decision {
+            MatchDecision::Pass => need_more_actions = self.process_open_play_pass(ref gamematch, ref player, opponent_team, my_team),
+            MatchDecision::Dribble => need_more_actions = self.process_open_play_dribble(ref gamematch, ref player, opponent_team, my_team),
+            MatchDecision::Shoot => need_more_actions = self.process_open_play_shoot(ref gamematch, ref player, opponent_team, my_team),
+            MatchDecision::Simulate => need_more_actions = self.process_open_play_simulate_foul(ref gamematch, ref player, opponent_team, my_team),
+            _ => {
+
+            }
+        }
+        return need_more_actions;
+    }
+    fn process_open_play_pass(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
+        // ✅ Implement open_play.md passing algorithm
+        // successProb = (player.passing * 0.6 + player.intelligence * 0.25 + attackingTeam.offense * 0.15) / 100
+        let mut need_more_actions = true;
+        let passing_factor = player.passing * 60 / 100; // 0.6 * player.passing
+        let intelligence_factor = player.intelligence * 25 / 100; // 0.25 * player.intelligence
+        let offense_factor = my_team.offense.into() * 15 / 100; // 0.15 * team.offense (convert u8 to u32)
+        
+        let combined_factor = passing_factor + intelligence_factor + offense_factor;
+        let success_prob = combined_factor; // This gives us percentage directly (0-100 range)
+        
+        // Generate random roll (0-99) and check if pass succeeds
+        let random_roll = self.generate_random(100, gamematch.event_counter.into());
+        let is_success = random_roll < success_prob;
+        need_more_actions = !is_success;
+        if(!need_more_actions){
+            gamematch.next_match_action=MatchAction::OpenPlay;
+        }
+        if is_success {
+            // 🎯 FIX: Create RESULT event first (player_participates: false)
+            gamematch.event_counter += 1;
+            let result_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::OpenPlay,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'Pass successful!',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: false, // 🎯 RESULT - no participation needed
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@result_event);
+            
+            // 🎯 FIX: Create NEW ACTION event (player_participates: true)
+            gamematch.event_counter += 1;
+            let action_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::OpenPlay,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'New attack opportunity',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: true, // 🎯 NEW ACTION - participation required
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@action_event);
+        } else {
+            // Failed pass - final result, no chaining
+            gamematch.event_counter += 1;
+            let timeline_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::OpenPlay,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'Pass intercepted! Ball lost!',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: false, // 🎯 FINAL RESULT - no participation
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@timeline_event);
+        }
+        return need_more_actions;
+    }
+    fn process_open_play_dribble(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team)-> bool {
+        // ✅ Implement open_play.md dribbling algorithm
+        // successProb = (player.dribble * 0.6 + player.intelligence * 0.3 + attackingTeam.offense * 0.1) / 100
+        let mut need_more_actions = true;
+        let dribble_factor = player.dribble * 60 / 100; // 0.6 * player.dribble
+        let intelligence_factor = player.intelligence * 30 / 100; // 0.3 * player.intelligence
+        let offense_factor = my_team.offense.into() * 10 / 100; // 0.1 * team.offense (convert u8 to u32)
+        
+        let combined_factor = dribble_factor + intelligence_factor + offense_factor;
+        let success_prob = combined_factor; // This gives us percentage directly (0-100 range)
+        
+        // Generate random roll (0-99) and check if dribble succeeds
+        let random_roll = self.generate_random(100, gamematch.event_counter.into());
+        let is_success = random_roll < success_prob;
+        need_more_actions = !is_success;
+        if(!need_more_actions){
+            gamematch.next_match_action=MatchAction::OpenPlay;
+        }
+        if is_success {
+            // 🎯 FIX: Create RESULT event first (player_participates: false)
+            gamematch.event_counter += 1;
+            let result_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::OpenPlay,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'Dribble successful!',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: false, // 🎯 RESULT - no participation needed
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@result_event);
+            
+            // 🎯 FIX: Create NEW ACTION event (player_participates: true)
+            gamematch.event_counter += 1;
+            let action_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::OpenPlay,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'Advanced with the ball',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: true, // 🎯 NEW ACTION - participation required
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@action_event);
+        } else {
+            // Failed dribble - final result, no chaining
+            gamematch.event_counter += 1;
+            let timeline_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::OpenPlay,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'Dribble failed! Ball lost!',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: false, // 🎯 FINAL RESULT - no participation
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@timeline_event);
+        }
+        return need_more_actions;
+    }
+    fn process_open_play_shoot(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
+        // ✅ Implement open_play.md shooting algorithm
+        let mut need_more_actions = true;
+        let base_probability = 5; // 5% base probability
+        
+        // Calculate goalProb = baseProbability * (player.shoot * 0.7 + player.intelligence * 0.1 + attackingTeam.offense * 0.2) / 100
+        let shoot_factor = player.shoot * 70 / 100; // 0.7 * player.shoot
+        let intelligence_factor = player.intelligence * 10 / 100; // 0.1 * player.intelligence  
+        let offense_factor = my_team.offense.into() * 20 / 100; // 0.2 * team.offense (convert u8 to u32)
+        
+        let combined_factor = shoot_factor + intelligence_factor + offense_factor;
+        let mut goal_prob = base_probability * combined_factor / 100;
+        
+        // Clamp goalProb between 0.5 and 90.0 (using integers: 0-9000 range)
+        if goal_prob < 50 { // 0.5%
+            goal_prob = 50;
+        }
+        if goal_prob > 9000 { // 90.0%
+            goal_prob = 9000;
+        }
+        
+        // Generate random roll (0-9999 for precision) and check if goal
+        let random_roll = self.generate_random(10000, gamematch.event_counter.into());
+        let is_goal = random_roll < goal_prob;
+        
+        // Update score if goal scored
+        if is_goal {
+            gamematch.my_team_score += 1;
+        }
+        gamematch.event_counter += 1;
+        let timeline_event = MatchTimelineEvent {
+            match_id: gamematch.match_id,
+            event_id: gamematch.event_counter,
+            action: MatchAction::OpenPlay,
+            minute: gamematch.current_time,
+            team: ActionTeam::MyTeam,
+            description: if is_goal { 'GOOOAL!' } else { 'Shot missed!' },
+            team_score: gamematch.my_team_score,
+            opponent_team_score: gamematch.opponent_team_score,
+            team_scored: is_goal,
+            opponent_team_scored: false,
+            player_participates: false,
+            half_time: false,
+            match_end: false,
+        };
+        self.world.write_model(@timeline_event);
+        return need_more_actions;
+    }
+    fn process_open_play_simulate_foul(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
+                // ✅ Implement open_play.md simulate (dive) algorithm
+        // successProb = (player.intelligence * 0.4 + player.dribble * 0.3 + attackingTeam.intensity * 0.3) / 100
+        let mut need_more_actions = true;
+        let intelligence_factor = player.intelligence * 40 / 100; // 0.4 * player.intelligence
+        let dribble_factor = player.dribble * 30 / 100; // 0.3 * player.dribble
+        let intensity_factor = my_team.intensity.into() * 30 / 100; // 0.3 * team.intensity (convert u8 to u32)
+        
+        let combined_factor = intelligence_factor + dribble_factor + intensity_factor;
+        let success_prob = combined_factor; // This gives us percentage directly (0-100 range)
+        
+        // Generate random roll (0-99) and check if simulate succeeds
+        let random_roll = self.generate_random(100, gamematch.event_counter.into());
+        let is_success = random_roll < success_prob;
+        
+        if is_success {
+            need_more_actions = false;
+            // On success: 25% chance of Penalty, otherwise referee waves play on (treat as failed dribble)
+            let penalty_roll = self.generate_random(100, (gamematch.event_counter + 1).into());
+            let gets_penalty = penalty_roll < 25; // 25% chance
+            let new_action = if gets_penalty { MatchAction::Penalty } else { MatchAction::FreeKick };
+            gamematch.next_match_action = new_action;
+
+            // 🎯 FIX: Create RESULT event first (player_participates: false)
+            let result_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::OpenPlay, // This is still the open play result
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: if gets_penalty { 'Penalty awarded!' } else { 'Free kick awarded!' },
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: false, // 🎯 RESULT - no participation needed
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@result_event);
+            
+            // 🎯 FIX: Create NEW ACTION event (player_participates: true)
+            gamematch.event_counter += 1;
+            let action_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: new_action, // Penalty or FreeKick
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: if gets_penalty { 'Penalty situation' } else { 'Free kick situation' },
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: true, // 🎯 NEW ACTION - participation required
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@action_event);
+        } else {
+            // On failure: yellow card + ball lost
+            gamematch.event_counter += 1;
+            let timeline_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::OpenPlay,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'Yellow card! Ball lost!',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: false,
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@timeline_event);
+        }
+        return need_more_actions;
+    }
+    fn process_jumper(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
+
+    }
+    fn process_brawl(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
+
+    }
+    fn process_free_kick(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
+
+    }
+    fn process_penalty(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
+
+    }
+    fn process_open_defense(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
+
+    }
+    fn process_half_time(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
+
+    }
+    fn process_match_end(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
+
+    }
+    fn process_substitute(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
+
+    }
+
     fn process_match_action(mut self: Store, match_id: u32, match_decision: MatchDecision) {
         // ✅ STEP 1: Process player's decision and simulate the outcome
         // TODO: Process player's decision here (e.g., if they chose to shoot, calculate outcome)
@@ -461,14 +831,17 @@ pub impl StoreImpl of StoreTrait {
         let mut gamematch = self.read_gamematch(match_id);
         // ✅ STEP 2: Decrement stamina for participation
         let mut player = self.read_player();
+        let _need_more_actions = self.process_match_decision(ref gamematch, ref player, match_decision);
         //player.remove_stamina(5); // Example stamina cost
-        self.world.write_model(@player);
+        //self.world.write_model(@player);
 
         //mati: falta chequear si termino el partido
 
         // ✅ STEP 3: Generate all events until the next time user input is needed
         // This function will update the match state internally (current_time, next_action, etc.)
-        self.generate_events_until_input_required(ref gamematch);
+        if _need_more_actions {
+            self.generate_events_until_input_required(ref gamematch);
+        }
         
         // ✅ STEP 4: IMPORTANT - Save the updated match state AFTER generation
         // The generate_events_until_input_required function has already updated:
@@ -536,20 +909,73 @@ pub impl StoreImpl of StoreTrait {
             // ✅ STEP 2: Check if match is finished or timer == 90 - set next action and break
             if gamematch.current_time >= 90 {
                 gamematch.match_status = MatchStatus::Finished;
-                gamematch.set_next_action(MatchAction::MatchEnd, 90, ActionTeam::Neutral, PlayerParticipation::Observing);
+                gamematch.event_counter += 1;
+                let timeline_event = MatchTimelineEvent {
+                    match_id: gamematch.match_id,
+                    event_id: gamematch.event_counter,
+                    action: MatchAction::MatchEnd,
+                    minute: 90,
+                    team: ActionTeam::Neutral,
+                    description: 'Match Finished!',
+                    team_score: gamematch.my_team_score,
+                    opponent_team_score: gamematch.opponent_team_score,
+                    team_scored: false,
+                    opponent_team_scored: false,
+                    player_participates: false,
+                    half_time: false,
+                    match_end: true,
+                };
+                self.world.write_model(@timeline_event);
+                gamematch.next_match_action=MatchAction::MatchEnd;
+                //gamematch.set_next_action(MatchAction::MatchEnd, 90, ActionTeam::Neutral, PlayerParticipation::Observing);
                 break;
             }
 
             // ✅ STEP 3: Check if halftime or timer == 45 - set next action and break
             if  gamematch.current_time == 45 && gamematch.match_status == MatchStatus::InProgress {
                 gamematch.match_status = MatchStatus::HalfTime;
-                gamematch.set_next_action(MatchAction::HalfTime, 45, ActionTeam::Neutral, PlayerParticipation::Observing);
+                gamematch.next_match_action=MatchAction::HalfTime;
+                //gamematch.set_next_action(MatchAction::HalfTime, 45, ActionTeam::Neutral, PlayerParticipation::Observing);
+                gamematch.event_counter += 1;
+                let timeline_event = MatchTimelineEvent {
+                    match_id: gamematch.match_id,
+                    event_id: gamematch.event_counter,
+                    action: MatchAction::HalfTime,
+                    minute: 45,
+                    team: ActionTeam::Neutral,
+                    description: 'Half Time!',
+                    team_score: gamematch.my_team_score,
+                    opponent_team_score: gamematch.opponent_team_score,
+                    team_scored: false,
+                    opponent_team_scored: false,
+                    player_participates: false,
+                    half_time: true,
+                    match_end: false,
+                };
+                self.world.write_model(@timeline_event);
                 break;
             }
 
             //step 3.1 back from halftime
             if gamematch.current_time == 46 && gamematch.match_status == MatchStatus::HalfTime {
                 gamematch.match_status = MatchStatus::InProgress;
+                gamematch.event_counter += 1;
+                let timeline_event = MatchTimelineEvent {
+                    match_id: gamematch.match_id,
+                    event_id: gamematch.event_counter,
+                    action: MatchAction::ResumeMatch,
+                    minute: 46,
+                    team: ActionTeam::Neutral,
+                    description: 'Half time over! Match resumed!',
+                    team_score: gamematch.my_team_score,
+                    opponent_team_score: gamematch.opponent_team_score,
+                    team_scored: false,
+                    opponent_team_scored: false,
+                    player_participates: false,
+                    half_time: false,
+                    match_end: false,
+                };
+                self.world.write_model(@timeline_event);
                 continue;
             }
 
@@ -568,6 +994,9 @@ pub impl StoreImpl of StoreTrait {
                     opponent_team_score: gamematch.opponent_team_score,
                     team_scored: false,
                     opponent_team_scored: false,
+                    player_participates: false,
+                    half_time: false,
+                    match_end: false,
                 };
                 self.world.write_model(@timeline_event);
                 continue;
@@ -578,7 +1007,25 @@ pub impl StoreImpl of StoreTrait {
             if my_attack_result.has_event {
                 // ✅ STEP 5.1: If I participate, break
                 if my_attack_result.player_participates {
-                    gamematch.set_next_action(my_attack_result.action_type, gamematch.current_time, ActionTeam::MyTeam, PlayerParticipation::Participating);
+                    gamematch.next_match_action=my_attack_result.action_type;
+                    //gamematch.set_next_action(my_attack_result.action_type, gamematch.current_time, ActionTeam::MyTeam, PlayerParticipation::Participating);
+                    gamematch.event_counter += 1;
+                    let timeline_event = MatchTimelineEvent {
+                        match_id: gamematch.match_id,
+                        event_id: gamematch.event_counter,
+                        action: my_attack_result.action_type,
+                        minute: gamematch.current_time,
+                        team: ActionTeam::MyTeam,
+                        description: 'Your team attacks!',
+                        team_score: gamematch.my_team_score,
+                        opponent_team_score: gamematch.opponent_team_score,
+                        team_scored: false,
+                        opponent_team_scored: false,
+                        player_participates: true,
+                        half_time: false,
+                        match_end: false,
+                    };
+                    self.world.write_model(@timeline_event);
                     break; // Exit loop, wait for user input
                 } else {
                     // ✅ STEP 5.2: If I don't participate, add timeline event
@@ -598,6 +1045,9 @@ pub impl StoreImpl of StoreTrait {
                         opponent_team_score: gamematch.opponent_team_score,
                         team_scored: _goal_scored,
                         opponent_team_scored: false,
+                        player_participates: false,
+                        half_time: false,
+                        match_end: false,
                     };
                     self.world.write_model(@timeline_event);
                     continue; // Continue to next minute
@@ -609,7 +1059,25 @@ pub impl StoreImpl of StoreTrait {
                 if opponent_attack_result.has_event {
                     // ✅ STEP 6.1: If I participate, break
                     if opponent_attack_result.player_participates {
-                        gamematch.set_next_action(opponent_attack_result.action_type, gamematch.current_time, ActionTeam::OpponentTeam, PlayerParticipation::Participating);
+                        gamematch.next_match_action=opponent_attack_result.action_type;
+                       // gamematch.set_next_action(opponent_attack_result.action_type, gamematch.current_time, ActionTeam::OpponentTeam, PlayerParticipation::Participating);
+                       gamematch.event_counter += 1;
+                       let timeline_event = MatchTimelineEvent {
+                           match_id: gamematch.match_id,
+                           event_id: gamematch.event_counter,
+                           action: opponent_attack_result.action_type,
+                           minute: gamematch.current_time,
+                           team: ActionTeam::OpponentTeam,
+                           description: 'Opponent team attacks!',
+                           team_score: gamematch.my_team_score,
+                           opponent_team_score: gamematch.opponent_team_score,
+                           team_scored: false,
+                           opponent_team_scored: false,
+                           player_participates: true,
+                           half_time: false,
+                           match_end: false,
+                       };
+                       self.world.write_model(@timeline_event);
                         break; // Exit loop, wait for user input
                     } else {
                         // ✅ STEP 6.2: If I don't participate, add timeline event
@@ -629,6 +1097,9 @@ pub impl StoreImpl of StoreTrait {
                             opponent_team_score: gamematch.opponent_team_score,
                             team_scored: false,
                             opponent_team_scored: _goal_scored,
+                            player_participates: false,
+                            half_time: false,
+                            match_end: false,
                         };
                         self.world.write_model(@timeline_event);
                         continue; // Continue to next minute
@@ -637,7 +1108,25 @@ pub impl StoreImpl of StoreTrait {
                 else{
                     let random_event = self.check_random_event(gamematch.current_time, my_team, opponent_team, player, gamematch.match_id, random_counter);
                     if random_event.has_event {
-                        gamematch.set_next_action(random_event.action_type, gamematch.current_time, ActionTeam::Neutral, PlayerParticipation::Participating);
+                        gamematch.next_match_action=random_event.action_type;
+                        //gamematch.set_next_action(random_event.action_type, gamematch.current_time, ActionTeam::Neutral, PlayerParticipation::Participating);
+                        gamematch.event_counter += 1;
+                        let timeline_event = MatchTimelineEvent {
+                            match_id: gamematch.match_id,
+                            event_id: gamematch.event_counter,
+                            action: random_event.action_type,
+                            minute: gamematch.current_time,
+                            team: ActionTeam::Neutral,
+                            description: 'Random event!',
+                            team_score: gamematch.my_team_score,
+                            opponent_team_score: gamematch.opponent_team_score,
+                            team_scored: false,
+                            opponent_team_scored: false,
+                            player_participates: true,
+                            half_time: false,
+                            match_end: false,
+                        };
+                        self.world.write_model(@timeline_event);
                         break;
                     }
                     else{
@@ -869,23 +1358,15 @@ pub impl StoreImpl of StoreTrait {
     ) -> bool {
         let normalized_attack = self.normalize_team_stat(attacking_team.offense.into(), true); // 0.8-1.2 range
         
-        let goal_probability = match action_type {
+        let _goal_probability = match action_type {
             MatchAction::Penalty => 80 * normalized_attack / 100,      // 80% base
             MatchAction::FreeKick => 10 * normalized_attack / 100,     // 10% base
             MatchAction::OpenPlay => 1 * normalized_attack / 100,      // 1% base
             _ => 1 * normalized_attack / 100,                          // Default 1%
         };
         random_counter += 1;
-       // if self.generate_random(100, random_counter.into()) < goal_probability {
-        if true {
-            if is_my_team {
-              //  self.add_my_team_goal(match_id);
-            } else {
-               // self.add_opponent_team_goal(match_id);
-            }
-            return true; // Goal scored
-        }
-        return false; // No goal
+        return true;
+        //return self.generate_random(100, random_counter.into()) < goal_probability;
     }
 
     // --------- Utility Functions ---------

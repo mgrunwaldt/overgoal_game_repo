@@ -4,9 +4,10 @@ interface MatchEventItemProps {
   text: string;
   playable?: boolean;
   team?: 'player' | 'enemy' | 'neutral';
+  onPlay?: () => void;
 }
 
-const MatchEventIten: React.FC<MatchEventItemProps> = ({ text, playable = false, team = 'player' }) => {
+const MatchEventIten: React.FC<MatchEventItemProps> = ({ text, playable = false, team = 'player', onPlay }) => {
   const baseClasses =
     'flex justify-between items-center p-2 rounded-md transition-all duration-300 border-b-2 backdrop-blur-sm';
 
@@ -33,7 +34,10 @@ const MatchEventIten: React.FC<MatchEventItemProps> = ({ text, playable = false,
     <li className={`${baseClasses} ${getTeamStyles()}`}>
       <span className="font-sans tracking-wider">{text}</span>
       {playable && (
-        <button className={buttonClasses}>
+        <button 
+          className={buttonClasses}
+          onClick={onPlay}
+        >
           PLAY
         </button>
       )}

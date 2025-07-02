@@ -105,6 +105,9 @@ export const fetchGameMatch = async (matchId: number) => {
             opponent_team_score: hexToNumber(node.opponent_team_score),
             team_scored: node.team_scored,
             opponent_team_scored: node.opponent_team_scored,
+            player_participates: node.player_participates,
+            match_end: node.match_end,
+            half_time: node.half_time,
           };
         }
       );
@@ -171,6 +174,7 @@ export function useGameMatch(matchId: number) {
   };
 
   const handleProcessMatchAction = async (decision: number) => {
+    console.log("handleProcessMatchAction", decision);
     if (!account) return;
     setLoading(true);
     try {

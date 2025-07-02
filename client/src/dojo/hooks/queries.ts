@@ -37,6 +37,9 @@ export const MATCH_TIMELINE_EVENTS_QUERY = `
                     opponent_team_score
                     team_scored
                     opponent_team_scored
+                    player_participates
+                    match_end
+                    half_time
                 }
             }
         }

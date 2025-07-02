@@ -47,7 +47,7 @@ pub struct Player {
     pub is_injured: bool,
     pub passing: u32,
     pub free_kick: u32,
-    pub team_relationship: u32,
+    pub team_relationship: u32, 
     pub intelligence: u32,
     pub player_type: PlayerType,  // ✅ ADD NEW FIELD
 }

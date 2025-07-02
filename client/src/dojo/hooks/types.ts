@@ -25,6 +25,9 @@ export interface MatchTimelineEvent {
     opponent_team_score: number;
     team_scored: boolean;
     opponent_team_scored: boolean;
+    player_participates: boolean;
+    match_end: boolean;
+    half_time: boolean;
 }
 
 export const matchStatusMapping: { [key: string]: number } = {
