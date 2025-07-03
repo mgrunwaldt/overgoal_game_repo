@@ -78,11 +78,15 @@ const StatsPopup: React.FC<StatsPopupProps> = ({
         </div>
 
         {/* Stats Board */}
-        <div
-          className="w-full h-auto bg-contain bg-no-repeat bg-center flex flex-col rounded-xl items-center justify-center p-12 bg-black/80"
-          style={{ backgroundImage: "url('/nonMatchResult/Stats board.png')" }}
-        >
-          <ul className="w-full  ">
+        <div className="w-full h-auto bg-contain bg-no-repeat bg-center flex flex-col bg-black/80 items-center justify-center p-2 mt-6 border-2 border-cyan-400/50 rounded-2xl ">
+          <ul
+            className="w-full h-full p-12   flex flex-col items-center justify-center "
+            style={{
+              backgroundImage: "url('/nonMatchResult/Stats board.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
             {statsDetail.map((stat) => (
               <li
                 key={stat.name}

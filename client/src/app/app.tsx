@@ -7,9 +7,7 @@ import {
 import { useAccount } from "@starknet-react/core";
 import { usePlayer } from "../dojo/hooks/usePlayer";
 import LoginScreen from "../components/pages/LoginScreen";
-import HomePage from "../components/pages/HomeScreen";
 import CharacterSelectionScreen from "../components/pages/CharacterSelectionScreen";
-import MainScreen from "../components/pages/MainScreen";
 import TeamManagement from "../components/team-management";
 import TeamSelection from "../components/pages/TeamSelection";
 import NewMatch from "../components/pages/NewMatch";
@@ -17,6 +15,7 @@ import MatchEnd from "../components/pages/MatchEnd";
 import NonMatchEventSelector from "../components/pages/NonMatchEventSelector";
 import MatchComponent from "../components/pages/MatchComponent";
 import NonMatchResult from "../components/pages/NonMatchResult";
+import MainScreen from "../components/pages/MainScreen";
 
 function App() {
   const { account, status } = useAccount();
