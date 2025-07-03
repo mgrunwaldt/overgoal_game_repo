@@ -15,6 +15,7 @@ pub struct GameMatch {
     pub match_status: MatchStatus,        // Lifecycle flag
     pub player_participation: PlayerParticipation,  // Whether player participates in next action
     pub action_team: ActionTeam,          // Which team has the next action
+    pub event_counter: u32,               // Counter for MatchTimelineEvent IDs
 }
 
 // Match Status Enum - lifecycle flag
@@ -53,6 +54,8 @@ pub enum MatchAction {
     OpenDefense,   // 5
     HalfTime,      // 6 - Signals halftime break
     MatchEnd,      // 7 - Signals match finished
+    Substitute,    // 8 - Signals player substitution due to low stamina
+    ResumeMatch,   // 9 - Signals match resumed after halftime
 }
 
 // Match Decision Enum - player choices during actions
@@ -70,29 +73,25 @@ pub enum MatchDecision {
     StayOut,
 }
 
-// 🆕 NEW: Individual action event in a batch
-#[derive(Drop, Serde, Debug, Introspect)]
-pub struct MatchActionEvent {
-    pub action: MatchAction,
-    pub minute: u8,
-    pub team: ActionTeam,
-    pub player_participation: PlayerParticipation,
-}
-
-// 🆕 NEW: Batch of match actions processed together
+// ✅ ADD the new model
 #[derive(Drop, Serde, Debug)]
 #[dojo::model]
-pub struct MatchActionBatch {
+pub struct MatchTimelineEvent {
     #[key]
     pub match_id: u32,
     #[key] 
-    pub batch_id: u32,                    // Incremental batch identifier
-    pub actions: Array<MatchActionEvent>, // List of actions in this batch
-    pub actions_count: u8,                // Number of actions (for efficient reading)
-    pub final_current_time: u8,           // Time after all actions processed
-    pub final_prev_time: u8,              // Starting time for this batch
-    pub requires_user_input: bool,        // True if last action needs user input
-    pub created_timestamp: u64,           // When batch was created
+    pub event_id: u32,                  // A unique, incrementing ID for each event in a match
+    pub action: MatchAction,
+    pub minute: u8,
+    pub team: ActionTeam,
+    pub description: felt252,           // e.g., "Team A scores a goal!"
+    pub team_score: u8,
+    pub opponent_team_score: u8,
+    pub team_scored: bool,  
+    pub opponent_team_scored: bool,
+    pub player_participates:bool,
+    pub half_time: bool,
+    pub match_end: bool,
 }
 
 // Implement Into trait for MatchStatus to felt252 conversion
@@ -139,8 +138,10 @@ impl MatchActionIntoFelt252 of Into<MatchAction, felt252> {
             MatchAction::FreeKick => 3,
             MatchAction::Penalty => 4,
             MatchAction::OpenDefense => 5,
-            MatchAction::HalfTime => 6,        // 🆕 NEW
-            MatchAction::MatchEnd => 7,        // 🆕 NEW
+            MatchAction::HalfTime => 6,
+            MatchAction::MatchEnd => 7,
+            MatchAction::Substitute => 8,
+            MatchAction::ResumeMatch => 9,
         }
     }
 }
@@ -204,6 +205,7 @@ pub impl GameMatchImpl of GameMatchTrait {
             match_status: MatchStatus::NotStarted,
             player_participation: PlayerParticipation::NotParticipating,
             action_team: ActionTeam::MyTeam,
+            event_counter: 0,
         }
     }
 
@@ -333,74 +335,4 @@ pub impl GameMatchImpl of GameMatchTrait {
         self.action_team = team;
         self.player_participation = participation;
     }
-}
-
-// 🆕 NEW: MatchActionBatch Trait Implementation
-#[generate_trait]
-pub impl MatchActionBatchImpl of MatchActionBatchTrait {
-    /// Create a new empty batch
-    fn new(match_id: u32, batch_id: u32) -> MatchActionBatch {
-        MatchActionBatch {
-            match_id,
-            batch_id,
-            actions: ArrayTrait::new(),
-            actions_count: 0,
-            final_current_time: 0,
-            final_prev_time: 0,
-            requires_user_input: false,
-            created_timestamp: 0, // Will be set in store when saving
-        }
-    }
-
-    /// Add an action to the batch
-    fn add_action(
-        ref self: MatchActionBatch, 
-        action: MatchAction, 
-        minute: u8, 
-        team: ActionTeam, 
-        participation: PlayerParticipation
-    ) {
-        let event = MatchActionEvent {
-            action,
-            minute,
-            team,
-            player_participation: participation,
-        };
-        self.actions.append(event);
-        self.actions_count += 1;
-    }
-
-    /// Set the final state of the batch
-    fn set_final_state(
-        ref self: MatchActionBatch, 
-        current_time: u8, 
-        prev_time: u8, 
-        requires_input: bool
-    ) {
-        self.final_current_time = current_time;
-        self.final_prev_time = prev_time;
-        self.requires_user_input = requires_input;
-    }
-
-    /// Check if batch is empty
-    fn is_empty(self: @MatchActionBatch) -> bool {
-        *self.actions_count == 0
-    }
-
-    /// Check if batch requires user input
-    fn needs_user_input(self: @MatchActionBatch) -> bool {
-        *self.requires_user_input
-    }
-
-    /// Get the last action in the batch (if any)
-    fn get_last_action(self: @MatchActionBatch) -> Option<MatchActionEvent> {
-        if *self.actions_count == 0 {
-            Option::None
-        } else {
-            // Note: Cannot access array elements by index directly in Cairo
-            // This is a placeholder - actual implementation would need
-            // special handling to get the last element
-            Option::None
-        }
-    }
-}
+} 

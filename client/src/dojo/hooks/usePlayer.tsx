@@ -79,8 +79,6 @@ const hexToNumber = (hexValue: string | number): number => {
 // Function to fetch player data from GraphQL
 const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
   try {
-    console.log("🔍 Fetching player with owner:", playerOwner);
-
     const response = await fetch(TORII_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -91,17 +89,13 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
     });
 
     const result = await response.json();
-    console.log("📡 GraphQL response:", result);
 
     if (!result.data?.fullStarterReactPlayerModels?.edges?.length) {
-      console.log("❌ No player found in response");
       return null;
     }
 
     // Extract player data
     const rawPlayerData = result.data.fullStarterReactPlayerModels.edges[0].node;
-
-  
 
     // Convert hex values to numbers - including new fields
     const playerData: Player = {
@@ -130,7 +124,6 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
     return playerData;
 
   } catch (error) {
-    console.error("❌ Error fetching player:", error);
     throw error;
   }
 };
@@ -138,8 +131,6 @@ const fetchPlayerData = async (playerOwner: string): Promise<Player | null> => {
 // ✅ ADD: Function to fetch PlayerEventHistory data from GraphQL
 export const fetchPlayerEventHistory = async (playerOwner: string): Promise<{ last_event_id: number; last_outcome_id: number; last_execution_timestamp: number } | null> => {
   try {
-    console.log("🔍 Fetching player event history with owner:", playerOwner);
-
     const response = await fetch(TORII_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -150,16 +141,13 @@ export const fetchPlayerEventHistory = async (playerOwner: string): Promise<{ la
     });
 
     const result = await response.json();
-    console.log("📡 PlayerEventHistory GraphQL response:", result);
 
     if (!result.data?.fullStarterReactPlayerEventHistoryModels?.edges?.length) {
-      console.log("❌ No player event history found in response");
       return null;
     }
 
     // Extract player event history data
     const rawHistoryData = result.data.fullStarterReactPlayerEventHistoryModels.edges[0].node;
-    console.log("📄 Raw player event history data:", rawHistoryData);
 
     // Convert hex values to numbers
     const historyData = {
@@ -168,11 +156,9 @@ export const fetchPlayerEventHistory = async (playerOwner: string): Promise<{ la
       last_execution_timestamp: hexToNumber(rawHistoryData.last_execution_timestamp),
     };
 
-    console.log("✅ Player event history data after conversion:", historyData);
     return historyData;
 
   } catch (error) {
-    console.error("❌ Error fetching player event history:", error);
     throw error;
   }
 };
@@ -194,14 +180,11 @@ export const usePlayer = (): UsePlayerReturn => {
 
   const refetch = async () => {
     if (!userAddress) {
-      console.log("set is loading to false - no address");
       setIsLoading(false);
       return;
     }
 
     try {
-      console.log("Starting the fetch")
-      console.log("setting loading to true - refetch");
       setIsLoading(true);
       setError(null);
 
@@ -216,7 +199,6 @@ export const usePlayer = (): UsePlayerReturn => {
 
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error occurred');
-      console.error("❌ Error in refetch:", error);
       setError(error);
       setPlayer(null);
     } finally {
@@ -226,21 +208,17 @@ export const usePlayer = (): UsePlayerReturn => {
 
   useEffect(() => {
     if (userAddress) {
-      console.log("🔄 Address changed, refetching player data");
       refetch();
     } else {
       // If no address, clear player data immediately
-      console.log("❌ No address, clearing player data");
       setPlayer(null);
       setError(null);
-      console.log("setting loading to useEffect else");
       setIsLoading(false);
     }
   }, [userAddress, setPlayer]);
 
   useEffect(() => {
     if (!account) {
-      console.log("❌ No account, clearing player data");
       setPlayer(null);
       setError(null);
       setIsLoading(false);

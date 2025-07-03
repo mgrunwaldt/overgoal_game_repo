@@ -802,7 +802,7 @@ pub mod game {
             let mut world = self.world(@"full_starter_react");
             let store = StoreTrait::new(world);
 
-            let _ = store.start_gamematch(match_id);
+            store.start_gamematch(match_id);
         }
 
         // Method to process a match action
@@ -811,7 +811,7 @@ pub mod game {
             let store = StoreTrait::new(world);
 
             let decision: MatchDecision = match_decision.into();
-            let _ = store.process_match_action(match_id, decision);
+            store.process_match_action(match_id, decision);
         }
 
         // Method to finish a match

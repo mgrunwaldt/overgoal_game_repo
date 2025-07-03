@@ -20,7 +20,7 @@ import MainScreen from "../components/pages/MainScreen";
 function App() {
   const { account, status } = useAccount();
   const { player, isLoading: playerLoading } = usePlayer();
-
+  
   const isConnected = status === "connected" && account;
   const hasValidPlayer = player !== null && player.is_player_created === true;
 
@@ -40,13 +40,13 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<LoginScreen />} />
-        <Route
-          path="/character-selection"
-          element={<CharacterSelectionScreen />}
+        <Route 
+          path="/character-selection" 
+          element={<CharacterSelectionScreen />} 
         />
-
+      
         <Route path="/main" element={<MainScreen />} />
-
+       
         <Route path="/teams" element={<TeamManagement />} />
 
         <Route path="/select-team" element={<TeamSelection />} />
@@ -57,9 +57,9 @@ function App() {
 
         <Route path="/match-end/:matchId" element={<MatchEnd />} />
 
-        <Route
-          path="/non-match-event-selector"
-          element={<NonMatchEventSelector />}
+        <Route 
+          path="/non-match-event-selector" 
+          element={<NonMatchEventSelector />} 
         />
 
         <Route path="/non-match-result" element={<NonMatchResult />} />
