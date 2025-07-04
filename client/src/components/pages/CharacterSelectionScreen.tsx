@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useSpawnPlayer } from "../../dojo/hooks/useSpawnPlayer";
 import { useStarknetConnect } from "../../dojo/hooks/useStarknetConnect";
 import { Loader2 } from "lucide-react";
+import CharacterStatItem from "../ui/characterSelection/CharacterStatItem";
 
 interface CharacterType {
   id: string;
@@ -168,7 +169,7 @@ export default function CharacterSelectionScreen() {
       </div> */}
 
       {/* Main Content Container */}
-      <div className="relative z-10 flex flex-col md:flex-row items-start justify-center min-h-screen px-4 py-8">
+      <div className="relative z-10 flex flex-col md:flex-row items-start justify-center min-h-screen px-4 py-4">
         {/* Mobile: Character Navigation */}
         <div className="flex md:hidden items-center justify-between w-full mb-auto">
           <button
@@ -183,13 +184,24 @@ export default function CharacterSelectionScreen() {
             />
           </button>
 
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-cyan-300 tracking-wider">
-              {currentCharacter.name}
-            </h2>
-            <div className="text-sm text-cyan-400 mt-1">
+          <div className="text-center relative">
+            <div className="text-sm text-cyan-400 ">
               {currentCharacterIndex + 1} / {characterTypes.length}
             </div>
+            <h2 className="text-3xl font-bold text-cyan-300 tracking-wider pb-2">
+              {currentCharacter.name}
+            </h2>
+
+            <div className="absolute bottom-0 left-0 w-full h-px bg-cyan-500/40 "></div>
+            <div
+              className="absolute bottom-0 right-0 w-1/3 h-px bg-cyan-500/10  before:content-[''] before:absolute before:top-0 before:right-0  before:border-t-[1px] before:border-r-[1px] before:border-cyan-500/40  before:border-t-cyan-500/40  before:border-r-cyan-500/40  before:transform before:translate-y-[-97%] before:translate-x-[0.1px] 
+      before:w-[0px] before:h-2 before:origin-bottom-right before:rotate-45"
+            ></div>
+
+            <div
+              className="absolute bottom-0 left-0 w-1/3 h-px bg-cyan-500/10  before:content-[''] before:absolute before:top-0 before:left-0  before:border-t-[1px] before:border-l-[1px] before:border-cyan-500/40  before:border-t-cyan-500/40  before:border-l-cyan-500/40  before:transform before:translate-y-[-97%] before:translate-x-[0.1px] 
+      before:w-[0px] before:h-2 before:origin-bottom-left before:-rotate-45"
+            ></div>
           </div>
 
           <button
@@ -238,64 +250,38 @@ export default function CharacterSelectionScreen() {
           {/* Stats Panel */}
           <div className="relative w-full max-w-sm">
             <div
-              className="relative w-full h-64 bg-cover bg-center rounded-xl border-2 border-cyan-400/20 bg-no-repeat flex flex-col justify-center items-center"
+              className="relative w-full  h-64 bg-cover bg-center  bg-gradient-to-b from-backgroundContainer/80 to-black/80 border-[0.2px] mix-blend-normal  backdrop-blur-lg border-cyan-500/50 
+              rounded-lg flex flex-col justify-center items-center"
               style={{
                 zIndex: 1000,
-                backgroundColor: "#001B36",
-                backgroundImage:
-                  "url('/CharacterSelection/statsContainer.png')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
             >
               {/* Stats Content */}
-              <div className="relative z-10 space-y-2 px-6 w-full">
+              <div className="relative z-10 space-y-2  px-6 w-full">
                 {/* Stats List */}
-                <div className="space-y-2 ">
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-cyan-300 tracking-wider">
-                      SHOOTING
-                    </span>
-                    <span className="text-2xl font-bold text-cyan-300">
-                      {currentCharacter.stats.shooting}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-cyan-300 tracking-wider">
-                      DRIBBLING
-                    </span>
-                    <span className="text-2xl font-bold text-cyan-300">
-                      {currentCharacter.stats.dribbling}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-cyan-300 tracking-wider">
-                      PASSING
-                    </span>
-                    <span className="text-2xl font-bold text-cyan-300">
-                      {currentCharacter.stats.passing}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-cyan-300 tracking-wider">
-                      ENERGY
-                    </span>
-                    <span className="text-2xl font-bold text-cyan-300">
-                      {currentCharacter.stats.energy}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-cyan-300 tracking-wider">
-                      CHARISMA
-                    </span>
-                    <span className="text-2xl font-bold text-cyan-300">
-                      {currentCharacter.stats.charisma}
-                    </span>
-                  </div>
+                <div className="space-y-2 pb-4 pt-4 ">
+                  <CharacterStatItem
+                    statName="SHOOTING"
+                    statValue={currentCharacter.stats.shooting}
+                  />
+                  <CharacterStatItem
+                    statName="DRIBBLING"
+                    statValue={currentCharacter.stats.dribbling}
+                  />
+                  <CharacterStatItem
+                    statName="PASSING"
+                    statValue={currentCharacter.stats.passing}
+                  />
+                  <CharacterStatItem
+                    statName="ENERGY"
+                    statValue={currentCharacter.stats.energy}
+                  />
+                  <CharacterStatItem
+                    statName="CHARISMA"
+                    statValue={currentCharacter.stats.charisma}
+                  />
                 </div>
               </div>
             </div>
