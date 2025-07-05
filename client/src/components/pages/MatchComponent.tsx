@@ -1757,7 +1757,7 @@ const MatchComponent = () => {
 
             {isWaitingForMatchContinuation &&
               pendingMatchEvent &&
-              currentMinute < 90 && (
+              currentMinute === 45 && (
                 <div className="w-full flex justify-center">
                   <button
                     onClick={handleMatchContinuation}
