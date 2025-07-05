@@ -151,6 +151,11 @@ export enum MatchDecision {
     TackleFan = 7,
     JoinBrawl = 8,
     StayOut = 9,
+    CornerPenalty = 10,
+    CenterPenalty = 11,
+    PanenkaPenalty = 12,
+    FreekickShoot = 13,
+    FreekickCross = 14,
 }
 
 export enum PlayerParticipation {

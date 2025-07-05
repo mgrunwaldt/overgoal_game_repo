@@ -4,7 +4,8 @@ import { useTeams } from "../../dojo/hooks/useTeams";
 import { useNavigate, useParams } from "react-router-dom";
 import { Home, Trophy, Target, Users } from "lucide-react";
 import useAppStore from "../../zustand/store";
-import type { Team, GameMatch } from "../../zustand/store";
+import type { Team } from "../../dojo/hooks/useTeams";
+import type { GameMatch } from "../../dojo/hooks/types";
 
 export default function MatchEnd() {
   const navigate = useNavigate();
@@ -78,8 +79,14 @@ export default function MatchEnd() {
     ) {
       return "/matchEnd/Defeat.png";
     } else {
-      return "/matchEnd/Victory.png";
+      // 🎯 FIX: For ties, return special value to show DRAW text
+      return "DRAW";
     }
+  };
+
+  const isDraw = () => {
+    return currentGameMatch && 
+           currentGameMatch.my_team_score === currentGameMatch.opponent_team_score;
   };
 
   const getResultColor = () => {
@@ -174,13 +181,18 @@ export default function MatchEnd() {
               <div
                 className={`text-6xl font-bold mb-4 ml-8 flex items-center justify-center ${getResultColor()}`}
               >
-                {/* {getResultText()} */}
-
-                <img
-                  src={getResultText()}
-                  alt="Result"
-                  className="w-full h-full"
-                />
+                {/* 🎯 FIX: Show DRAW text for ties, image for win/loss */}
+                {isDraw() ? (
+                  <div className="text-6xl font-bold text-yellow-400">
+                    DRAW
+                  </div>
+                ) : (
+                  <img
+                    src={getResultText()}
+                    alt="Result"
+                    className="w-full h-full"
+                  />
+                )}
               </div>
             </div>
 

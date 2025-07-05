@@ -71,6 +71,11 @@ pub enum MatchDecision {
     TackleFan,
     JoinBrawl,
     StayOut,
+    CornerPenalty,
+    CenterPenalty,
+    PanenkaPenalty,
+    FreekickShoot,
+    FreekickCross,
 }
 
 // ✅ ADD the new model
@@ -160,6 +165,11 @@ impl MatchDecisionIntoFelt252 of Into<MatchDecision, felt252> {
             MatchDecision::TackleFan => 7,
             MatchDecision::JoinBrawl => 8,
             MatchDecision::StayOut => 9,
+            MatchDecision::CornerPenalty => 10,
+            MatchDecision::CenterPenalty => 11,
+            MatchDecision::PanenkaPenalty => 12,
+            MatchDecision::FreekickShoot => 13,
+            MatchDecision::FreekickCross => 14,
         }
     }
 }
@@ -178,6 +188,11 @@ impl U8IntoMatchDecision of Into<u8, MatchDecision> {
             7 => MatchDecision::TackleFan,
             8 => MatchDecision::JoinBrawl,
             9 => MatchDecision::StayOut,
+            10 => MatchDecision::CornerPenalty,
+            11 => MatchDecision::CenterPenalty,
+            12 => MatchDecision::PanenkaPenalty,
+            13 => MatchDecision::FreekickShoot,
+            14 => MatchDecision::FreekickCross,
             _ => MatchDecision::Simulate, // Default fallback
         }
     }

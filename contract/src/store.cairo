@@ -24,6 +24,48 @@ use core::poseidon::poseidon_hash_span;
 // Helpers import
 use full_starter_react::helpers::timestamp::Timestamp;
 
+// ===== GAME BALANCE CONSTANTS =====
+// These constants control all probability calculations in the match system
+// Adjust these values to fine-tune game balance
+
+// === PENALTY PROBABILITIES ===
+const PENALTY_BASE_PROBABILITY: u32 = 60; // Base penalty success rate (60%)
+const PENALTY_CENTER_MODIFIER: u32 = 90; // Center penalty modifier (90% = -10%)
+const PENALTY_CORNER_BASELINE_BOOST: u32 = 105; // Corner penalty boost (105% = +5%)
+const PENALTY_PANENKA_BASELINE_PENALTY: u32 = 70; // Panenka penalty (70% = -30%)
+
+// === FREE KICK PROBABILITIES ===
+const FREE_KICK_BASE_PROBABILITY: u32 = 10; // Base free kick success rate (10%)
+const FREE_KICK_MIN_CLAMP: u32 = 100; // Minimum free kick probability (1%)
+const FREE_KICK_MAX_CLAMP: u32 = 3000; // Maximum free kick probability (30.0%)
+const FREE_KICK_SHOOT_MIN_GOAL_PROB: u32 = 200; // Min goal probability (2%)
+const FREE_KICK_SHOOT_MAX_GOAL_PROB: u32 = 8000; // Max goal probability (80.0%)
+const FREE_KICK_CROSS_MIN_GOAL_PROB: u32 = 2000; // Min cross probability (20%)
+const FREE_KICK_CROSS_MAX_GOAL_PROB: u32 = 8000; // Max cross probability (50.0%)
+
+// === OPEN PLAY PROBABILITIES ===
+const OPEN_PLAY_SHOOT_BASE_PROBABILITY: u32 = 2000; // Base shoot success rate (5.0% in 0.1% units)
+const OPEN_PLAY_SHOOT_MIN_GOAL_PROB: u32 = 1000; // Min goal probability (0.5%)
+const OPEN_PLAY_SHOOT_MAX_GOAL_PROB: u32 = 9000; // Max goal probability (90.0%)
+
+// === MATCH EVENT PROBABILITIES ===
+const MY_TEAM_ATTACK_BASE_PROBABILITY: u32 = 7; // Base attack event probability (7%)
+const OPPONENT_TEAM_ATTACK_BASE_PROBABILITY: u32 = 7; // Base opponent attack probability (7%)
+const RANDOM_EVENT_BASE_PROBABILITY: u32 = 4; // Base random event probability (4%)
+const PENALTY_ACTION_BASE_PROBABILITY: u32 = 5; // Base penalty action probability (4%)
+const FREE_KICK_ACTION_BASE_PROBABILITY: u32 = 20; // Base free kick action probability (18%)
+const BRAWL_ACTION_BASE_PROBABILITY: u32 = 60; // Base brawl action probability (60%)
+
+// === PARTICIPATION PROBABILITIES ===
+const ATTACK_PARTICIPATION_BASE_PROBABILITY: u32 = 100; // Base attack participation (100%)
+const DEFENSE_PARTICIPATION_BASE_PROBABILITY: u32 = 15; // Base defense participation (15%)
+const SIMULATE_FOUL_PENALTY_CHANCE: u32 = 25; // Chance of penalty from simulation (25%)
+
+// === AI ATTACK OUTCOME PROBABILITIES ===
+const AI_PENALTY_SUCCESS_RATE: u32 = 80; // AI penalty success rate (80%)
+const AI_FREE_KICK_SUCCESS_RATE: u32 = 15; // AI free kick success rate (10%)
+const AI_OPEN_PLAY_SUCCESS_RATE: u32 = 5; // AI open play success rate (1%)
+
 // Helper struct for attack event results
 #[derive(Copy, Drop)]
 struct AttackEventResult {
@@ -466,7 +508,24 @@ pub impl StoreImpl of StoreTrait {
         if(match_action == MatchAction::OpenPlay) {
             need_more_actions = self.process_open_play(ref gamematch, ref player, match_decision, opponent_team, my_team);
         } 
+        else if(match_action == MatchAction::Penalty){
+            need_more_actions = self.process_penalty(ref gamematch, ref player, match_decision, opponent_team, my_team);
+        }
+        else if (match_action == MatchAction::FreeKick){
+            need_more_actions = self.process_free_kick(ref gamematch, ref player, match_decision, opponent_team, my_team);
+        }
+        // 🎯 FIX: Handle HalfTime and MatchEnd actions properly - DON'T ADD GOALS!
+        else if (match_action == MatchAction::HalfTime) {
+            // HalfTime - just continue, no goals added
+            need_more_actions = true;
+        }
+        else if (match_action == MatchAction::MatchEnd) {
+            // MatchEnd - finish the match, no goals added
+            need_more_actions = false;
+        }
         else{
+            // 🎯 FIX: Only add goals for actual scoring actions, not for HalfTime/MatchEnd
+            // This else block should only handle unexpected/unimplemented actions
             gamematch.my_team_score += 1;
             gamematch.event_counter += 1;
             let timeline_event = MatchTimelineEvent {
@@ -501,6 +560,395 @@ pub impl StoreImpl of StoreTrait {
         
 
     }
+    //Free Kick
+    fn process_free_kick(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) -> bool {
+        let mut need_more_actions = true;
+        match match_decision {
+            MatchDecision::FreekickCross => need_more_actions = self.process_free_kick_cross(ref gamematch, ref player, opponent_team, my_team),
+            MatchDecision::FreekickShoot => need_more_actions = self.process_free_kick_shoot(ref gamematch, ref player, opponent_team, my_team),
+            _ => {
+
+            }
+        }
+        return need_more_actions;
+    }
+    fn process_free_kick_cross(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
+        // ✅ Implement free kick cross algorithm from free_kick.md with FIXED calculation
+        let mut need_more_actions = true;
+        
+        // 🎯 FREE KICK CROSS ALGORITHM from free_kick.md - using constants
+        // 1. Calculate baseProbabilityFK (same as shoot)
+        let my_offense_i32: i32 = my_team.offense.try_into().unwrap();
+        let opponent_defense_i32: i32 = opponent_team.defense.try_into().unwrap();
+        let attack_vs_def_raw: i32 = my_offense_i32 - opponent_defense_i32;
+        let attack_vs_def: i32 = if attack_vs_def_raw < -40 { -40 } else if attack_vs_def_raw > 40 { 40 } else { attack_vs_def_raw };
+        let wall_pressure: u32 = opponent_team.intensity.into() * 30 / 100; // defendingTeam.intensity * 0.3
+        
+        let mut base_probability_fk: i32 = FREE_KICK_BASE_PROBABILITY.try_into().unwrap() + attack_vs_def * 5 / 100 - wall_pressure.try_into().unwrap() * 2 / 100;
+        
+        // Clamp baseProbabilityFK using constants
+        if base_probability_fk < FREE_KICK_MIN_CLAMP.try_into().unwrap() { base_probability_fk = FREE_KICK_MIN_CLAMP.try_into().unwrap(); }
+        if base_probability_fk > FREE_KICK_MAX_CLAMP.try_into().unwrap() { base_probability_fk = FREE_KICK_MAX_CLAMP.try_into().unwrap(); }
+        
+        // 2. Calculate goalProb from free_kick.md cross spec:
+        // goalProb = baseProbabilityFK * (player.freeKick * 0.35 + player.passing * 0.30 + player.intelligence * 0.10 + attackingTeam.offense * 0.20 - defendingTeam.defense * 0.05) / 100
+        let freekick_factor: u32 = player.free_kick.into() * 35 / 100; // player.freeKick * 0.35
+        let passing_factor: u32 = player.passing.into() * 30 / 100; // player.passing * 0.30
+        let intelligence_factor: u32 = player.intelligence.into() * 10 / 100; // player.intelligence * 0.10
+        let offense_factor: u32 = my_team.offense.into() * 20 / 100; // attackingTeam.offense * 0.20
+        let defense_penalty: u32 = opponent_team.defense.into() * 5 / 100; // defendingTeam.defense * 0.05
+        
+        let combined_factor: u32 = freekick_factor + passing_factor + intelligence_factor + offense_factor - defense_penalty;
+        // 🎯 FIX: Multiply base by 10 to work in 0.1% units, avoiding the division by 100 problem
+        let mut goal_prob: u32 = base_probability_fk.try_into().unwrap() * 10 * combined_factor / 100;
+        
+        // 3. Clamp goalProb using constants
+        if goal_prob < FREE_KICK_CROSS_MIN_GOAL_PROB { goal_prob = FREE_KICK_CROSS_MIN_GOAL_PROB; }
+        if goal_prob > FREE_KICK_CROSS_MAX_GOAL_PROB { goal_prob = FREE_KICK_CROSS_MAX_GOAL_PROB; }
+        
+        // 4. Generate random roll (0-9999) and check if success
+        let random_roll = self.generate_random(10000, gamematch.event_counter.into());
+        let is_success = random_roll < goal_prob;
+        
+        // 🎯 FIX: Correct conditional structure
+        if is_success {
+            need_more_actions = false;
+            gamematch.next_match_action = MatchAction::OpenPlay;
+            
+            // 🎯 FIX: Create RESULT event first (player_participates: false)
+            gamematch.event_counter += 1;
+            let result_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::FreeKick,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'Cross successful!',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: false, // 🎯 RESULT - no participation needed
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@result_event);
+            
+            // 🎯 FIX: Create NEW ACTION event (player_participates: true)
+            gamematch.event_counter += 1;
+            let action_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::OpenPlay,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'New attack opportunity',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: true, // 🎯 NEW ACTION - participation required
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@action_event);
+        } else {
+            // Failed cross - final result, no chaining
+            gamematch.event_counter += 1;
+            let timeline_event = MatchTimelineEvent {
+                match_id: gamematch.match_id,
+                event_id: gamematch.event_counter,
+                action: MatchAction::FreeKick,
+                minute: gamematch.current_time,
+                team: ActionTeam::MyTeam,
+                description: 'Cross intercepted! Ball lost!',
+                team_score: gamematch.my_team_score,
+                opponent_team_score: gamematch.opponent_team_score,
+                team_scored: false,
+                opponent_team_scored: false,
+                player_participates: false, // 🎯 FINAL RESULT - no participation
+                half_time: false,
+                match_end: false,
+            };
+            self.world.write_model(@timeline_event);
+        }
+        return need_more_actions;
+    }
+
+
+    fn process_free_kick_shoot(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
+        // ✅ Implement free kick shoot algorithm from free_kick.md with FIXED calculation
+        let mut need_more_actions = true;
+        
+        // 🎯 FREE KICK ALGORITHM from free_kick.md - using constants
+        // 1. Calculate baseProbabilityFK
+        let my_offense_i32: i32 = my_team.offense.try_into().unwrap();
+        let opponent_defense_i32: i32 = opponent_team.defense.try_into().unwrap();
+        let attack_vs_def_raw: i32 = my_offense_i32 - opponent_defense_i32;
+        let attack_vs_def: i32 = if attack_vs_def_raw < -40 { -40 } else if attack_vs_def_raw > 40 { 40 } else { attack_vs_def_raw };
+        let wall_pressure: u32 = opponent_team.intensity.into() * 30 / 100; // defendingTeam.intensity * 0.3
+        
+        let mut base_probability_fk: i32 = FREE_KICK_BASE_PROBABILITY.try_into().unwrap() + attack_vs_def * 5 / 100 - wall_pressure.try_into().unwrap() * 2 / 100;
+        
+        // Clamp baseProbabilityFK using constants
+        if base_probability_fk < FREE_KICK_MIN_CLAMP.try_into().unwrap() { base_probability_fk = FREE_KICK_MIN_CLAMP.try_into().unwrap(); }
+        if base_probability_fk > FREE_KICK_MAX_CLAMP.try_into().unwrap() { base_probability_fk = FREE_KICK_MAX_CLAMP.try_into().unwrap(); }
+        
+        // 2. Calculate goalProb from free_kick.md spec:
+        // goalProb = baseProbabilityFK * (player.freeKick * 0.5 + player.shoot * 0.25 + player.intelligence * 0.15 + attackingTeam.offense * 0.10) / 100
+        let freekick_factor: u32 = player.free_kick.into() * 50 / 100; // player.freeKick * 0.5
+        let shoot_factor: u32 = player.shoot.into() * 25 / 100; // player.shoot * 0.25
+        let intelligence_factor: u32 = player.intelligence.into() * 15 / 100; // player.intelligence * 0.15
+        let offense_factor: u32 = my_team.offense.into() * 10 / 100; // attackingTeam.offense * 0.10
+        
+        let combined_factor: u32 = freekick_factor + shoot_factor + intelligence_factor + offense_factor;
+        // 🎯 FIX: Multiply base by 10 to work in 0.1% units, avoiding the division by 100 problem
+        let mut goal_prob: u32 = base_probability_fk.try_into().unwrap() * 10 * combined_factor / 100;
+        
+        // 3. Clamp goalProb using constants
+        if goal_prob < FREE_KICK_SHOOT_MIN_GOAL_PROB { goal_prob = FREE_KICK_SHOOT_MIN_GOAL_PROB; }
+        if goal_prob > FREE_KICK_SHOOT_MAX_GOAL_PROB { goal_prob = FREE_KICK_SHOOT_MAX_GOAL_PROB; }
+        
+        // 4. Generate random roll (0-9999) and check if goal
+        let random_roll = self.generate_random(10000, gamematch.event_counter.into());
+        let is_goal = random_roll < goal_prob;
+        
+        // Update score if goal scored
+        if is_goal {
+            gamematch.my_team_score += 1;
+        }
+        gamematch.event_counter += 1;
+        let timeline_event = MatchTimelineEvent {
+            match_id: gamematch.match_id,
+            event_id: gamematch.event_counter,
+            action: MatchAction::FreeKick,
+            minute: gamematch.current_time,
+            team: ActionTeam::MyTeam,
+            description: if is_goal { 'GOOOAL!' } else { 'Free kick missed!' },
+            team_score: gamematch.my_team_score,
+            opponent_team_score: gamematch.opponent_team_score,
+            team_scored: is_goal,
+            opponent_team_scored: false,
+            player_participates: false,
+            half_time: false,
+            match_end: false,
+        };
+        self.world.write_model(@timeline_event);
+        return need_more_actions;
+    }
+
+
+
+
+
+    //PENALTY
+    fn process_penalty(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) -> bool {
+        let mut need_more_actions = true;
+        match match_decision {
+            MatchDecision::CenterPenalty => need_more_actions = self.process_penalty_center(ref gamematch, ref player, opponent_team, my_team),
+            MatchDecision::CornerPenalty => need_more_actions = self.process_penalty_corner(ref gamematch, ref player, opponent_team, my_team),
+            MatchDecision::PanenkaPenalty => need_more_actions = self.process_penalty_panenka(ref gamematch, ref player, opponent_team, my_team),
+            _ => {
+
+            }
+        }
+        return need_more_actions;
+    }
+    fn process_penalty_center(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
+        // ✅ Implement penalty center algorithm from penalty.md with constants
+        let mut need_more_actions = true;
+        
+        // 🎯 PENALTY ALGORITHM from penalty.md - using constants
+        // 1. Base probability from constant
+        
+        // 2. Skill edge: player.shoot - defendingTeam.defense, clamped to -40 to 40
+        let player_shoot_i32: i32 = player.shoot.try_into().unwrap();
+        let opponent_defense_i32: i32 = opponent_team.defense.try_into().unwrap();
+        let skill_edge_raw: i32 = player_shoot_i32 - opponent_defense_i32;
+        let skill_edge: i32 = if skill_edge_raw < -40 { -40 } else if skill_edge_raw > 40 { 40 } else { skill_edge_raw };
+        
+        // 3. Calculate baseProbabilityPK
+        // baseProbabilityPK = pk_base + skill_edge * 0.25 + player.intelligence * 0.10
+        let skill_bonus: i32 = skill_edge * 25 / 100; // skill_edge * 0.25
+        let intelligence_bonus: u32 = player.intelligence.into() * 10 / 100; // player.intelligence * 0.10
+        let mut base_probability_pk: i32 = PENALTY_BASE_PROBABILITY.try_into().unwrap() + skill_bonus + intelligence_bonus.try_into().unwrap();
+        
+        // 4. Clamp baseProbabilityPK between 40.0 and 90.0
+        if base_probability_pk < 40 { base_probability_pk = 40; }
+        if base_probability_pk > 90 { base_probability_pk = 90; }
+        
+        // 5. Apply Center Penalty modifier: baseProbabilityPK * modifier (-10%)
+        let mut goal_prob: u32 = (base_probability_pk * PENALTY_CENTER_MODIFIER.try_into().unwrap() / 100).try_into().unwrap();
+        
+        // 6. Clamp for center penalty: 35.0 to 80.0
+        if goal_prob < 35 { goal_prob = 35; }
+        if goal_prob > 80 { goal_prob = 80; }
+        
+        // 7. Generate random roll (0-99) and check if goal
+        let random_roll = self.generate_random(100, gamematch.event_counter.into());
+        let is_goal = random_roll < goal_prob;
+        
+        // Update score if goal scored
+        if is_goal {
+            gamematch.my_team_score += 1;
+        }
+        gamematch.event_counter += 1;
+        let timeline_event = MatchTimelineEvent {
+            match_id: gamematch.match_id,
+            event_id: gamematch.event_counter,
+            action: MatchAction::Penalty,
+            minute: gamematch.current_time,
+            team: ActionTeam::MyTeam,
+            description: if is_goal { 'GOOOAL!' } else { 'Penalty missed!' },
+            team_score: gamematch.my_team_score,
+            opponent_team_score: gamematch.opponent_team_score,
+            team_scored: is_goal,
+            opponent_team_scored: false,
+            player_participates: false,
+            half_time: false,
+            match_end: false,
+        };
+        self.world.write_model(@timeline_event);
+        return need_more_actions;
+    }
+
+    fn process_penalty_corner(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
+        // ✅ Implement penalty corner algorithm from penalty.md with constants
+        let mut need_more_actions = true;
+        
+        // 🎯 PENALTY ALGORITHM from penalty.md - using constants
+        // 1. Base probability from constant
+        
+        // 2. Skill edge: player.shoot - defendingTeam.defense, clamped to -40 to 40
+        let player_shoot_i32: i32 = player.shoot.try_into().unwrap();
+        let opponent_defense_i32: i32 = opponent_team.defense.try_into().unwrap();
+        let skill_edge_raw: i32 = player_shoot_i32 - opponent_defense_i32;
+        let skill_edge: i32 = if skill_edge_raw < -40 { -40 } else if skill_edge_raw > 40 { 40 } else { skill_edge_raw };
+        
+        // 3. Calculate baseProbabilityPK
+        // baseProbabilityPK = pk_base + skill_edge * 0.25 + player.intelligence * 0.10
+        let skill_bonus: i32 = skill_edge * 25 / 100; // skill_edge * 0.25
+        let intelligence_bonus: u32 = player.intelligence.into() * 10 / 100; // player.intelligence * 0.10
+        let mut base_probability_pk: i32 = PENALTY_BASE_PROBABILITY.try_into().unwrap() + skill_bonus + intelligence_bonus.try_into().unwrap();
+        
+        // 4. Clamp baseProbabilityPK between 40.0 and 90.0
+        if base_probability_pk < 40 { base_probability_pk = 40; }
+        if base_probability_pk > 90 { base_probability_pk = 90; }
+        
+        // 5. Apply Corner Penalty modifiers from penalty.md:
+        // aim_bonus = (player.shoot - 50) * 0.30    // −15→+15 %
+        // goalProb = baseProbabilityPK * baseline_boost       // +5 % baseline
+        // goalProb += aim_bonus
+        let player_shoot_i32_2: i32 = player.shoot.try_into().unwrap();
+        let aim_bonus: i32 = (player_shoot_i32_2 - 50) * 30 / 100; // (player.shoot - 50) * 0.30
+        let mut goal_prob: i32 = base_probability_pk * PENALTY_CORNER_BASELINE_BOOST.try_into().unwrap() / 100; // +5% baseline boost
+        goal_prob += aim_bonus;
+        
+        // 6. Clamp for corner penalty: 40.0 to 90.0
+        if goal_prob < 40 { goal_prob = 40; }
+        if goal_prob > 90 { goal_prob = 90; }
+        
+        // 7. Generate random roll (0-99) and check if goal
+        let random_roll = self.generate_random(100, gamematch.event_counter.into());
+        let goal_prob_u32: u32 = goal_prob.try_into().unwrap();
+        let is_goal = random_roll < goal_prob_u32;
+        
+        // Update score if goal scored
+        if is_goal {
+            gamematch.my_team_score += 1;
+        }
+        gamematch.event_counter += 1;
+        let timeline_event = MatchTimelineEvent {
+            match_id: gamematch.match_id,
+            event_id: gamematch.event_counter,
+            action: MatchAction::Penalty,
+            minute: gamematch.current_time,
+            team: ActionTeam::MyTeam,
+            description: if is_goal { 'GOOOAL!' } else { 'Penalty missed!' },
+            team_score: gamematch.my_team_score,
+            opponent_team_score: gamematch.opponent_team_score,
+            team_scored: is_goal,
+            opponent_team_scored: false,
+            player_participates: false,
+            half_time: false,
+            match_end: false,
+        };
+        self.world.write_model(@timeline_event);
+        return need_more_actions;
+    }
+
+    fn process_penalty_panenka(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
+        // ✅ Implement penalty panenka algorithm from penalty.md with constants
+        let mut need_more_actions = true;
+        
+        // 🎯 PENALTY ALGORITHM from penalty.md - using constants
+        // 1. Base probability from constant
+        
+        // 2. Skill edge: player.shoot - defendingTeam.defense, clamped to -40 to 40
+        let player_shoot_i32: i32 = player.shoot.try_into().unwrap();
+        let opponent_defense_i32: i32 = opponent_team.defense.try_into().unwrap();
+        let skill_edge_raw: i32 = player_shoot_i32 - opponent_defense_i32;
+        let skill_edge: i32 = if skill_edge_raw < -40 { -40 } else if skill_edge_raw > 40 { 40 } else { skill_edge_raw };
+        
+        // 3. Calculate baseProbabilityPK
+        // baseProbabilityPK = pk_base + skill_edge * 0.25 + player.intelligence * 0.10
+        let skill_bonus: i32 = skill_edge * 25 / 100; // skill_edge * 0.25
+        let intelligence_bonus: u32 = player.intelligence.into() * 10 / 100; // player.intelligence * 0.10
+        let mut base_probability_pk: i32 = PENALTY_BASE_PROBABILITY.try_into().unwrap() + skill_bonus + intelligence_bonus.try_into().unwrap();
+        
+        // 4. Clamp baseProbabilityPK between 40.0 and 90.0
+        if base_probability_pk < 40 { base_probability_pk = 40; }
+        if base_probability_pk > 90 { base_probability_pk = 90; }
+        
+        // 5. Apply Panenka Penalty modifiers from penalty.md:
+        // iq_factor = player.intelligence * 0.40    // 0-40 %
+        // goalProb = baseProbabilityPK * baseline_penalty       // −30 %
+        // goalProb += iq_factor - defendingTeam.intensity * 0.20
+        let iq_factor: u32 = player.intelligence.into() * 40 / 100; // player.intelligence * 0.40
+        let intensity_penalty: u32 = opponent_team.intensity.into() * 20 / 100; // defendingTeam.intensity * 0.20
+        let mut goal_prob: i32 = base_probability_pk * PENALTY_PANENKA_BASELINE_PENALTY.try_into().unwrap() / 100; // -30% baseline penalty
+        goal_prob += iq_factor.try_into().unwrap();
+        goal_prob -= intensity_penalty.try_into().unwrap();
+        
+        // 6. Clamp for panenka penalty: 20.0 to 80.0
+        if goal_prob < 20 { goal_prob = 20; }
+        if goal_prob > 80 { goal_prob = 80; }
+        
+        // 7. Generate random roll (0-99) and check if goal
+        let random_roll = self.generate_random(100, gamematch.event_counter.into());
+        let goal_prob_u32: u32 = goal_prob.try_into().unwrap();
+        let is_goal = random_roll < goal_prob_u32;
+        
+        // Update score if goal scored
+        if is_goal {
+            gamematch.my_team_score += 1;
+        }
+        gamematch.event_counter += 1;
+        let timeline_event = MatchTimelineEvent {
+            match_id: gamematch.match_id,
+            event_id: gamematch.event_counter,
+            action: MatchAction::Penalty,
+            minute: gamematch.current_time,
+            team: ActionTeam::MyTeam,
+            description: if is_goal { 'GOOOAL!' } else { 'Penalty missed!' },
+            team_score: gamematch.my_team_score,
+            opponent_team_score: gamematch.opponent_team_score,
+            team_scored: is_goal,
+            opponent_team_scored: false,
+            player_participates: false,
+            half_time: false,
+            match_end: false,
+        };
+        self.world.write_model(@timeline_event);
+        return need_more_actions;
+    }
+
+
+
+
+
+
+    //OPEN PLAY
     fn process_open_play(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) -> bool {
         let mut need_more_actions = true;
         match match_decision {
@@ -509,7 +957,6 @@ pub impl StoreImpl of StoreTrait {
             MatchDecision::Shoot => need_more_actions = self.process_open_play_shoot(ref gamematch, ref player, opponent_team, my_team),
             MatchDecision::Simulate => need_more_actions = self.process_open_play_simulate_foul(ref gamematch, ref player, opponent_team, my_team),
             _ => {
-
             }
         }
         return need_more_actions;
@@ -671,24 +1118,25 @@ pub impl StoreImpl of StoreTrait {
         return need_more_actions;
     }
     fn process_open_play_shoot(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
-        // ✅ Implement open_play.md shooting algorithm
+        // ✅ Implement open_play.md shooting algorithm with FIXED calculation
         let mut need_more_actions = true;
-        let base_probability = 5; // 5% base probability
         
+        // 🎯 FIX: Use constant and correct formula without problematic division
         // Calculate goalProb = baseProbability * (player.shoot * 0.7 + player.intelligence * 0.1 + attackingTeam.offense * 0.2) / 100
         let shoot_factor = player.shoot * 70 / 100; // 0.7 * player.shoot
         let intelligence_factor = player.intelligence * 10 / 100; // 0.1 * player.intelligence  
         let offense_factor = my_team.offense.into() * 20 / 100; // 0.2 * team.offense (convert u8 to u32)
         
         let combined_factor = shoot_factor + intelligence_factor + offense_factor;
-        let mut goal_prob = base_probability * combined_factor / 100;
+        // 🎯 FIX: Use base probability from constant and correct scaling
+        let mut goal_prob = OPEN_PLAY_SHOOT_BASE_PROBABILITY * combined_factor / 100; // 500 * factor / 100 gives proper percentage
         
-        // Clamp goalProb between 0.5 and 90.0 (using integers: 0-9000 range)
-        if goal_prob < 50 { // 0.5%
-            goal_prob = 50;
+        // Clamp goalProb using constants
+        if goal_prob < OPEN_PLAY_SHOOT_MIN_GOAL_PROB {
+            goal_prob = OPEN_PLAY_SHOOT_MIN_GOAL_PROB;
         }
-        if goal_prob > 9000 { // 90.0%
-            goal_prob = 9000;
+        if goal_prob > OPEN_PLAY_SHOOT_MAX_GOAL_PROB {
+            goal_prob = OPEN_PLAY_SHOOT_MAX_GOAL_PROB;
         }
         
         // Generate random roll (0-9999 for precision) and check if goal
@@ -719,7 +1167,7 @@ pub impl StoreImpl of StoreTrait {
         return need_more_actions;
     }
     fn process_open_play_simulate_foul(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
-                // ✅ Implement open_play.md simulate (dive) algorithm
+        // ✅ Implement open_play.md simulate (dive) algorithm
         // successProb = (player.intelligence * 0.4 + player.dribble * 0.3 + attackingTeam.intensity * 0.3) / 100
         let mut need_more_actions = true;
         let intelligence_factor = player.intelligence * 40 / 100; // 0.4 * player.intelligence
@@ -734,14 +1182,16 @@ pub impl StoreImpl of StoreTrait {
         let is_success = random_roll < success_prob;
         
         if is_success {
+            // 🎯 FIX: Set need_more_actions = false when chaining to another action
             need_more_actions = false;
-            // On success: 25% chance of Penalty, otherwise referee waves play on (treat as failed dribble)
+            // On success: chance of Penalty from constant, otherwise free kick
             let penalty_roll = self.generate_random(100, (gamematch.event_counter + 1).into());
-            let gets_penalty = penalty_roll < 25; // 25% chance
+            let gets_penalty = penalty_roll < SIMULATE_FOUL_PENALTY_CHANCE; // Chance from constant
             let new_action = if gets_penalty { MatchAction::Penalty } else { MatchAction::FreeKick };
             gamematch.next_match_action = new_action;
 
             // 🎯 FIX: Create RESULT event first (player_participates: false)
+            gamematch.event_counter += 1;
             let result_event = MatchTimelineEvent {
                 match_id: gamematch.match_id,
                 event_id: gamematch.event_counter,
@@ -799,62 +1249,25 @@ pub impl StoreImpl of StoreTrait {
         }
         return need_more_actions;
     }
-    fn process_jumper(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
+    
 
-    }
-    fn process_brawl(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
 
-    }
-    fn process_free_kick(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
 
-    }
-    fn process_penalty(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
 
-    }
-    fn process_open_defense(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
-
-    }
-    fn process_half_time(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
-
-    }
-    fn process_match_end(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
-
-    }
-    fn process_substitute(mut self: Store, ref gamematch:GameMatch, ref player:Player, match_decision: MatchDecision, opponent_team: Team, my_team: Team) {
-
-    }
-
+    //MATCH ACTIONS
     fn process_match_action(mut self: Store, match_id: u32, match_decision: MatchDecision) {
         // ✅ STEP 1: Process player's decision and simulate the outcome
-        // TODO: Process player's decision here (e.g., if they chose to shoot, calculate outcome)
-        // For now, we just simulate a basic outcome
         let mut gamematch = self.read_gamematch(match_id);
-        // ✅ STEP 2: Decrement stamina for participation
         let mut player = self.read_player();
-        let _need_more_actions = self.process_match_decision(ref gamematch, ref player, match_decision);
-        //player.remove_stamina(5); // Example stamina cost
-        //self.world.write_model(@player);
+        let need_more_actions = self.process_match_decision(ref gamematch, ref player, match_decision);
 
-        //mati: falta chequear si termino el partido
-
-        // ✅ STEP 3: Generate all events until the next time user input is needed
-        // This function will update the match state internally (current_time, next_action, etc.)
-        if _need_more_actions {
+        // ✅ STEP 2: IMPORTANT FIX - Only generate events until input required if the action didn't chain to another action
+        // This prevents generic "Your team attacks!" events from overriding specific action results
+        if need_more_actions {
             self.generate_events_until_input_required(ref gamematch);
         }
         
-        // ✅ STEP 4: IMPORTANT - Save the updated match state AFTER generation
-        // The generate_events_until_input_required function has already updated:
-        // - current_time (progressed through minutes)
-        // - next_match_action (set to the action that needs user input)
-        // - next_match_action_minute (set to when user input is needed)
-        // - match_status (potentially changed to HalfTime/Finished)
-        // - player_participation (set based on the next action)
-        // - action_team (set based on the next action)
-        // - event_counter (incremented for each timeline event created)
-        
-        // We need to read the updated match and save it to persist all these changes
-        
+        // ✅ STEP 3: Save the updated match state
         self.world.write_model(@gamematch);
     }
 
@@ -1155,8 +1568,8 @@ pub impl StoreImpl of StoreTrait {
         match_id: u32,
         mut random_counter: u32
     ) -> AttackEventResult {
-        // 1. Calculate attack event probability
-        let base_probability = 7; // 7/90 base chance
+        // 1. Calculate attack event probability using constant
+        let base_probability = MY_TEAM_ATTACK_BASE_PROBABILITY; // Base chance from constant
         let normalized_my_offense = self.normalize_team_stat(my_team.offense.into(), false); // returns value 80 to 100
         let normalized_my_intensity = self.normalize_team_stat(my_team.intensity.into(), false);
         
@@ -1198,7 +1611,7 @@ pub impl StoreImpl of StoreTrait {
         mut random_counter: u32
     ) -> AttackEventResult {
         // Opponent attack adjusted by my team's defense
-        let base_probability = 7; // 7/90 base chance
+        let base_probability = OPPONENT_TEAM_ATTACK_BASE_PROBABILITY; // Base chance from constant
         let normalized_my_defense = self.normalize_team_stat(my_team.defense.into(), true); // defense range 0.8-1.2
         let normalized_my_intensity = self.normalize_team_stat(my_team.intensity.into(), true);
         let normalized_opp_offense = self.normalize_team_stat(opponent_team.offense.into(), false);
@@ -1243,8 +1656,8 @@ pub impl StoreImpl of StoreTrait {
         match_id: u32,
         mut random_counter: u32
     ) -> AttackEventResult {
-        // Opponent attack adjusted by my team's defense
-        let base_probability = 1; // 0.1/90 base chance
+        // Random event probability
+        let base_probability = RANDOM_EVENT_BASE_PROBABILITY; // Base chance from constant
         
         
         let random_value = self.generate_random(100, random_counter.into());
@@ -1286,16 +1699,16 @@ pub impl StoreImpl of StoreTrait {
             self.normalize_team_stat(team.offense.into(), false)
         };
         
-        // 1. Check for penalty (4% base * team_offense * skill_factor)
-        let penalty_probability = 4 * normalized_offense * skill_factor / 10000;
+        // 1. Check for penalty using constant
+        let penalty_probability = PENALTY_ACTION_BASE_PROBABILITY * normalized_offense * skill_factor / 10000;
 
         random_counter += 1;
         if self.generate_random(100, random_counter.into()) < penalty_probability {
             return MatchAction::Penalty;
         }
         
-        // 2. Check for free kick (18% base * skill_factor)
-        let freekick_probability = 18 * skill_factor / 100;
+        // 2. Check for free kick using constant
+        let freekick_probability = FREE_KICK_ACTION_BASE_PROBABILITY * skill_factor / 100;
         random_counter += 1;
         if self.generate_random(100, random_counter.into()) < freekick_probability {
             return MatchAction::FreeKick;
@@ -1308,9 +1721,9 @@ pub impl StoreImpl of StoreTrait {
 
     fn determine_random_action_type(self: Store, team: Team, player: Player, match_id: u32, current_time: u8, mut random_counter: u32) -> MatchAction {
         //we already know there is a random action type. we need to check if it is a brawl or a jumper
-        // 3. Check for brawl (5% base * intensity)
+        // 3. Check for brawl using constant
         let normalized_intensity = self.normalize_team_stat(team.intensity.into(), false);
-        let brawl_probability = 60 * normalized_intensity / 100;
+        let brawl_probability = BRAWL_ACTION_BASE_PROBABILITY * normalized_intensity / 100;
         random_counter += 1;
         if self.generate_random(100, random_counter.into()) < brawl_probability {
             return MatchAction::Brawl;
@@ -1329,7 +1742,7 @@ pub impl StoreImpl of StoreTrait {
         let normalized_intelligence = self.normalize_player_stat(player.intelligence);
         let normalized_relationship = self.normalize_player_stat(player.team_relationship);
         
-        let participation_probability = 100 * normalized_stamina * normalized_intelligence * normalized_relationship / 1000000;
+        let participation_probability = ATTACK_PARTICIPATION_BASE_PROBABILITY * normalized_stamina * normalized_intelligence * normalized_relationship / 1000000;
         random_counter += 1;
        return self.generate_random(100, random_counter.into()) < participation_probability;
     }
@@ -1342,7 +1755,7 @@ pub impl StoreImpl of StoreTrait {
         let normalized_stamina = self.normalize_player_stat(player.stamina);
         let normalized_intelligence = self.normalize_player_stat(player.intelligence);
         
-        let participation_probability = 15 * normalized_stamina * normalized_intelligence / 10000;
+        let participation_probability = DEFENSE_PARTICIPATION_BASE_PROBABILITY * normalized_stamina * normalized_intelligence / 10000;
         random_counter += 1;
         self.generate_random(100, random_counter.into()) < participation_probability
     }
@@ -1358,15 +1771,16 @@ pub impl StoreImpl of StoreTrait {
     ) -> bool {
         let normalized_attack = self.normalize_team_stat(attacking_team.offense.into(), true); // 0.8-1.2 range
         
-        let _goal_probability = match action_type {
-            MatchAction::Penalty => 80 * normalized_attack / 100,      // 80% base
-            MatchAction::FreeKick => 10 * normalized_attack / 100,     // 10% base
-            MatchAction::OpenPlay => 1 * normalized_attack / 100,      // 1% base
-            _ => 1 * normalized_attack / 100,                          // Default 1%
+        // 🎯 FIX: Use constants and actually calculate probabilities
+        let goal_probability = match action_type {
+            MatchAction::Penalty => AI_PENALTY_SUCCESS_RATE * normalized_attack / 100,      // 80% base * team factor
+            MatchAction::FreeKick => AI_FREE_KICK_SUCCESS_RATE * normalized_attack / 100,   // 10% base * team factor
+            MatchAction::OpenPlay => AI_OPEN_PLAY_SUCCESS_RATE * normalized_attack / 100,   // 1% base * team factor
+            _ => AI_OPEN_PLAY_SUCCESS_RATE * normalized_attack / 100,                       // Default 1% * team factor
         };
         random_counter += 1;
-        return true;
-        //return self.generate_random(100, random_counter.into()) < goal_probability;
+        // 🎯 FIX: Actually use the calculated probability instead of always returning true
+        return self.generate_random(100, random_counter.into()) < goal_probability;
     }
 
     // --------- Utility Functions ---------

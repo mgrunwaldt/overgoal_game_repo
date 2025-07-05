@@ -142,15 +142,18 @@ const MatchComponent = () => {
           : 1;
 
       case "Freekick":
-        // ['Cross', 'Shoot'] → [1, 3] (Cross→Pass, Shoot→Shoot)
-        const freekickMap = [1, 3]; // Cross as Pass, Shoot
+        // ['Cross', 'Shoot'] → [14, 13] (FreekickCross, FreekickShoot)
+        const freekickMap = [14, 13]; // FreekickCross, FreekickShoot
         return decisionIndex < freekickMap.length
           ? freekickMap[decisionIndex]
-          : 3;
+          : 13; // Default to FreekickShoot
 
       case "Penalty":
-        // ['Shoot at center', 'Shoot at corner', 'Panenka penalty'] → [3, 3, 3] (all Shoot)
-        return 3; // All penalty options map to Shoot
+        // ['Shoot at center', 'Shoot at corner', 'Panenka penalty'] → [11, 10, 12]
+        const penaltyMap = [11, 10, 12]; // CenterPenalty, CornerPenalty, PanenkaPenalty
+        return decisionIndex < penaltyMap.length
+          ? penaltyMap[decisionIndex]
+          : 11; // Default to CenterPenalty
 
       case "Defense Open Play":
         // ['Standing tackle', 'Sweeping tackle'] → [4, 5]
