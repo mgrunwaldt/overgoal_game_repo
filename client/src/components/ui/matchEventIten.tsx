@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 interface MatchEventItemProps {
   text: string;
@@ -14,7 +14,7 @@ const MatchEventIten: React.FC<MatchEventItemProps> = ({
   onPlay,
 }) => {
   const baseClasses =
-    "flex justify-between items-center p-2 rounded-md transition-all duration-300 border-b-2 backdrop-blur-sm";
+    "flex justify-between flex-col text-center items-center p-2 rounded-md transition-all duration-300 border-b-2 backdrop-blur-sm";
 
   const getTeamStyles = () => {
     if (team === "enemy") {
@@ -33,11 +33,16 @@ const MatchEventIten: React.FC<MatchEventItemProps> = ({
   };
 
   const buttonClasses =
-    "ml-4 px-3 py-1 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-sm rounded-md shadow-[0_0_10px_rgba(34,211,238,0.7)] transition-all duration-300 transform hover:scale-105";
+    "px-3 py-1 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-sm rounded-md shadow-[0_0_10px_rgba(34,211,238,0.7)] transition-all duration-300 transform hover:scale-105 w-full mt-2";
 
+  useEffect(() => {
+    if (playable && onPlay) {
+      onPlay();
+    }
+  }, []);
   return (
     <li className={`${baseClasses} ${getTeamStyles()}`}>
-      <span className="font-sans tracking-wider">{text}</span>
+      <span className="font-sans ">{text}</span>
       {playable && (
         <button className={buttonClasses} onClick={onPlay}>
           PLAY

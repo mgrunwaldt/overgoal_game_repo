@@ -20,6 +20,7 @@ export default {
     extend: {
       colors: {
         border: "hsl(var(--border))",
+        backgroundContainer: "#001B36",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -59,7 +60,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ['"Russo One"', 'sans-serif'],
+        sans: ['"Chakra Petch"', "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
@@ -78,4 +79,4 @@ export default {
     },
   },
   plugins: [],
-}
+};

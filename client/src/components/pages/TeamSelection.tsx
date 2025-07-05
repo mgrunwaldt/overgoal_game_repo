@@ -2,17 +2,20 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTeams } from "../../dojo/hooks/useTeams";
 import { useSelectTeamAction } from "../../dojo/hooks/useSelectTeamAction";
-import { Team } from "../../zustand/store";
 import useAppStore from "../../zustand/store";
-import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
-
-
-
+import TeamSelectionItem from "../ui/teamSelection/TeamSelectionItem";
+import { Loader2 } from "lucide-react";
+import CyberBorder from "../ui/CyberBorder";
+import gsap from "gsap";
 
 export default function TeamSelection() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const { teams, isLoading, error, refetch } = useTeams();
-  const { executeSelectTeam, selectTeamState, canSelectTeam, error: selectError } = useSelectTeamAction();
+  const {
+    executeSelectTeam,
+    selectTeamState,
+    error: selectError,
+  } = useSelectTeamAction();
   const { player } = useAppStore();
   const [currentTeamIndex, setCurrentTeamIndex] = useState(0);
   const [teamImage, setTeamImage] = useState("/teams/1.png");
@@ -21,17 +24,44 @@ export default function TeamSelection() {
 
   const getTeamImage = (teamIndex: number) => {
     let teamId = teams[teamIndex].team_id;
-     return `/teams/${teamId}.png`;
+    return `/teams/${teamId}.png`;
   };
-  
+
   useEffect(() => {
     if (teams.length > 0) {
-    const currentTeamImage = getTeamImage(currentTeamIndex);
-    setTeamImage(currentTeamImage);
-    console.log("🎯 Current team image:", currentTeamImage);
+      const currentTeamImage = getTeamImage(currentTeamIndex);
+      setTeamImage(currentTeamImage);
+      console.log("🎯 Current team image:", currentTeamImage);
     }
   }, [currentTeamIndex, teams]);
- 
+
+  useEffect(() => {
+    gsap.to(".team-image", {
+      opacity: 1,
+      duration: 0.5,
+      ease: "sine.out",
+    });
+
+    const items = gsap.utils.toArray(".stat-item");
+
+    gsap.fromTo(
+      items,
+      {
+        opacity: 0,
+        duration: 0.3,
+        stagger: 0.2,
+        yPercent: -50,
+        ease: "power3.out",
+      },
+      {
+        opacity: 1,
+        duration: 0.3,
+        stagger: 0.2,
+        yPercent: 0,
+        ease: "power3.out",
+      }
+    );
+  }, [isLoading]);
 
   // Auto-navigate if player already has a team selected
   useEffect(() => {
@@ -45,11 +75,16 @@ export default function TeamSelection() {
 
   const handleTeamSelect = async () => {
     if (!currentTeam) return;
-    
+
     try {
-      console.log("🎯 Selecting team", currentTeam.name, "with ID", currentTeam.team_id);
+      console.log(
+        "🎯 Selecting team",
+        currentTeam.name,
+        "with ID",
+        currentTeam.team_id
+      );
       await executeSelectTeam(currentTeam.team_id);
-      
+
       // The useEffect hook will handle navigation once the player state is updated.
     } catch (error) {
       console.error("❌ Error selecting team:", error);
@@ -61,20 +96,93 @@ export default function TeamSelection() {
   };
 
   const nextTeam = () => {
+    gsap.fromTo(
+      ".team-title",
+      { opacity: 0, duration: 0.7, yPercent: 50, ease: "power3.out" },
+      {
+        opacity: 1,
+        duration: 0.3,
+        yPercent: 0,
+        ease: "power3.out",
+      }
+    );
+
+    gsap.fromTo(
+      ".team-image",
+      { opacity: 0, duration: 0.5, ease: "sine.out" },
+      {
+        opacity: 1,
+        duration: 0.3,
+        ease: "sine.out",
+      }
+    );
+
+    gsap.fromTo(
+      ".stat-value",
+      {
+        opacity: 0,
+        duration: 0.2,
+        stagger: 0.1,
+        ease: "power3.out",
+      },
+      {
+        opacity: 1,
+        stagger: 0.1,
+        duration: 0.2,
+        ease: "power3.out",
+      }
+    );
+
     setCurrentTeamIndex((prev) => (prev + 1) % teams.length);
   };
 
   const prevTeam = () => {
+    gsap.fromTo(
+      ".team-title",
+      { opacity: 0, duration: 0.7, yPercent: 50, ease: "power3.out" },
+      {
+        opacity: 1,
+        duration: 0.7,
+        yPercent: 0,
+        ease: "power3.out",
+      }
+    );
+
+    gsap.fromTo(
+      ".team-image",
+      { opacity: 0, duration: 0.5, ease: "sine.out" },
+      {
+        opacity: 1,
+        duration: 0.5,
+        ease: "sine.out",
+      }
+    );
+
+    gsap.fromTo(
+      ".stat-value",
+      {
+        opacity: 0,
+        duration: 0.2,
+        stagger: 0.1,
+        ease: "power3.out",
+      },
+      {
+        opacity: 1,
+        stagger: 0.1,
+        duration: 0.2,
+        ease: "power3.out",
+      }
+    );
     setCurrentTeamIndex((prev) => (prev - 1 + teams.length) % teams.length);
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen relative overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('/CharacterSelection/Background.png')"
+            backgroundImage: "url('/CharacterSelection/Background.png')",
           }}
         />
         <div className="relative z-10 flex items-center justify-center min-h-screen">
@@ -95,10 +203,10 @@ export default function TeamSelection() {
   if (error) {
     return (
       <div className="min-h-screen relative overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('/CharacterSelection/Background.png')"
+            backgroundImage: "url('/CharacterSelection/Background.png')",
           }}
         />
         <div className="relative z-10 flex items-center justify-center min-h-screen">
@@ -106,7 +214,7 @@ export default function TeamSelection() {
             <div className="text-red-400 font-bold text-xl mb-4">
               Error loading teams: {error}
             </div>
-            <button 
+            <button
               onClick={refetch}
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-bold transition-colors"
             >
@@ -121,10 +229,10 @@ export default function TeamSelection() {
   if (teams.length === 0) {
     return (
       <div className="min-h-screen relative overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: "url('/CharacterSelection/Background.png')"
+            backgroundImage: "url('/CharacterSelection/Background.png')",
           }}
         />
         <div className="relative z-10 flex items-center justify-center min-h-screen">
@@ -142,196 +250,84 @@ export default function TeamSelection() {
   }
 
   const isSelected = player?.selected_team_id === currentTeam?.team_id;
-  const isExecuting = selectTeamState === 'executing';
+  const isExecuting = selectTeamState === "executing";
 
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Background */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: "url('/CharacterSelection/Background.png')"
+          backgroundImage: "url('/CharacterSelection/Background.png')",
         }}
       />
-      
+
       {/* Back Button */}
-      <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
-        <button
-          onClick={handleGoBack}
-          disabled={isExecuting}
-          className="transform hover:scale-105 transition-transform duration-200"
-        >
-          <img 
-            src="/CharacterSelection/Back Button.png" 
-            alt="Back"
-            className="w-32 h-16 md:w-24 md:h-12 object-contain"
-          />
-        </button>
-      </div>
 
       {/* Main Content Container */}
-      <div className="relative z-10 flex flex-col md:flex-row items-center justify-center min-h-screen px-4 py-8">
-        
+      <div className="relative z-10 flex flex-col md:flex-row items-center justify-center min-h-screen px-4 py-4 mix-blend-normal backdrop-blur-sm">
         {/* Mobile: Team Navigation */}
-        <div className="flex md:hidden items-center justify-between w-full mb-6">
+        <div className="flex md:hidden items-center justify-between w-full mb-auto">
           <button
             onClick={prevTeam}
             disabled={isExecuting}
             className="transform hover:scale-110 transition-transform duration-200 disabled:opacity-50"
           >
-            <img 
-              src="/CharacterSelection/Left Arrow.png" 
+            <img
+              src="/CharacterSelection/Left Arrow.png"
               alt="Previous Team"
               className="w-12 h-12 object-contain"
             />
           </button>
-          
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-cyan-300 tracking-wider">
-              {currentTeam?.name}
-            </h2>
-            <div className="text-sm text-cyan-400 mt-1">
+
+          <div className="text-center relative">
+            <div className="text-sm text-cyan-400 mt-1 team-title">
               {currentTeamIndex + 1} / {teams.length}
             </div>
+
+            <h2 className="text-2xl font-bold text-cyan-300 tracking-wider pb-2 team-title">
+              {currentTeam?.name}
+            </h2>
+
+            <CyberBorder />
           </div>
-          
+
           <button
             onClick={nextTeam}
             disabled={isExecuting}
             className="transform hover:scale-110 transition-transform duration-200 disabled:opacity-50"
           >
-            <img 
-              src="/CharacterSelection/Right Arrow.png" 
+            <img
+              src="/CharacterSelection/Right Arrow.png"
               alt="Next Team"
               className="w-12 h-12 object-contain"
-            />
-          </button>
-        </div>
-
-        {/* Desktop: Full Layout */}
-        <div className="hidden md:flex items-center justify-between w-full max-w-7xl">
-          
-          {/* Left Arrow */}
-          <button
-            onClick={prevTeam}
-            disabled={isExecuting}
-            className="transform hover:scale-110 transition-transform duration-200 disabled:opacity-50"
-          >
-            <img 
-              src="/CharacterSelection/Left Arrow.png" 
-              alt="Previous Team"
-              className="w-16 h-16 lg:w-20 lg:h-20 object-contain"
-            />
-          </button>
-
-          {/* Center Content */}
-          <div className="flex items-center justify-center space-x-8 lg:space-x-16">
-            
-            {/* Team Display */}
-            <div className="relative">
-              {/* Team Logo/Emblem Placeholder */}
-              <div className="relative w-64 h-80 lg:w-80 lg:h-96 flex items-center justify-center">
-                <img src={teamImage} alt="Team" className="w-48 h-48 lg:w-64 lg:h-64 object-contain" />
-                
-                {/* Loading Overlay */}
-                {isExecuting && (
-                  <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
-                    <div className="text-center space-y-4">
-                      <Loader2 className="w-12 h-12 animate-spin text-cyan-400 mx-auto" />
-                      <div className="text-cyan-300 font-bold text-lg">
-                        Selecting {currentTeam?.name}...
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Stats Panel */}
-            <div className="relative">
-              {/* Stats Background */}
-              <div 
-                className="relative w-64 h-80 lg:w-80 lg:h-96 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center"
-                style={{
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  backgroundImage: "url('/CharacterSelection/statsContainer.png')",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center"
-                }}
-              >
-                {/* Stats Content */}
-                <div className="relative z-10 space-y-4 lg:space-y-6 px-6 lg:px-8">
-                  
-                  {/* Team Name */}
-                  <div className="text-center mb-6 lg:mb-8">
-                    <h2 className="text-2xl lg:text-4xl font-bold text-cyan-300 tracking-wider">
-                      {currentTeam?.name}
-                    </h2>
-                  </div>
-
-                  {/* Stats List */}
-                  <div className="space-y-3 lg:space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">OFFENSE</span>
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentTeam?.offense}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">DEFENSE</span>
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentTeam?.defense}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">INTENSITY</span>
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentTeam?.intensity}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300 tracking-wider">POINTS</span>
-                      <span className="text-lg lg:text-2xl font-bold text-cyan-300">{currentTeam?.current_league_points}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Arrow */}
-          <button
-            onClick={nextTeam}
-            disabled={isExecuting}
-            className="transform hover:scale-110 transition-transform duration-200 disabled:opacity-50"
-          >
-            <img 
-              src="/CharacterSelection/Right Arrow.png" 
-              alt="Next Team"
-              className="w-16 h-16 lg:w-20 lg:h-20 object-contain"
             />
           </button>
         </div>
 
         {/* Mobile: Team and Stats */}
-        <div className="md:hidden flex flex-col items-center space-y-6 w-full">
-          
+        <div className="md:hidden flex flex-col h-full mb-auto items-center justify-center space-y-6 w-full">
           {/* Team Display */}
           <div className="relative">
-            <div className="relative w-64 h-80 flex items-center justify-center">
-              <div className="relative w-64 h-80 lg:w-80 lg:h-96 flex items-center justify-center">
-                <img src={teamImage} alt="Team" className="w-48 h-48 lg:w-64 lg:h-64 object-contain" />
-                
-                {/* Loading Overlay */}
-                {isExecuting && (
-                  <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
-                    <div className="text-center space-y-4">
-                      <Loader2 className="w-12 h-12 animate-spin text-cyan-400 mx-auto" />
-                      <div className="text-cyan-300 font-bold text-lg">
-                        Selecting {currentTeam?.name}...
-                      </div>
+            <div className="relative w-64 h-64 flex items-start justify-center">
+              <img
+                src={teamImage}
+                alt="Team"
+                className="w-52 h-52 lg:w-64 lg:h-64 object-contain team-image opacity-0  drop-shadow-[0px_2px_2px_rgba(0,0,0,0.4)]"
+              />
+
+              {/* Loading Overlay */}
+              {isExecuting && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
+                  <div className="text-center space-y-4">
+                    <Loader2 className="w-12 h-12 animate-spin text-cyan-400 mx-auto" />
+                    <div className="text-cyan-300 font-bold text-lg">
+                      Selecting {currentTeam?.name}...
                     </div>
                   </div>
-                )}
-              </div>
-              
+                </div>
+              )}
+
               {/* Loading Overlay */}
               {isExecuting && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
@@ -348,39 +344,27 @@ export default function TeamSelection() {
 
           {/* Stats Panel */}
           <div className="relative w-full max-w-sm">
-            <div 
-              className="relative w-full h-64 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center"
-              style={{
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                backgroundImage: "url('/CharacterSelection/statsContainer.png')",
-                backgroundSize: "cover",
-                backgroundPosition: "center"
-              }}
-            >
+            <div className="stats-container">
               {/* Stats Content */}
-              <div className="relative z-10 space-y-3 px-6 w-full">
-                
+              <div className="relative z-10 space-y-2  px-6 w-full">
                 {/* Stats List */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-cyan-300 tracking-wider">OFFENSE</span>
-                    <span className="text-3xl font-bold text-cyan-300">{currentTeam?.offense}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-cyan-300 tracking-wider">DEFENSE</span>
-                    <span className="text-3xl font-bold text-cyan-300">{currentTeam?.defense}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-cyan-300 tracking-wider">INTENSITY</span>
-                    <span className="text-3xl font-bold text-cyan-300">{currentTeam?.intensity}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-cyan-300 tracking-wider">POINTS</span>
-                    <span className="text-3xl font-bold text-cyan-300">{currentTeam?.current_league_points}</span>
-                  </div>
+                <div className="space-y-4 pb-6 pt-6 stat-list">
+                  <TeamSelectionItem
+                    statName="OFFENSE"
+                    statValue={currentTeam?.offense}
+                  />
+                  <TeamSelectionItem
+                    statName="DEFENSE"
+                    statValue={currentTeam?.defense}
+                  />
+                  <TeamSelectionItem
+                    statName="INTENSITY"
+                    statValue={currentTeam?.intensity}
+                  />
+                  <TeamSelectionItem
+                    statName="POINTS"
+                    statValue={currentTeam?.current_league_points}
+                  />
                 </div>
               </div>
             </div>
@@ -395,10 +379,24 @@ export default function TeamSelection() {
           disabled={isExecuting || isSelected}
           className="transform hover:scale-105 transition-transform duration-200 disabled:opacity-50"
         >
-          <img 
-            src="/CharacterSelection/Next Button.png" 
+          <img
+            src="/CharacterSelection/Next Button.png"
             alt={isSelected ? "Selected" : "Select Team"}
             className="w-32 h-18 md:w-32 md:h-16 object-contain"
+          />
+        </button>
+      </div>
+
+      <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 z-20">
+        <button
+          onClick={handleGoBack}
+          disabled={isExecuting}
+          className="transform hover:scale-105 transition-transform duration-200 disabled:opacity-50"
+        >
+          <img
+            src="/CharacterSelection/Back Button.png"
+            alt="Back"
+            className="w-32 h-18 md:w-24 md:h-12 object-contain"
           />
         </button>
       </div>
