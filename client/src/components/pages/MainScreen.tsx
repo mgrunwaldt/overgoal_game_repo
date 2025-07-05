@@ -7,6 +7,7 @@ import { LogOut, Loader2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAppStore from "../../zustand/store";
 import StatsPopup from "../StatsPopup";
+import gsap from "gsap";
 
 const charactersImages = {
   Striker: "/playerTypes/9.png",
@@ -59,6 +60,51 @@ export default function MainScreen() {
   const isScreenLoading = playerLoading || !player || !selectedTeam;
 
   useEffect(() => {
+    const topIcons = gsap.utils.toArray(".top-icons button");
+    const tl = gsap.timeline();
+    tl.fromTo(
+      topIcons,
+      {
+        opacity: 0,
+        duration: 0.2,
+        stagger: {
+          each: 0.05,
+          from: "center",
+        },
+        yPercent: -50,
+        ease: "power3.out",
+      },
+      {
+        opacity: 1,
+        stagger: {
+          each: 0.05,
+          from: "center",
+        },
+        yPercent: 0,
+        ease: "power3.out",
+      }
+    );
+
+    tl.to(
+      ".character-image",
+      {
+        opacity: 1,
+        duration: 1,
+        ease: "power3.out",
+      },
+      "-=0.5"
+    ).to(
+      ".play-button",
+      {
+        opacity: 1,
+        duration: 1,
+        ease: "power3.out",
+      },
+      "-=0.9"
+    );
+  }, [isScreenLoading]);
+
+  useEffect(() => {
     console.log("🎯 MainScreen rendered");
     console.log({
       canCreateGameMatch,
@@ -97,14 +143,14 @@ export default function MainScreen() {
 
     // Find an opponent team (any team that's not the player's selected team)
     let randomOpponentId;
-do {
-  randomOpponentId = Math.floor(Math.random() * 14) + 1; // 1 to 14
-} while (randomOpponentId === player.selected_team_id);
+    do {
+      randomOpponentId = Math.floor(Math.random() * 14) + 1; // 1 to 14
+    } while (randomOpponentId === player.selected_team_id);
 
-// Find the opponent team by the random ID
-const opponentTeam = teams.find(
-  (team) => team.team_id === randomOpponentId
-);
+    // Find the opponent team by the random ID
+    const opponentTeam = teams.find(
+      (team) => team.team_id === randomOpponentId
+    );
     if (!opponentTeam) {
       console.error("Cannot create match: no opponent team found");
       return;
@@ -149,7 +195,7 @@ const opponentTeam = teams.find(
   if (isScreenLoading) {
     return (
       <div
-        className="h-screen w-screen bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center p-4"
+        className="h-screen w-screen bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center p-4 "
         style={{ backgroundImage: "url('/Screens/Main/Background.png')" }}
       >
         <div className="text-center space-y-6">
@@ -166,105 +212,108 @@ const opponentTeam = teams.find(
   }
 
   return (
-    <div
-      className="h-screen w-screen bg-cover bg-center bg-no-repeat flex flex-col items-center justify-between p-4"
-      style={{ backgroundImage: "url('/Screens/Main/Background.png')" }}
-    >
-      <div className="fixed top-70 right-0 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-blue-800/50 rounded-full blur-3xl animate-pulse pointer-events-none" />
-      <div className="fixed top-70  left-0 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-blue-800/50 rounded-full blur-3xl animate-pulse pointer-events-none" />
+    <div className="min-h-screen relative overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/Screens/Main/Background.png')" }}
+      />
+      <div className="h-screen w-screen bg-cover bg-center bg-no-repeat flex flex-col items-center justify-between  backdrop-blur-[1px] bg-black/30 mix-blend-normal">
+        <div className="fixed top-70 right-0 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-blue-800/50 rounded-full blur-3xl animate-pulse pointer-events-none" />
+        <div className="fixed top-70  left-0 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-blue-800/50 rounded-full blur-3xl animate-pulse pointer-events-none" />
 
-      {/* Top Icons */}
-      <div className="w-full flex justify-around items-start pt-4 px-4 z-100">
-        <button onClick={() => console.log("Ranking Board clicked")} disabled>
-          <img
-            src="/Screens/Main/Ranking Board.png"
-            alt="Ranking Board"
-            className="w-24 h-24 object-contain opacity-30 cursor-not-allowed"
-          />
-        </button>
-        <button
-          onClick={() => {
-            setIsStatsPopupOpen(true);
-          }}
-        >
-          <img
-            src="/Screens/Main/Character Stats.png"
-            alt="Character Stats"
-            className="w-24 h-24 object-contain"
-          />
-        </button>
-        <button onClick={() => console.log("Weekend Cup clicked")} disabled>
-          <img
-            src="/Screens/Main/Weekend Cup.png"
-            alt="Weekend Cup"
-            className="w-24 h-24 object-contain opacity-30 cursor-not-allowed"
-          />
-        </button>
-      </div>
-
-      {/* Center Character */}
-      <div className="flex-grow flex items-center justify-center z-100">
-        <img
-          src={characterImage}
-          alt="Character"
-          className="max-h-[50vh] object-contain"
-        />
-      </div>
-
-      {/* Play Match Button */}
-      <div className="w-full flex flex-col items-center justify-center pb-8 z-100">
-        <button
-          onClick={handleNewMatch}
-          disabled={
-            !canCreateGameMatch ||
-            isCreatingMatch ||
-            !selectedTeam ||
-            teams.length < 2
-          }
-          className="disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isCreatingMatch ? (
-            <div className="text-white bg-black/50 rounded-lg p-4">
-              Creating Match...
-            </div>
-          ) : (
+        {/* Top Icons */}
+        <div className="w-full flex justify-around items-start pt-10 px-4 z-100 top-icons">
+          <button onClick={() => console.log("Ranking Board clicked")} disabled>
             <img
-              src="/Screens/Main/Play Match.png"
-              alt="Play Match"
-              className="w-72 h-auto"
+              src="/Screens/Main/Ranking Board.png"
+              alt="Ranking Board"
+              className="w-24 h-24 object-contain opacity-30 cursor-not-allowed"
             />
+          </button>
+          <button
+            onClick={() => {
+              setIsStatsPopupOpen(true);
+            }}
+          >
+            <img
+              src="/Screens/Main/Character Stats.png"
+              alt="Character Stats"
+              className="w-24 h-24 object-contain"
+            />
+          </button>
+          <button onClick={() => console.log("Weekend Cup clicked")} disabled>
+            <img
+              src="/Screens/Main/Weekend Cup.png"
+              alt="Weekend Cup"
+              className="w-24 h-24 object-contain opacity-30 cursor-not-allowed"
+            />
+          </button>
+        </div>
+
+        {/* Center Character */}
+        <div className="flex-grow flex items-center justify-center z-100">
+          <img
+            src={characterImage}
+            alt="Character"
+            className="max-h-[50vh] object-contain character-image opacity-0"
+          />
+        </div>
+
+        {/* Play Match Button */}
+        <div className="w-full flex flex-col items-center justify-center pb-8 z-100">
+          <button
+            onClick={handleNewMatch}
+            disabled={
+              !canCreateGameMatch ||
+              isCreatingMatch ||
+              !selectedTeam ||
+              teams.length < 2
+            }
+            className="disabled:opacity-50 disabled:cursor-not-allowed opacity-0 play-button"
+          >
+            {isCreatingMatch ? (
+              <div className="text-white bg-black/50 rounded-lg p-4">
+                Creating Match...
+              </div>
+            ) : (
+              <img
+                src="/Screens/Main/Play Match.png"
+                alt="Play Match"
+                className="w-72 h-auto"
+              />
+            )}
+          </button>
+          {/* Error display */}
+          {matchError && (
+            <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+              {matchError}
+            </div>
           )}
-        </button>
-        {/* Error display */}
-        {matchError && (
-          <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-            {matchError}
-          </div>
+        </div>
+
+        {/* Logout Button */}
+        <div className="absolute top-2 right-2">
+          <button
+            className="rounded-full bg-red-900/50 p-3 text-white text-center hover:bg-red-800/70"
+            onClick={() => {
+              handleDisconnect();
+              navigate("/login", { replace: true });
+            }}
+          >
+            <LogOut size={20} />
+          </button>
+        </div>
+
+        {isStatsPopupOpen && player && selectedTeam && (
+          <StatsPopup
+            playerType={player.player_type.toString()}
+            stats={playerStats}
+            onClose={() => setIsStatsPopupOpen(false)}
+            teamName={selectedTeam.name}
+            teamPoints={selectedTeam.current_league_points}
+          />
         )}
       </div>
-
-      {/* Logout Button */}
-      <div className="absolute top-2 right-2">
-        <button
-          className="rounded-full bg-red-900/50 p-3 text-white text-center hover:bg-red-800/70"
-          onClick={() => {
-            handleDisconnect();
-            navigate("/login", { replace: true });
-          }}
-        >
-          <LogOut size={20} />
-        </button>
-      </div>
-
-      {isStatsPopupOpen && player && selectedTeam && (
-        <StatsPopup
-          playerType={player.player_type.toString()}
-          stats={playerStats}
-          onClose={() => setIsStatsPopupOpen(false)}
-          teamName={selectedTeam.name}
-          teamPoints={selectedTeam.current_league_points}
-        />
-      )}
     </div>
   );
 }

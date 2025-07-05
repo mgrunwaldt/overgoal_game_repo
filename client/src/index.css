@@ -5,66 +5,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.chakra-petch-light {
-  font-family: "Chakra Petch", sans-serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.chakra-petch-regular {
-  font-family: "Chakra Petch", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.chakra-petch-medium {
-  font-family: "Chakra Petch", sans-serif;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.chakra-petch-semibold {
-  font-family: "Chakra Petch", sans-serif;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.chakra-petch-bold {
-  font-family: "Chakra Petch", sans-serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.chakra-petch-light-italic {
-  font-family: "Chakra Petch", sans-serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.chakra-petch-regular-italic {
-  font-family: "Chakra Petch", sans-serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.chakra-petch-medium-italic {
-  font-family: "Chakra Petch", sans-serif;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.chakra-petch-semibold-italic {
-  font-family: "Chakra Petch", sans-serif;
-  font-weight: 600;
-  font-style: italic;
-}
-
-.chakra-petch-bold-italic {
-  font-family: "Chakra Petch", sans-serif;
-  font-weight: 700;
-  font-style: italic;
-}
-
 .custom-bottom-corner {
   clip-path: polygon(
     0 0,
@@ -73,6 +13,11 @@
     calc(100% - 10px) 100%,
     0 100%
   );
+}
+
+.stats-container {
+  @apply relative w-full  h-60 bg-cover bg-center  bg-gradient-to-b from-backgroundContainer/70 to-black/90 border-b-[0.2px]   mix-blend-normal  backdrop-blur-lg border-cyan-500/50 
+  rounded-2xl flex flex-col justify-center items-center shadow-sm shadow-cyan-500/50;
 }
 
 @layer base {

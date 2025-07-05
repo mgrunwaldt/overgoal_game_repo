@@ -209,7 +209,7 @@ const MatchDecision: React.FC<MatchDecisionProps> = ({
   const eventImage = getEventImage(matchActionType, playerType);
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-start pt-1 justify-start z-50 ">
       <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center relative">
         {/* Timer */}
         <div
@@ -231,15 +231,17 @@ const MatchDecision: React.FC<MatchDecisionProps> = ({
           <img
             src={eventImage}
             alt={`${matchActionType} - ${playerType}`}
-            className="max-h-[85%] max-w-[85%] object-contain"
+            className="max-h-[70%] max-w-[99%] object-contain"
           />
         </div>
 
         {/* Decision Panel */}
-        <div
-          className="w-[460px] h-[500px] bg-contain bg-no-repeat bg-center -mt-24 flex flex-col items-center justify-center p-24"
-          style={{ backgroundImage: "url('/matchDecision/Decision pop.png')" }}
-        >
+        <div className="w-[460px] h-[350px] bg-contain bg-no-repeat bg-center -mt-14 flex flex-col items-center justify-center  relative px-24 ">
+          <img
+            src="/matchDecision/Decision pop.png"
+            className="absolute -z-10 px-1"
+            alt=""
+          />
           {isLoadingResult ? (
             // 🎯 LOADING MODE
             <>
@@ -281,12 +283,12 @@ const MatchDecision: React.FC<MatchDecisionProps> = ({
             // 🎯 DECISION SELECTION MODE
             <>
               <p
-                className="text-cyan-200 text-center text-lg mb-6 leading-relaxed"
+                className="text-cyan-200 text-center text-lg z-100"
                 style={{ textShadow: "0 0 8px rgba(34,211,238,0.7)" }}
               >
                 {displayText}
               </p>
-              <div className="w-full flex flex-col items-center space-y-2">
+              <div className="w-full flex flex-col items-center mt-2 z-100">
                 {decisions.map((text, index) => (
                   <MatchDecisionItem
                     key={index}

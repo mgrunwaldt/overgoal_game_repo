@@ -4,7 +4,8 @@ import { useSpawnPlayer } from "../../dojo/hooks/useSpawnPlayer";
 import { useStarknetConnect } from "../../dojo/hooks/useStarknetConnect";
 import { Loader2 } from "lucide-react";
 import CharacterStatItem from "../ui/characterSelection/CharacterStatItem";
-
+import gsap from "gsap";
+import CyberBorder from "../ui/CyberBorder";
 interface CharacterType {
   id: string;
   name: string;
@@ -83,6 +84,26 @@ export default function CharacterSelectionScreen() {
     console.log("🎯 CharacterSelectionScreen rendered");
     console.log("🎯 PlayerExist:", playerExists);
 
+    const items = gsap.utils.toArray(".stat-item");
+
+    gsap.fromTo(
+      items,
+      {
+        opacity: 0,
+        duration: 0.3,
+        stagger: 0.2,
+        yPercent: -50,
+        ease: "power3.out",
+      },
+      {
+        opacity: 1,
+        duration: 0.3,
+        stagger: 0.2,
+        yPercent: 0,
+        ease: "power3.out",
+      }
+    );
+
     if (playerExists === true) {
       navigate("/main", { replace: true });
     }
@@ -133,10 +154,84 @@ export default function CharacterSelectionScreen() {
   };
 
   const nextCharacter = () => {
+    gsap.fromTo(
+      ".character-title",
+      { opacity: 0, duration: 0.3, yPercent: 50, ease: "power3.out" },
+      {
+        opacity: 1,
+        duration: 0.3,
+        yPercent: 0,
+        ease: "power3.out",
+      }
+    );
+
+    gsap.fromTo(
+      ".character-image",
+      { opacity: 0, duration: 0.3, ease: "sine.out" },
+      {
+        opacity: 1,
+        duration: 0.3,
+        ease: "sine.out",
+      }
+    );
+
+    gsap.fromTo(
+      ".stat-value",
+      {
+        opacity: 0,
+        duration: 0.2,
+        stagger: 0.1,
+        ease: "power3.out",
+      },
+      {
+        opacity: 1,
+        stagger: 0.1,
+        duration: 0.2,
+        ease: "power3.out",
+      }
+    );
+
     setCurrentCharacterIndex((prev) => (prev + 1) % characterTypes.length);
   };
 
   const prevCharacter = () => {
+    gsap.fromTo(
+      ".character-title",
+      { opacity: 0, duration: 0.3, yPercent: 50, ease: "power3.out" },
+      {
+        opacity: 1,
+        duration: 0.3,
+        yPercent: 0,
+        ease: "power3.out",
+      }
+    );
+
+    gsap.fromTo(
+      ".character-image",
+      { opacity: 0, duration: 0.3, ease: "sine.out" },
+      {
+        opacity: 1,
+        duration: 0.3,
+        ease: "sine.out",
+      }
+    );
+
+    gsap.fromTo(
+      ".stat-value",
+      {
+        opacity: 0,
+        duration: 0.2,
+        stagger: 0.1,
+        ease: "power3.out",
+      },
+      {
+        opacity: 1,
+        stagger: 0.1,
+        duration: 0.2,
+        ease: "power3.out",
+      }
+    );
+
     setCurrentCharacterIndex(
       (prev) => (prev - 1 + characterTypes.length) % characterTypes.length
     );
@@ -154,22 +249,9 @@ export default function CharacterSelectionScreen() {
       />
 
       {/* Back Button */}
-      {/* <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
-        <button
-          onClick={handleGoBack}
-          disabled={isInitializing || isDisconnecting}
-          className="transform hover:scale-105 transition-transform duration-200"
-        >
-          <img
-            src="/CharacterSelection/Back Button.png"
-            alt="Back"
-            className="w-32 h-16 md:w-24 md:h-12 object-contain"
-          />
-        </button>
-      </div> */}
 
       {/* Main Content Container */}
-      <div className="relative z-10 flex flex-col md:flex-row items-start justify-center min-h-screen px-4 py-4">
+      <div className="relative z-10 flex flex-col md:flex-row items-start justify-center min-h-screen px-4 py-4 mix-blend-normal backdrop-blur-[2px] bg-black/40">
         {/* Mobile: Character Navigation */}
         <div className="flex md:hidden items-center justify-between w-full mb-auto">
           <button
@@ -185,23 +267,14 @@ export default function CharacterSelectionScreen() {
           </button>
 
           <div className="text-center relative">
-            <div className="text-sm text-cyan-400 ">
+            <div className="text-sm text-cyan-400 character-title">
               {currentCharacterIndex + 1} / {characterTypes.length}
             </div>
-            <h2 className="text-3xl font-bold text-cyan-300 tracking-wider pb-2">
+            <h2 className="text-3xl font-bold text-cyan-300 tracking-wider pb-2 character-title">
               {currentCharacter.name}
             </h2>
 
-            <div className="absolute bottom-0 left-0 w-full h-px bg-cyan-500/40 "></div>
-            <div
-              className="absolute bottom-0 right-0 w-1/3 h-px bg-cyan-500/10  before:content-[''] before:absolute before:top-0 before:right-0  before:border-t-[1px] before:border-r-[1px] before:border-cyan-500/40  before:border-t-cyan-500/40  before:border-r-cyan-500/40  before:transform before:translate-y-[-97%] before:translate-x-[0.1px] 
-      before:w-[0px] before:h-2 before:origin-bottom-right before:rotate-45"
-            ></div>
-
-            <div
-              className="absolute bottom-0 left-0 w-1/3 h-px bg-cyan-500/10  before:content-[''] before:absolute before:top-0 before:left-0  before:border-t-[1px] before:border-l-[1px] before:border-cyan-500/40  before:border-t-cyan-500/40  before:border-l-cyan-500/40  before:transform before:translate-y-[-97%] before:translate-x-[0.1px] 
-      before:w-[0px] before:h-2 before:origin-bottom-left before:-rotate-45"
-            ></div>
+            <CyberBorder />
           </div>
 
           <button
@@ -225,7 +298,7 @@ export default function CharacterSelectionScreen() {
               <img
                 src={currentCharacter.characterImage}
                 alt={currentCharacter.name}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain character-image drop-shadow-[0px_2px_2px_rgba(0,255,255,0.4)]"
               />
 
               {/* Loading Overlay */}
@@ -249,19 +322,11 @@ export default function CharacterSelectionScreen() {
 
           {/* Stats Panel */}
           <div className="relative w-full max-w-sm">
-            <div
-              className="relative w-full  h-64 bg-cover bg-center  bg-gradient-to-b from-backgroundContainer/80 to-black/80 border-[0.2px] mix-blend-normal  backdrop-blur-lg border-cyan-500/50 
-              rounded-lg flex flex-col justify-center items-center"
-              style={{
-                zIndex: 1000,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
+            <div className="stats-container">
               {/* Stats Content */}
               <div className="relative z-10 space-y-2  px-6 w-full">
                 {/* Stats List */}
-                <div className="space-y-2 pb-4 pt-4 ">
+                <div className="space-y-2 pb-4 pt-4 stat-list">
                   <CharacterStatItem
                     statName="SHOOTING"
                     statValue={currentCharacter.stats.shooting}
@@ -287,6 +352,20 @@ export default function CharacterSelectionScreen() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 z-20">
+        <button
+          onClick={handleGoBack}
+          disabled={isInitializing || isDisconnecting}
+          className="transform hover:scale-105 transition-transform duration-200"
+        >
+          <img
+            src="/CharacterSelection/Back Button.png"
+            alt="Back"
+            className="w-32 h-18 md:w-24 md:h-12 object-contain"
+          />
+        </button>
       </div>
 
       {/* Next Button */}

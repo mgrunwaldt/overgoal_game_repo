@@ -3,9 +3,9 @@ type Props = {
   statValue: number;
 };
 
-export default function CharacterStatItem({ statName, statValue }: Props) {
+export default function TeamSelectionItem({ statName, statValue }: Props) {
   return (
-    <div className="flex flex-col relative w-full group stat-item opacity-0 ">
+    <div className="flex flex-col relative w-full group stat-item">
       <div className="flex items-center justify-between mr-3 pb-1 relative">
         <span className="text-xl font-bold text-cyan-200 tracking-wider">
           {statName}

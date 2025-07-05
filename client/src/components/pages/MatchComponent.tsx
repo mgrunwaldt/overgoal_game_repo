@@ -31,7 +31,7 @@ const MatchComponent = () => {
 
   const navigate = useNavigate();
   const { matchId } = useParams();
-  const { matchTimelineEvents } = useAppStore();
+  const { matchTimelineEvents, currentMatch } = useAppStore();
   const { player } = usePlayer();
   const {
     execute: processNextAction,
@@ -1655,19 +1655,26 @@ const MatchComponent = () => {
   };
 
   return (
-    <div className="relative min-h-screen">
+    <div
+      className="relative min-h-screen overflow-hidden "
+      style={{
+        backgroundImage: "url('/match/BackGround.png')",
+        mixBlendMode: "normal",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+      }}
+    >
       <style>{scoreBlinkingStyle}</style>
 
       <div
-        className={`min-h-screen w-full flex flex-col items-center justify-between py-8 px-4 bg-cover bg-center transition-filter duration-300 ${
+        className={`min-h-screen  w-full flex flex-col items-center  justify-between py-4 px-4 bg-cover bg-center transition-filter duration-300 from-black/50 to-backgroundContainer/40 bg-gradient-to-b mix-blend-normal backdrop-blur-[1px]  ${
           isDecisionOpen ? "blur-sm" : ""
         }`}
-        style={{ backgroundImage: "url('/match/BackGround.png')" }}
       >
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center justify-start h-screen ">
           {/* Score and Timer */}
           <div
-            className="w-56 h-28 bg-contain bg-no-repeat bg-center flex flex-col items-center justify-center"
+            className="w-56 h-28  bg-contain bg-no-repeat bg-center flex flex-col items-center justify-center"
             style={{ backgroundImage: "url('/match/Contador.png')" }}
           >
             <p
@@ -1687,54 +1694,105 @@ const MatchComponent = () => {
           </div>
 
           {/* Match Simulation */}
-          <div
-            className="w-[350px] h-[350px] bg-contain bg-no-repeat bg-center flex items-center justify-center px-10"
-            style={{ backgroundImage: "url('/match/Match sim.png')" }}
-          >
+          {/* <div className="bg-contain bg-no-repeat bg-center  flex items-center relative  my-12 justify-center px-10 ">
+            <img className="absolute mr-4" src="/match/Match sim.png" alt="" />
             <img
               src="/match/matchGame.png"
               alt="Match Simulation"
-              className="object-contain"
+              className="object-contain mr-4"
             />
-          </div>
+          </div> */}
 
           {/* Stamina Bar */}
-          <div className="">
-            <StaminaBar useAnimation={true} initialStamina={stamina} />
-          </div>
+          <div className=" flex justify-start mt-5 space-y-10 items-center flex-col h-full  ">
+            <div className="flex flex-row items-center justify-center gap-8">
+              <div className="w-32 h-32 flex items-center justify-center  rounded-lg  p-2 ]">
+                <img
+                  className="w-full h-full object-contain drop-shadow-[0px_2px_2px_rgba(0,255,255,0.4)]"
+                  src={"/teams/" + currentMatch.my_team_id + ".png"}
+                  alt="Home Team"
+                />
+              </div>
 
-          {/* Match Events */}
-          <div
-            className="w-[380px] h-[320px] bg-black/30 bg-contain bg-no-repeat bg-center mt-4 flex justify-center items-start pt-16 px-10"
-            style={{ backgroundImage: "url('/match/Match events.png')" }}
-          >
-            <div
-              ref={eventContainerRef}
-              className="w-full h-[90%] rounded-lg p-4 overflow-y-auto"
-            >
-              <ul className="text-white space-y-1 text-lg font-sans font-normal tracking-wide">
-                {displayedEvents.map((event, index) => (
-                  <MatchEventIten
-                    key={index}
-                    text={event.text}
-                    playable={event.playable}
-                    team={event.team}
-                    onPlay={() => {
-                      console.log(
-                        "🎮 PLAY button clicked on event:",
-                        event.text
-                      );
-                      setDecisionOpen(true);
-                    }}
-                  />
-                ))}
-              </ul>
+              <div className="text-white text-xl font-bold">VS</div>
+
+              <div className="w-32 h-32 flex items-center justify-center  rounded-lg  p-2 ]">
+                <img
+                  className="w-full h-full object-contain drop-shadow-[0px_2px_2px_rgba(0,255,255,0.4)]"
+                  src={"/teams/" + currentMatch.opponent_team_id + ".png"}
+                  alt="Away Team"
+                />
+              </div>
             </div>
+            <StaminaBar useAnimation={true} initialStamina={stamina} />
+
+            {/* Match Events */}
+            <div
+              className="w-[380px] h-[300px] bg-contain bg-no-repeat bg-center mt-4 flex justify-center items-start pt-16 px-12 "
+              style={{ backgroundImage: "url('/match/Match events.png')" }}
+            >
+              <div
+                ref={eventContainerRef}
+                className="w-full h-[90%] rounded-lg p-4 overflow-y-auto"
+              >
+                <ul className="text-white space-y-1 text-lg font-sans font-normal tracking-wide">
+                  {displayedEvents.map((event, index) => (
+                    <MatchEventIten
+                      key={index}
+                      text={event.text}
+                      playable={event.playable}
+                      team={event.team}
+                      onPlay={() => {
+                        console.log(
+                          "🎮 PLAY button clicked on event:",
+                          event.text
+                        );
+                        setDecisionOpen(true);
+                      }}
+                    />
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {isWaitingForMatchContinuation &&
+              pendingMatchEvent &&
+              currentMinute < 90 && (
+                <div className="w-full flex justify-center">
+                  <button
+                    onClick={handleMatchContinuation}
+                    disabled={
+                      isProcessingMatchContinuation ||
+                      processState === "executing"
+                    }
+                    className="bg-backgroundContainer/80 border border-white/70 hover:bg-backgroundContainer/60 disabled:opacity-50 text-white px-8 py-2 rounded-lg font-bold text-xl transition-colors transform hover:scale-105"
+                  >
+                    {isProcessingMatchContinuation ||
+                    processState === "executing"
+                      ? "Processing..."
+                      : pendingMatchEvent.match_end
+                      ? "Finish Match"
+                      : "Continue Match"}
+                  </button>
+                </div>
+              )}
+
+            {currentMinute >= 90 && (
+              <div className="w-full flex justify-end mr-10">
+                <button
+                  onClick={handleMatchContinuation}
+                  className="w-32 h-14 bg-contain bg-no-repeat bg-center text-white text-lg font-bold flex items-center justify-center pr-4 transition-transform transform hover:scale-105"
+                  style={{
+                    backgroundImage: "url('/nonMatchResult/Next Button.png')",
+                  }}
+                ></button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Action Button */}
-        {isWaitingForUserAction &&
+        {/* {isWaitingForUserAction &&
           pendingUserActionEvent &&
           currentMinute < 90 && (
             <div className="w-full flex justify-center mt-4">
@@ -1748,41 +1806,11 @@ const MatchComponent = () => {
                   : `Make Decision (${currentMinute}')`}
               </button>
             </div>
-          )}
+          )} */}
 
         {/* 🎯 NEW: Match Continuation Button (for half_time and match_end) */}
-        {isWaitingForMatchContinuation && pendingMatchEvent && (
-          <div className="w-full flex justify-center mt-4">
-            <button
-              onClick={handleMatchContinuation}
-              disabled={
-                isProcessingMatchContinuation || processState === "executing"
-              }
-              className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-8 py-4 rounded-lg font-bold text-xl transition-colors transform hover:scale-105"
-            >
-              {isProcessingMatchContinuation || processState === "executing"
-                ? "Processing..."
-                : pendingMatchEvent.match_end
-                ? "Finish Match"
-                : "Continue Match"}
-            </button>
-          </div>
-        )}
-
-        <img src="/match/Logo.png" alt="Logo" className="w-24 h-24" />
 
         {/* End Match Button */}
-        {currentMinute >= 90 && (
-          <div className="w-full flex justify-end mt-12">
-            <button
-              onClick={() => navigate(`/match-end/${matchId}`)}
-              className="w-40 h-14 bg-contain bg-no-repeat bg-center text-white text-lg font-bold flex items-center justify-center pr-4 transition-transform transform hover:scale-105"
-              style={{
-                backgroundImage: "url('/nonMatchResult/Next Button.png')",
-              }}
-            ></button>
-          </div>
-        )}
       </div>
 
       {/* Match Decision Modal */}
