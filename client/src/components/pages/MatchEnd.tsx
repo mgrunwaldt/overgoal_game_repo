@@ -4,7 +4,8 @@ import { useTeams } from "../../dojo/hooks/useTeams";
 import { useNavigate, useParams } from "react-router-dom";
 import { Home, Trophy, Target, Users } from "lucide-react";
 import useAppStore from "../../zustand/store";
-import type { Team, GameMatch } from "../../zustand/store";
+import { GameMatch, Team } from "../../dojo/hooks/types";
+import gsap from "gsap";
 
 export default function MatchEnd() {
   const navigate = useNavigate();
@@ -28,6 +29,45 @@ export default function MatchEnd() {
       );
       setSelectedTeam(playerTeam || null);
     }
+  }, [player, teams]);
+
+  useEffect(() => {
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const scoreItems = gsap.utils.toArray(".score");
+
+    tl.to(".result-image", {
+      y: 0,
+      opacity: 1,
+      duration: 0.2,
+      ease: "back.out(1.7)",
+    })
+      .to(".team-image", {
+        y: 0,
+        opacity: 1,
+        duration: 0.4,
+        ease: "back.out(1.7)",
+      })
+      .to(scoreItems, {
+        y: 0,
+        opacity: 1,
+        duration: 0.4,
+        stagger: {
+          each: 0.2,
+          from: "center",
+        },
+        ease: "back.out(1.7)",
+      })
+
+      .to(".next-button", {
+        y: 0,
+        opacity: 1,
+        duration: 0.2,
+        ease: "back.out(1.7)",
+      });
+
+    return () => {
+      tl.kill();
+    };
   }, [player, teams]);
 
   // Find the specific match by ID from URL parameter
@@ -113,97 +153,105 @@ export default function MatchEnd() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-8 bg-cover bg-center relative overflow-hidden"
-      style={{ backgroundImage: "url('/Screens/login/BackGround.png')" }}
+      className="relative min-h-screen overflow-hidden "
+      style={{
+        backgroundImage: "url('/match/BackGround.png')",
+        mixBlendMode: "normal",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+      }}
     >
-      {/* Header */}
-      {/*  <div className="flex items-center justify-center mb-8"> 
+      <div className="min-h-screen flex flex-col items-center justify-start p-8 bg-cover bg-center relative overflow-hidden bg-black/50 mix-blend-normal backdrop-blur-[1px]">
+        {/* Header */}
+        {/*  <div className="flex items-center justify-center mb-8"> 
         <h1 className="text-3xl font-bold text-cyan-400">Match Result</h1>
       </div> */}
 
-      {/* Match Result */}
-      <div className="max-w-2xl mx-auto">
-        {/* Debug Info */}
-        {process.env.NODE_ENV === "development" && (
-          <div className="mb-8">
-            <div className="bg-gray-900/50 border border-gray-600/30 rounded-lg p-4">
-              <details className="cursor-pointer">
-                <summary className="text-sm text-gray-400 hover:text-gray-300">
-                  🔧 Debug Info (Development Only)
-                </summary>
-                <div className="mt-2 text-xs text-gray-500 space-y-1">
-                  <div>Total Matches in Store: {gameMatches.length}</div>
-                  <div>Player Selected Team: {player?.selected_team_id}</div>
-                  <div>
-                    Available Teams:{" "}
-                    {teams.map((t) => `${t.team_id}:${t.name}`).join(", ")}
-                  </div>
-                  <div className="text-cyan-400">
-                    URL Match ID: {matchId || "None"}
-                  </div>
-                  <div className="text-cyan-400">
-                    Found Match:{" "}
-                    {currentGameMatch
-                      ? `Yes (ID: ${currentGameMatch.match_id})`
-                      : "No"}
-                  </div>
-                  <div className="text-cyan-400">
-                    Match Status:{" "}
-                    {currentGameMatch
-                      ? getMatchStatusText(currentGameMatch.match_status)
-                      : "N/A"}
-                  </div>
-                  {currentGameMatch && (
-                    <div className="mt-2 p-2 bg-gray-800 rounded">
-                      <div>Raw Match Data:</div>
-                      <pre className="text-xs">
-                        {JSON.stringify(currentGameMatch, null, 2)}
-                      </pre>
+        {/* Match Result */}
+        <div className="max-w-2xl mx-auto ">
+          {/* Debug Info */}
+          {process.env.NODE_ENV === "development" && (
+            <div className="mb-8">
+              <div className="bg-gray-900/50 border border-gray-600/30 rounded-lg p-4">
+                <details className="cursor-pointer">
+                  <summary className="text-sm text-gray-400 hover:text-gray-300">
+                    🔧 Debug Info (Development Only)
+                  </summary>
+                  <div className="mt-2 text-xs text-gray-500 space-y-1">
+                    <div>Total Matches in Store: {gameMatches.length}</div>
+                    <div>Player Selected Team: {player?.selected_team_id}</div>
+                    <div>
+                      Available Teams:{" "}
+                      {teams.map((t) => `${t.team_id}:${t.name}`).join(", ")}
                     </div>
-                  )}
-                </div>
-              </details>
+                    <div className="text-cyan-400">
+                      URL Match ID: {matchId || "None"}
+                    </div>
+                    <div className="text-cyan-400">
+                      Found Match:{" "}
+                      {currentGameMatch
+                        ? `Yes (ID: ${currentGameMatch.match_id})`
+                        : "No"}
+                    </div>
+                    <div className="text-cyan-400">
+                      Match Status:{" "}
+                      {currentGameMatch
+                        ? getMatchStatusText(currentGameMatch.match_status)
+                        : "N/A"}
+                    </div>
+                    {currentGameMatch && (
+                      <div className="mt-2 p-2 bg-gray-800 rounded">
+                        <div>Raw Match Data:</div>
+                        <pre className="text-xs">
+                          {JSON.stringify(currentGameMatch, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                </details>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {currentGameMatch ? (
-          <div className="">
-            {/* Result Banner */}
-            <div className="text-center">
-              <div
-                className={`text-6xl font-bold mb-4 ml-8 flex items-center justify-center ${getResultColor()}`}
-              >
-                {/* {getResultText()} */}
+          {currentGameMatch ? (
+            <div className="">
+              {/* Result Banner */}
+              <div className="text-center">
+                <div
+                  className={`text-6xl font-bold mb-4 ml-8 flex items-center justify-center ${getResultColor()}`}
+                >
+                  {/* {getResultText()} */}
 
+                  <img
+                    src={getResultText()}
+                    alt="Result"
+                    className="w-full h-full result-image opacity-0"
+                  />
+                </div>
+              </div>
+
+              {/* Score Display */}
+              <div className="p-8 flex items-center justify-center flex-col">
                 <img
-                  src={getResultText()}
-                  alt="Result"
-                  className="w-full h-full"
+                  src={myTeamImage || ""}
+                  alt="Score"
+                  className="w-full h-full team-image opacity-0"
                 />
-              </div>
-            </div>
-
-            {/* Score Display */}
-            <div className="p-8 flex items-center justify-center flex-col">
-              <img
-                src={myTeamImage || ""}
-                alt="Score"
-                className="w-full h-full"
-              />
-              <div className="flex items-center justify-center gap-4">
-                <div className="text-8xl font-bold text-cyan-400 mb-2">
-                  {currentGameMatch.my_team_score}
-                </div>
-                <div className="text-8xl font-bold text-cyan-400">-</div>
-                <div className="text-8xl font-bold text-cyan-400">
-                  {currentGameMatch.opponent_team_score}
+                <div className="flex items-center justify-center gap-4">
+                  <div className="text-8xl font-bold text-cyan-400 mb-2 score opacity-0">
+                    {currentGameMatch.my_team_score}
+                  </div>
+                  <div className="text-8xl font-bold text-cyan-400 opacity-0 score">
+                    -
+                  </div>
+                  <div className="text-8xl font-bold text-cyan-400 score opacity-0">
+                    {currentGameMatch.opponent_team_score}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Match Stats */}
-            {/*    <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
+              {/* Match Stats */}
+              {/*    <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-yellow-400" />
                 Match Statistics
@@ -230,8 +278,8 @@ export default function MatchEnd() {
               </div>
             </div> */}
 
-            {/* Team Points Update */}
-            {/* {selectedTeam && (
+              {/* Team Points Update */}
+              {/* {selectedTeam && (
               <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
                 <div className="text-center">
                   <div className="text-green-400 font-semibold mb-2">
@@ -243,34 +291,35 @@ export default function MatchEnd() {
                 </div>
               </div>
             )} */}
-          </div>
-        ) : (
-          <div className="text-center">
-            <div className="text-gray-400 text-lg mb-4">
-              {!matchId ? "No match ID provided" : "No match results found"}
             </div>
-
-            {!matchId && (
-              <div className="mb-4">
-                <p className="text-red-400 text-sm mb-4">
-                  No match ID provided in URL. Please play a match first.
-                </p>
+          ) : (
+            <div className="text-center">
+              <div className="text-gray-400 text-lg mb-4">
+                {!matchId ? "No match ID provided" : "No match results found"}
               </div>
-            )}
-          </div>
-        )}
 
-        <div className="absolute bottom-4 right-4 md:bottom-8 md:right-8 z-20">
-          <button
-            onClick={() => navigate("/non-match-event-selector")}
-            className="transform hover:scale-105 transition-transform duration-200 disabled:opacity-50"
-          >
-            <img
-              src="/CharacterSelection/Next Button.png"
-              alt="Next"
-              className="w-32 h-18 md:w-32 md:h-16 object-contain"
-            />
-          </button>
+              {!matchId && (
+                <div className="mb-4">
+                  <p className="text-red-400 text-sm mb-4">
+                    No match ID provided in URL. Please play a match first.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="absolute bottom-4 right-4 md:bottom-8 md:right-8 z-20">
+            <button
+              onClick={() => navigate("/non-match-event-selector")}
+              className="transform hover:scale-105 transition-transform duration-200 disabled:opacity-50 next-button opacity-0"
+            >
+              <img
+                src="/CharacterSelection/Next Button.png"
+                alt="Next"
+                className="w-32 h-18 md:w-32 md:h-16 object-contain"
+              />
+            </button>
+          </div>
         </div>
       </div>
     </div>

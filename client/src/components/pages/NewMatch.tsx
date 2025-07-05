@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePlayer } from "../../dojo/hooks/usePlayer";
-import { useTeams } from "../../dojo/hooks/useTeams";
+import { Team, useTeams } from "../../dojo/hooks/useTeams";
 import { useStartGameMatchAction } from "../../dojo/hooks/useStartGameMatchAction";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Play, Info, Hash, Clock, Users } from "lucide-react";
+import { Info, Clock, Users } from "lucide-react";
 import useAppStore from "../../zustand/store";
-import type { Team, GameMatch, MatchStatus } from "../../zustand/store";
 import StaminaBar from "../ui/StaminaBar";
+import { GameMatch } from "../../dojo/hooks/types";
+import gsap from "gsap";
 
 const getPlayerImage = (playerType: String): String => {
   switch (playerType) {
@@ -58,19 +59,131 @@ export default function NewMatch() {
     error: startError,
   } = useStartGameMatchAction();
 
+  // Refs for GSAP animation
+  const containerRef = useRef<HTMLDivElement>(null);
+  const staminaBarRef = useRef<HTMLDivElement>(null);
+  const teamsRef = useRef<HTMLDivElement>(null);
+  const playersRef = useRef<HTMLDivElement>(null);
+  const infoRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const tl = useRef<GSAPTimeline | null>(null);
+
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [opponentTeam, setOpponentTeam] = useState<Team | null>(null);
-  const [currentGameMatch, setCurrentGameMatch] = useState<GameMatch | null>(null);
+  const [currentGameMatch, setCurrentGameMatch] = useState<GameMatch | null>(
+    null
+  );
   const [playerImage, setPlayerImage] = useState<String>(
     "/preMatch/Player 10.png"
   );
+
   const [myTeamImage, setMyTeamImage] = useState<string>("");
   const [opponentTeamImage, setOpponentTeamImage] = useState<string>("");
-  const [stamina, setStamina] = useState<number>(100);
+  const [stamina, setStamina] = useState<number>(player?.stamina || 100);
   const [enemyPlayerImage, setEnemyPlayerImage] = useState<string>(
     "/preMatch/Player 9 red.png"
   );
+  const [hasAnimationFinished, setHasAnimationFinished] =
+    useState<boolean>(false);
 
+  // Animation setup
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    if (!hasAnimationFinished && currentGameMatch) {
+      // Set initial state
+      gsap.set(
+        [
+          staminaBarRef.current,
+          teamsRef.current,
+          playersRef.current,
+          infoRef.current,
+          buttonRef.current,
+        ],
+        {
+          y: -50,
+          opacity: 0,
+        }
+      );
+
+      // Create timeline
+      tl.current = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      // Staggered animation
+      tl.current
+        .to(staminaBarRef.current, {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          ease: "back.out(1.7)",
+        })
+        .to(
+          teamsRef.current,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            ease: "back.out(1.5)",
+          },
+          "-=0.3"
+        )
+        .to(
+          playersRef.current,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            ease: "back.out(1.3)",
+          },
+          "-=0.3"
+        )
+        .to(
+          ".match-info",
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            ease: "power3.out",
+          },
+          "-=0.3"
+        )
+        .to(
+          buttonRef.current,
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            ease: "back.out(0.9)",
+          },
+          "-=0.3"
+        )
+        .to(".player-item-1", {
+          xPercent: 22,
+          yoyo: true,
+          repeat: 1,
+          duration: 0.3,
+          ease: "bounce.out",
+        })
+        .to(
+          ".player-item-2",
+          {
+            xPercent: -22,
+            repeat: 1,
+            yoyo: true,
+            duration: 0.3,
+            ease: "bounce.out",
+          },
+          "<"
+        );
+      setHasAnimationFinished(true);
+    }
+
+    console.log("currentGameMatch", currentGameMatch);
+
+    return () => {
+      tl.current?.kill();
+    };
+  }, [currentGameMatch]);
   // Debug logging for component initialization
   useEffect(() => {
     console.log("🆕 [NEW_MATCH] Component initialized", {
@@ -78,7 +191,7 @@ export default function NewMatch() {
       hasPlayer: !!player,
       teamsCount: teams.length,
       gameMatchesCount: gameMatches.length,
-      startGameMatchState
+      startGameMatchState,
     });
   }, [matchId, player, teams.length, gameMatches.length, startGameMatchState]);
 
@@ -86,8 +199,11 @@ export default function NewMatch() {
   useEffect(() => {
     console.log("🔍 [NEW_MATCH] Setting up match data", {
       matchId,
-      gameMatches: gameMatches.map(m => ({ id: m.match_id, status: m.match_status })),
-      teams: teams.map(t => ({ id: t.team_id, name: t.name }))
+      gameMatches: gameMatches.map((m) => ({
+        id: m.match_id,
+        status: m.match_status,
+      })),
+      teams: teams.map((t) => ({ id: t.team_id, name: t.name })),
     });
 
     if (!matchId) {
@@ -98,7 +214,10 @@ export default function NewMatch() {
 
     const match = gameMatches.find((m) => m.match_id === parseInt(matchId));
     if (!match) {
-      console.error("❌ [NEW_MATCH] Match not found", { matchId, availableMatches: gameMatches.map(m => m.match_id) });
+      console.error("❌ [NEW_MATCH] Match not found", {
+        matchId,
+        availableMatches: gameMatches.map((m) => m.match_id),
+      });
       navigate("/");
       return;
     }
@@ -111,14 +230,14 @@ export default function NewMatch() {
 
     console.log("🏆 [NEW_MATCH] Teams resolved", {
       myTeam: myTeam ? { id: myTeam.team_id, name: myTeam.name } : null,
-      opponent: opponent ? { id: opponent.team_id, name: opponent.name } : null
+      opponent: opponent ? { id: opponent.team_id, name: opponent.name } : null,
     });
 
     if (!myTeam || !opponent) {
       console.error("❌ [NEW_MATCH] Teams not found", {
         myTeamId: match.my_team_id,
         opponentTeamId: match.opponent_team_id,
-        availableTeams: teams.map(t => ({ id: t.team_id, name: t.name }))
+        availableTeams: teams.map((t) => ({ id: t.team_id, name: t.name })),
       });
       navigate("/");
       return;
@@ -139,9 +258,7 @@ export default function NewMatch() {
 
   useEffect(() => {
     if (player && teams.length > 0) {
-      console.log("🎯 playerTypeMati", player.player_type);
       const image = getPlayerImage(player.player_type.toString());
-      console.log("🎯 image", image);
       setPlayerImage(image);
       setStamina(player.stamina);
       setEnemyPlayerImage(
@@ -162,7 +279,7 @@ export default function NewMatch() {
       hasSelectedTeam: !!selectedTeam,
       hasOpponentTeam: !!opponentTeam,
       matchId: currentGameMatch?.match_id,
-      startGameMatchState
+      startGameMatchState,
     });
 
     if (!currentGameMatch) {
@@ -176,7 +293,7 @@ export default function NewMatch() {
     } catch (error) {
       console.error("❌ [NEW_MATCH] Failed to start match:", {
         error: error instanceof Error ? error.message : error,
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       });
     }
   };
@@ -185,7 +302,7 @@ export default function NewMatch() {
   useEffect(() => {
     console.log("📊 [NEW_MATCH] State changed", {
       startGameMatchState,
-      error: startError
+      error: startError,
     });
   }, [startGameMatchState, startError]);
 
@@ -206,21 +323,28 @@ export default function NewMatch() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-8 bg-cover bg-center relative overflow-hidden"
+      ref={containerRef}
+      className="min-h-screen flex flex-col items-center justify-center p-4 bg-cover bg-center relative overflow-hidden"
       style={{ backgroundImage: "url('/Screens/login/BackGround.png')" }}
     >
-      <div className="flex flex-col justify-between items-center w-full h-full  ">
-        <div className="w-full flex justify-center items-center mb-4 ">
-          <StaminaBar useAnimation={false} initialStamina={stamina} />
-        </div>
+      <div
+        ref={staminaBarRef}
+        className="w-full flex justify-center items-center mb-4 opacity-0"
+      >
+        <StaminaBar useAnimation={false} initialStamina={stamina} />
+      </div>
 
-        <div className="flex justify-between space-y-12 flex-col h-full p-4">
-          <div className="flex flex-row space-x-2 justify-between items-center ">
+      <div className="flex flex-col justify-center items-center w-full h-full  ">
+        <div className="flex justify-start space-y-12 flex-col h-full p-4">
+          <div
+            ref={teamsRef}
+            className="flex flex-row space-x-2 justify-between items-center opacity-0"
+          >
             <img src={myTeamImage} className="w-24 h-24" alt="My Team" />
             <img
               src="/preMatch/Vs.png"
               alt=""
-              className="relative top-16 left-1 w-16 h-12"
+              className="relative top-16 left-1 w-16 h-16 drop-shadow-[0px_2px_2px_rgba(0,255,255,0.4)]"
             />
             <img
               src={opponentTeamImage}
@@ -229,45 +353,33 @@ export default function NewMatch() {
             />
           </div>
 
-          <div className="flex flex-col space-x-2 justify-between items-center  ">
+          <div
+            ref={playersRef}
+            className="flex flex-col justify-between items-center opacity-0"
+          >
             <img
               className="object-contain w-32 h-20"
               src="/preMatch/Player to watch.png"
               alt=""
             />
-            <div className="flex flex-row space-x-2 justify-between items-center  ">
+            <div className="flex flex-row space-x-2 justify-between items-center">
               <img
                 src={playerImage as string}
-                className="object-contain w-40 h-40"
+                className="object-contain w-40 h-40 player-item-1"
                 alt=""
               />
-
               <img
                 src={enemyPlayerImage}
                 alt=""
-                className="object-contain w-40 h-40"
+                className="object-contain w-40 h-40 player-item-2"
               />
             </div>
           </div>
         </div>
       </div>
-
-      {/* Header */}
-      {/* <div className="flex items-center justify-between mb-8">
-        <button
-          onClick={() => navigate("/main")}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
-        >
-          <ArrowLeft size={20} />
-          Back
-        </button>
-        <h1 className="text-2xl font-bold text-cyan-400">New Match</h1>
-        <div></div>
-      </div> */}
-
       {/* Verification Panel */}
       {currentGameMatch && (
-        <div className="max-w-4xl mx-auto mb-8 bg-black/60 rounded-xl">
+        <div className="max-w-4xl mx-auto mb-8 bg-black/60 rounded-xl opacity-0 match-info">
           <div className="bg-blue-900/20 border border-blue-500/40 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-3">
               <Info className="w-5 h-5 text-blue-400" />
@@ -277,17 +389,22 @@ export default function NewMatch() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-yellow-400" />
-                <span className="text-gray-300">Teams:</span>
+              <div className="flex  flex-col gap-2">
+                <div className="flex items-center  gap-2">
+                  {" "}
+                  <Users className="w-4 h-4 text-yellow-400" />
+                  <span className="text-gray-300">Teams</span>
+                </div>
                 <span className="text-yellow-400">
                   {selectedTeam?.name} vs {opponentTeam?.name}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-purple-400" />
-                <span className="text-gray-300">Status:</span>
+              <div className="flex  flex-col gap-2">
+                <div className="flex items-center  gap-2">
+                  <Clock className="w-4 h-4 text-purple-400" />
+                  <span className="text-gray-300">Status</span>
+                </div>
                 <span className="text-purple-400">
                   {getMatchStatusText(currentGameMatch.match_status)}
                 </span>
@@ -297,20 +414,31 @@ export default function NewMatch() {
         </div>
       )}
 
+      {startGameMatchState === "executing" ||
+        (startGameMatchState === "success" && (
+          <div className="absolute bg-black/90 mix-blend-normal backdrop-blur-normal top-0 left-0 w-full h-full flex items-center justify-center z-50">
+            <div className="flex flex-col items-center justify-center">
+              <div className="w-16 h-16 border-4 border-dashed border-blue-500 rounded-full animate-spin"></div>
+              <p className="text-white text-lg mt-4">Starting match...</p>
+            </div>
+          </div>
+        ))}
+
       {/* Match Setup */}
       <div className="max-w-4xl mx-auto mt-auto">
-        <div className="w-full flex flex-col items-center mt-5 justify-center pb-8 z-100">
+        <div className="w-full flex flex-col items-center justify-center pb-8 z-100">
           <button
+            ref={buttonRef}
             onClick={handlePlayMatch}
             disabled={
               !selectedTeam ||
               !opponentTeam ||
               !currentGameMatch ||
-              startGameMatchState === 'executing'
+              startGameMatchState === "executing"
             }
-            className="disabled:opacity-50 disabled:cursor-not-allowed"
+            className="disabled:opacity-50 disabled:cursor-not-allowed opacity-0"
           >
-            {startGameMatchState === 'executing' ? (
+            {startGameMatchState === "executing" ? (
               <div className="text-white bg-black/50 rounded-lg p-4">
                 Starting Match...
               </div>

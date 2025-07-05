@@ -1,11 +1,60 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useAppStore from "../../zustand/store";
+import gsap from "gsap";
 
 const NonMatchResult = () => {
   const navigate = useNavigate();
   const { player, lastNonMatchOutcome } = useAppStore();
   const [hasChecked, setHasChecked] = React.useState(false);
+
+  // Refs for animated elements
+  const headerRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Animation setup
+  useEffect(() => {
+    if (!hasChecked) return;
+
+    // Set initial state
+    gsap.set([headerRef.current, statsRef.current], {
+      // y: -50,
+      opacity: 0,
+    });
+
+    // Create animation timeline
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    // Animate elements in sequence
+    tl.to(headerRef.current, {
+      y: 0,
+      opacity: 1,
+      duration: 0.6,
+    })
+      .to(
+        statsRef.current,
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+        },
+        "-=0.3"
+      )
+      .to(
+        buttonRef.current,
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+        },
+        "-=0.3"
+      );
+
+    return () => {
+      tl.kill();
+    };
+  }, [hasChecked]);
 
   useEffect(() => {
     // If we have data, we're good to go
@@ -146,7 +195,7 @@ const NonMatchResult = () => {
       />
       <div className="w-full max-w-lg flex flex-col items-center text-center">
         {/* Character Display */}
-        <div className="relative w-full mb-4 pt-16">
+        <div ref={headerRef} className="relative w-full mb-4 pt-16 opacity-0">
           <div className="rounded-xl bg-black/80 p-10 border-2 border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.4)]">
             <h3
               className={`text-xl font-bold text-center mb-2 ${outcomeColor}`}
@@ -162,7 +211,8 @@ const NonMatchResult = () => {
 
         {/* Stats Board */}
         <div
-          className="w-[300px] h-[300px]  bg-contain  bg-black/80 rounded-xl g-no-repeat bg-center flex flex-col items-center justify-center px-6"
+          ref={statsRef}
+          className="w-[300px] h-[300px] bg-contain bg-black/80 rounded-xl g-no-repeat bg-center flex flex-col items-center justify-center px-6 opacity-0"
           style={{ backgroundImage: "url('/nonMatchResult/Stats board.png')" }}
         >
           <ul className="w-full space-y-6 p-2 ">
@@ -175,13 +225,18 @@ const NonMatchResult = () => {
                   {stat.name}
                 </span>
                 <span
-                  className={`text-2xl font-bold ${stat.color}`}
+                  className={`text-2xl font-bold text-cyan-300 flex items-center gap-2`}
                   style={{ textShadow: "0 0 10px #0ff" }}
                 >
+                  <span
+                    className={`text-grt-300 text-xl font-bold ${stat.color}`}
+                  >
+                    {" "}
+                    {stat.isInjury
+                      ? ""
+                      : `(${stat.delta > 0 ? "+" : ""}${stat.delta})`}
+                  </span>
                   {stat.value}{" "}
-                  {stat.isInjury
-                    ? ""
-                    : `(${stat.delta > 0 ? "+" : ""}${stat.delta})`}
                 </span>
               </li>
             ))}
@@ -191,10 +246,11 @@ const NonMatchResult = () => {
         {/* Next Button */}
         <div className="w-full flex justify-end mt-12">
           <button
+            ref={buttonRef}
             onClick={() => {
               navigate("/main");
             }}
-            className="w-40 h-14 bg-contain bg-no-repeat bg-center text-white text-lg font-bold flex items-center justify-center pr-4 transition-transform transform hover:scale-105"
+            className="w-40 h-14 bg-contain bg-no-repeat bg-center text-white text-lg font-bold flex items-center justify-center pr-4 transition-all duration-300 transform hover:scale-105 opacity-1"
             style={{
               backgroundImage: "url('/nonMatchResult/Next Button.png')",
             }}
