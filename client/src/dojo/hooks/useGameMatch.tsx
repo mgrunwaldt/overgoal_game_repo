@@ -208,11 +208,39 @@ export function useGameMatch(matchId: number) {
     }
   };
 
+  const handleFinishGameMatch = async () => {
+    console.log("🏁 === FINISHING GAME MATCH ===");
+    if (!account) {
+      console.error("❌ No account available for finishing match");
+      return;
+    }
+    setLoading(true);
+    try {
+      console.log(`🎮 Calling backend finish_gamematch for match ${matchId}`);
+      await client.game.finishGamematch(account, matchId);
+      console.log("✅ finish_gamematch completed - team points should be awarded");
+      
+      // Refresh match data after finishing
+      await getGameMatch();
+      console.log("✅ Match data refreshed after finish");
+    } catch (err) {
+        console.error("❌ Error finishing game match:", err);
+        if (err instanceof Error) {
+            setError(err);
+        } else {
+            setError(new Error('An unknown error occurred'));
+        }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     getGameMatch,
     handleStartGameMatch,
     handleProcessMatchAction,
     handleSimulateGameMatch,
+    handleFinishGameMatch,
     loading,
     error,
   };

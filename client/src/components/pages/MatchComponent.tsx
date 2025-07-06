@@ -38,7 +38,7 @@ const MatchComponent = () => {
     choseAction,
     state: processState,
   } = useProcessMatchAction();
-  const { getGameMatch, handleProcessMatchAction } = useGameMatch(
+  const { getGameMatch, handleProcessMatchAction, handleFinishGameMatch } = useGameMatch(
     matchId ? parseInt(matchId) : 0
   );
 
@@ -1347,57 +1347,55 @@ const MatchComponent = () => {
       // 🎯 DON'T reset the waiting state until AFTER backend completes!
       setIsProcessingMatchContinuation(true);
 
-      // 🎯 For match continuation, we use a default decision (e.g., 0)
-      // The backend should handle half_time/match_end logic automatically
-      const result = await choseAction(
-        parseInt(matchId!),
-        0,
-        pendingMatchEvent.minute
-      );
-
-      if (result) {
-        console.log("📊 Match continuation result received:", result);
-
-        // Update timeline events
-        const updatedEvents = [...result.allTimelineEvents].sort((a, b) => {
-          if (a.minute !== b.minute) return a.minute - b.minute;
-          return a.event_id - b.event_id;
-        });
-
-        console.log("📊 Updated timeline events:", updatedEvents.length);
-        setAllTimelineEvents(updatedEvents);
-
-        // 🎯 ONLY NOW reset match continuation state (after backend success)
+      // 🎯 FIX: Call finish_gamematch for match end, regular action for half time
+      if (pendingMatchEvent.match_end) {
+        console.log("🏁 === MATCH END DETECTED - CALLING FINISH_GAMEMATCH ===");
+        await handleFinishGameMatch();
+        console.log("✅ finish_gamematch completed - team points awarded");
+        
+        // Reset match continuation state
         setIsWaitingForMatchContinuation(false);
         setIsProcessingMatchContinuation(false);
-
-        // 🎯 CHECK IF THIS WAS A MATCH END - AUTO NAVIGATE
-        if (pendingMatchEvent.match_end) {
-          console.log("🏁 Match ended - auto-navigating to match end screen");
-          navigate(`/match-end/${matchId}`);
-          return; // Don't reset pendingMatchEvent or restart timer since we're leaving
-        }
-
         setPendingMatchEvent(null);
-        console.log(
-          "🔄 Match continuation completed - timer will restart automatically"
-        );
+        
+        console.log("🏁 Match ended - auto-navigating to match end screen");
+        navigate(`/match-end/${matchId}`);
+        return;
       } else {
-        console.warn("⚠️ No result data received from match continuation");
-        // 🎯 Reset state even if no result data
-        setIsWaitingForMatchContinuation(false);
-        setIsProcessingMatchContinuation(false);
+        // For half_time, use the regular action processing
+        console.log("⏰ Processing half-time continuation");
+        const result = await choseAction(
+          parseInt(matchId!),
+          0,
+          pendingMatchEvent.minute
+        );
 
-        // 🎯 Even without result data, if it was match end, still navigate
-        if (pendingMatchEvent.match_end) {
+        if (result) {
+          console.log("📊 Match continuation result received:", result);
+
+          // Update timeline events
+          const updatedEvents = [...result.allTimelineEvents].sort((a, b) => {
+            if (a.minute !== b.minute) return a.minute - b.minute;
+            return a.event_id - b.event_id;
+          });
+
+          console.log("📊 Updated timeline events:", updatedEvents.length);
+          setAllTimelineEvents(updatedEvents);
+
+          // Reset match continuation state (after backend success)
+          setIsWaitingForMatchContinuation(false);
+          setIsProcessingMatchContinuation(false);
+          setPendingMatchEvent(null);
           console.log(
-            "🏁 Match ended (no result data) - auto-navigating to match end screen"
+            "🔄 Match continuation completed - timer will restart automatically"
           );
-          navigate(`/match-end/${matchId}`);
-          return; // Don't reset pendingMatchEvent since we're leaving
+        } else {
+          console.warn("⚠️ No result data received from match continuation");
+          // Reset state even if no result data
+          setIsWaitingForMatchContinuation(false);
+          setIsProcessingMatchContinuation(false);
+          setPendingMatchEvent(null);
         }
-
-        setPendingMatchEvent(null);
       }
     } catch (error) {
       console.log("❌ Error processing match continuation:", error);
@@ -1783,8 +1781,13 @@ const MatchComponent = () => {
             {currentMinute >= 90 && (
               <div className="w-full flex justify-end mr-10">
                 <button
-                  onClick={handleMatchContinuation}
-                  className="w-32 h-14 bg-contain bg-no-repeat bg-center text-white text-lg font-bold flex items-center justify-center pr-4 transition-transform transform hover:scale-105"
+                  onClick={async () => {
+                    console.log("🏁 Manual finish match clicked at minute", currentMinute);
+                    await handleFinishGameMatch();
+                    navigate(`/match-end/${matchId}`);
+                  }}
+                  disabled={isProcessingMatchContinuation || isProcessingEvent}
+                  className="w-32 h-14 bg-contain bg-no-repeat bg-center text-white text-lg font-bold flex items-center justify-center pr-4 transition-transform transform hover:scale-105 disabled:opacity-50"
                   style={{
                     backgroundImage: "url('/nonMatchResult/Next Button.png')",
                   }}

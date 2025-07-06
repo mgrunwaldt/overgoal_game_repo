@@ -29,37 +29,58 @@ use full_starter_react::helpers::timestamp::Timestamp;
 // Adjust these values to fine-tune game balance
 
 // === PENALTY PROBABILITIES ===
-const PENALTY_BASE_PROBABILITY: u32 = 60; // Base penalty success rate (60%)
+const PENALTY_BASE_PROBABILITY: u32 = 75; // Base penalty success rate (60%)
 const PENALTY_CENTER_MODIFIER: u32 = 90; // Center penalty modifier (90% = -10%)
 const PENALTY_CORNER_BASELINE_BOOST: u32 = 105; // Corner penalty boost (105% = +5%)
 const PENALTY_PANENKA_BASELINE_PENALTY: u32 = 70; // Panenka penalty (70% = -30%)
 
 // === FREE KICK PROBABILITIES ===
-const FREE_KICK_BASE_PROBABILITY: u32 = 10; // Base free kick success rate (10%)
+const FREE_KICK_BASE_PROBABILITY: u32 = 20; // Base free kick success rate (10%)
 const FREE_KICK_MIN_CLAMP: u32 = 100; // Minimum free kick probability (1%)
-const FREE_KICK_MAX_CLAMP: u32 = 3000; // Maximum free kick probability (30.0%)
-const FREE_KICK_SHOOT_MIN_GOAL_PROB: u32 = 200; // Min goal probability (2%)
-const FREE_KICK_SHOOT_MAX_GOAL_PROB: u32 = 8000; // Max goal probability (80.0%)
-const FREE_KICK_CROSS_MIN_GOAL_PROB: u32 = 2000; // Min cross probability (20%)
-const FREE_KICK_CROSS_MAX_GOAL_PROB: u32 = 8000; // Max cross probability (50.0%)
+const FREE_KICK_MAX_CLAMP: u32 = 4000; // Maximum free kick probability (30.0%)
+const FREE_KICK_SHOOT_MIN_GOAL_PROB: u32 = 1000; // Min goal probability (2%)
+const FREE_KICK_SHOOT_MAX_GOAL_PROB: u32 = 9000; // Max goal probability (80.0%)
+const FREE_KICK_CROSS_MIN_GOAL_PROB: u32 = 4000; // Min cross probability (20%)
+const FREE_KICK_CROSS_MAX_GOAL_PROB: u32 = 9000; // Max cross probability (50.0%)
 
 // === OPEN PLAY PROBABILITIES ===
-const OPEN_PLAY_SHOOT_BASE_PROBABILITY: u32 = 2000; // Base shoot success rate (5.0% in 0.1% units)
-const OPEN_PLAY_SHOOT_MIN_GOAL_PROB: u32 = 1000; // Min goal probability (0.5%)
-const OPEN_PLAY_SHOOT_MAX_GOAL_PROB: u32 = 9000; // Max goal probability (90.0%)
+const OPEN_PLAY_SHOOT_BASE_PROBABILITY: u32 = 5000; // Base shoot success rate (5.0% in 0.1% units)
+const OPEN_PLAY_SHOOT_MIN_GOAL_PROB: u32 = 2500; // Min goal probability (0.5%)
+const OPEN_PLAY_SHOOT_MAX_GOAL_PROB: u32 = 9500; // Max goal probability (90.0%)
+
+// === OPEN PLAY PASS PROBABILITIES ===
+const OPEN_PLAY_PASS_PLAYER_PASSING_WEIGHT: u32 = 80; // Weight for player.passing (60% = 0.6)
+const OPEN_PLAY_PASS_PLAYER_INTELLIGENCE_WEIGHT: u32 = 25; // Weight for player.intelligence (25% = 0.25)
+const OPEN_PLAY_PASS_TEAM_OFFENSE_WEIGHT: u32 = 25; // Weight for team.offense (15% = 0.15)
+const OPEN_PLAY_PASS_MIN_SUCCESS_PROB: u32 = 25; // Minimum pass success rate (10%)
+const OPEN_PLAY_PASS_MAX_SUCCESS_PROB: u32 = 95; // Maximum pass success rate (95%)
+
+// === OPEN PLAY DRIBBLE PROBABILITIES ===
+const OPEN_PLAY_DRIBBLE_PLAYER_DRIBBLE_WEIGHT: u32 = 60; // Weight for player.dribble (60% = 0.6)
+const OPEN_PLAY_DRIBBLE_PLAYER_INTELLIGENCE_WEIGHT: u32 = 30; // Weight for player.intelligence (30% = 0.3)
+const OPEN_PLAY_DRIBBLE_TEAM_OFFENSE_WEIGHT: u32 = 10; // Weight for team.offense (10% = 0.1)
+const OPEN_PLAY_DRIBBLE_MIN_SUCCESS_PROB: u32 = 25; // Minimum dribble success rate (10%)
+const OPEN_PLAY_DRIBBLE_MAX_SUCCESS_PROB: u32 = 95; // Maximum dribble success rate (95%)
+
+// === OPEN PLAY SIMULATE FOUL PROBABILITIES ===
+const OPEN_PLAY_SIMULATE_PLAYER_INTELLIGENCE_WEIGHT: u32 = 50; // Weight for player.intelligence (40% = 0.4)
+const OPEN_PLAY_SIMULATE_PLAYER_DRIBBLE_WEIGHT: u32 = 30; // Weight for player.dribble (30% = 0.3)
+const OPEN_PLAY_SIMULATE_TEAM_INTENSITY_WEIGHT: u32 = 30; // Weight for team.intensity (30% = 0.3)
+const OPEN_PLAY_SIMULATE_MIN_SUCCESS_PROB: u32 = 15; // Minimum simulate success rate (5%)
+const OPEN_PLAY_SIMULATE_MAX_SUCCESS_PROB: u32 = 85; // Maximum simulate success rate (80%)
 
 // === MATCH EVENT PROBABILITIES ===
-const MY_TEAM_ATTACK_BASE_PROBABILITY: u32 = 7; // Base attack event probability (7%)
-const OPPONENT_TEAM_ATTACK_BASE_PROBABILITY: u32 = 7; // Base opponent attack probability (7%)
-const RANDOM_EVENT_BASE_PROBABILITY: u32 = 4; // Base random event probability (4%)
-const PENALTY_ACTION_BASE_PROBABILITY: u32 = 5; // Base penalty action probability (4%)
-const FREE_KICK_ACTION_BASE_PROBABILITY: u32 = 20; // Base free kick action probability (18%)
+const MY_TEAM_ATTACK_BASE_PROBABILITY: u32 = 6; // Base attack event probability (7%)
+const OPPONENT_TEAM_ATTACK_BASE_PROBABILITY: u32 = 10; // Base opponent attack probability (7%)
+const RANDOM_EVENT_BASE_PROBABILITY: u32 = 1; // Base random event probability (4%)
+const PENALTY_ACTION_BASE_PROBABILITY: u32 = 10; // Base penalty action probability (4%)
+const FREE_KICK_ACTION_BASE_PROBABILITY: u32 = 22; // Base free kick action probability (18%)
 const BRAWL_ACTION_BASE_PROBABILITY: u32 = 60; // Base brawl action probability (60%)
 
 // === PARTICIPATION PROBABILITIES ===
 const ATTACK_PARTICIPATION_BASE_PROBABILITY: u32 = 100; // Base attack participation (100%)
 const DEFENSE_PARTICIPATION_BASE_PROBABILITY: u32 = 15; // Base defense participation (15%)
-const SIMULATE_FOUL_PENALTY_CHANCE: u32 = 25; // Chance of penalty from simulation (25%)
+const SIMULATE_FOUL_PENALTY_CHANCE: u32 = 30; // Chance of penalty from simulation (25%)
 
 // === AI ATTACK OUTCOME PROBABILITIES ===
 const AI_PENALTY_SUCCESS_RATE: u32 = 80; // AI penalty success rate (80%)
@@ -962,15 +983,23 @@ pub impl StoreImpl of StoreTrait {
         return need_more_actions;
     }
     fn process_open_play_pass(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
-        // ✅ Implement open_play.md passing algorithm
-        // successProb = (player.passing * 0.6 + player.intelligence * 0.25 + attackingTeam.offense * 0.15) / 100
+        // ✅ Implement open_play.md passing algorithm with configurable constants
+        // successProb = (player.passing * weight1 + player.intelligence * weight2 + attackingTeam.offense * weight3) / 100
         let mut need_more_actions = true;
-        let passing_factor = player.passing * 60 / 100; // 0.6 * player.passing
-        let intelligence_factor = player.intelligence * 25 / 100; // 0.25 * player.intelligence
-        let offense_factor = my_team.offense.into() * 15 / 100; // 0.15 * team.offense (convert u8 to u32)
+        let passing_factor = player.passing * OPEN_PLAY_PASS_PLAYER_PASSING_WEIGHT / 100;
+        let intelligence_factor = player.intelligence * OPEN_PLAY_PASS_PLAYER_INTELLIGENCE_WEIGHT / 100;
+        let offense_factor = my_team.offense.into() * OPEN_PLAY_PASS_TEAM_OFFENSE_WEIGHT / 100;
         
         let combined_factor = passing_factor + intelligence_factor + offense_factor;
-        let success_prob = combined_factor; // This gives us percentage directly (0-100 range)
+        
+        // 🎯 FIX: Apply min/max clamps using constants
+        let mut success_prob = combined_factor;
+        if success_prob < OPEN_PLAY_PASS_MIN_SUCCESS_PROB {
+            success_prob = OPEN_PLAY_PASS_MIN_SUCCESS_PROB;
+        }
+        if success_prob > OPEN_PLAY_PASS_MAX_SUCCESS_PROB {
+            success_prob = OPEN_PLAY_PASS_MAX_SUCCESS_PROB;
+        }
         
         // Generate random roll (0-99) and check if pass succeeds
         let random_roll = self.generate_random(100, gamematch.event_counter.into());
@@ -1040,15 +1069,23 @@ pub impl StoreImpl of StoreTrait {
         return need_more_actions;
     }
     fn process_open_play_dribble(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team)-> bool {
-        // ✅ Implement open_play.md dribbling algorithm
-        // successProb = (player.dribble * 0.6 + player.intelligence * 0.3 + attackingTeam.offense * 0.1) / 100
+        // ✅ Implement open_play.md dribbling algorithm with configurable constants
+        // successProb = (player.dribble * weight1 + player.intelligence * weight2 + attackingTeam.offense * weight3) / 100
         let mut need_more_actions = true;
-        let dribble_factor = player.dribble * 60 / 100; // 0.6 * player.dribble
-        let intelligence_factor = player.intelligence * 30 / 100; // 0.3 * player.intelligence
-        let offense_factor = my_team.offense.into() * 10 / 100; // 0.1 * team.offense (convert u8 to u32)
+        let dribble_factor = player.dribble * OPEN_PLAY_DRIBBLE_PLAYER_DRIBBLE_WEIGHT / 100;
+        let intelligence_factor = player.intelligence * OPEN_PLAY_DRIBBLE_PLAYER_INTELLIGENCE_WEIGHT / 100;
+        let offense_factor = my_team.offense.into() * OPEN_PLAY_DRIBBLE_TEAM_OFFENSE_WEIGHT / 100;
         
         let combined_factor = dribble_factor + intelligence_factor + offense_factor;
-        let success_prob = combined_factor; // This gives us percentage directly (0-100 range)
+        
+        // 🎯 FIX: Apply min/max clamps using constants
+        let mut success_prob = combined_factor;
+        if success_prob < OPEN_PLAY_DRIBBLE_MIN_SUCCESS_PROB {
+            success_prob = OPEN_PLAY_DRIBBLE_MIN_SUCCESS_PROB;
+        }
+        if success_prob > OPEN_PLAY_DRIBBLE_MAX_SUCCESS_PROB {
+            success_prob = OPEN_PLAY_DRIBBLE_MAX_SUCCESS_PROB;
+        }
         
         // Generate random roll (0-99) and check if dribble succeeds
         let random_roll = self.generate_random(100, gamematch.event_counter.into());
@@ -1167,15 +1204,23 @@ pub impl StoreImpl of StoreTrait {
         return need_more_actions;
     }
     fn process_open_play_simulate_foul(mut self: Store, ref gamematch:GameMatch, ref player:Player, opponent_team: Team, my_team: Team) -> bool {
-        // ✅ Implement open_play.md simulate (dive) algorithm
-        // successProb = (player.intelligence * 0.4 + player.dribble * 0.3 + attackingTeam.intensity * 0.3) / 100
+        // ✅ Implement open_play.md simulate (dive) algorithm with configurable constants
+        // successProb = (player.intelligence * weight1 + player.dribble * weight2 + attackingTeam.intensity * weight3) / 100
         let mut need_more_actions = true;
-        let intelligence_factor = player.intelligence * 40 / 100; // 0.4 * player.intelligence
-        let dribble_factor = player.dribble * 30 / 100; // 0.3 * player.dribble
-        let intensity_factor = my_team.intensity.into() * 30 / 100; // 0.3 * team.intensity (convert u8 to u32)
+        let intelligence_factor = player.intelligence * OPEN_PLAY_SIMULATE_PLAYER_INTELLIGENCE_WEIGHT / 100;
+        let dribble_factor = player.dribble * OPEN_PLAY_SIMULATE_PLAYER_DRIBBLE_WEIGHT / 100;
+        let intensity_factor = my_team.intensity.into() * OPEN_PLAY_SIMULATE_TEAM_INTENSITY_WEIGHT / 100;
         
         let combined_factor = intelligence_factor + dribble_factor + intensity_factor;
-        let success_prob = combined_factor; // This gives us percentage directly (0-100 range)
+        
+        // 🎯 FIX: Apply min/max clamps using constants
+        let mut success_prob = combined_factor;
+        if success_prob < OPEN_PLAY_SIMULATE_MIN_SUCCESS_PROB {
+            success_prob = OPEN_PLAY_SIMULATE_MIN_SUCCESS_PROB;
+        }
+        if success_prob > OPEN_PLAY_SIMULATE_MAX_SUCCESS_PROB {
+            success_prob = OPEN_PLAY_SIMULATE_MAX_SUCCESS_PROB;
+        }
         
         // Generate random roll (0-99) and check if simulate succeeds
         let random_roll = self.generate_random(100, gamematch.event_counter.into());
@@ -1274,6 +1319,22 @@ pub impl StoreImpl of StoreTrait {
     fn finish_gamematch(mut self: Store, match_id: u32) {
         let mut gamematch = self.read_gamematch(match_id);
         gamematch.finish_match();
+        
+        // 🎯 FIX: Award team points based on match result
+        // 3 points for win, 1 point for tie, 0 points for loss
+        let points_to_award = if gamematch.my_team_score > gamematch.opponent_team_score {
+            3  // Win
+        } else if gamematch.my_team_score == gamematch.opponent_team_score {
+            1  // Tie  
+        } else {
+            0  // Loss
+        };
+        
+        // Award the points to my team
+        if points_to_award > 0 {
+            self.add_team_points(gamematch.my_team_id, points_to_award);
+        }
+        
         self.world.write_model(@gamematch);
     }
 

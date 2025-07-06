@@ -2,16 +2,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Progress } from "./ui/progress"
 import { useAccount } from "@starknet-react/core"
 import useAppStore from "../zustand/store"
-import { Coins, Zap, Heart, Loader2, AlertTriangle, Target, Gamepad2, Battery, Dumbbell, Star } from "lucide-react"
+import { useTeams } from "../dojo/hooks/useTeams"
+import { Coins, Zap, Heart, Loader2, AlertTriangle, Target, Gamepad2, Battery, Dumbbell, Star, Trophy, Users } from "lucide-react"
 
 export function PlayerStats() {
   const { status } = useAccount();
   const player = useAppStore(state => state.player);
   const isLoading = useAppStore(state => state.isLoading);
+  
+  // 🎯 NEW: Fetch team data to show league points
+  const { teams } = useTeams();
 
   const isConnected = status === "connected";
 
   console.log("🎯 player stats", player);
+
+  // 🎯 NEW: Find the player's selected team
+  const selectedTeam = player && teams.length > 0 
+    ? teams.find(team => team.team_id === player.selected_team_id)
+    : null;
 
   // Use real player data or default values
   const stats = [
@@ -109,6 +118,26 @@ export function PlayerStats() {
         <CardTitle className="text-white text-xl font-bold">Player Stats</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* 🎯 NEW: Team info section */}
+        {selectedTeam && (
+          <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-cyan-400" />
+                <span className="text-slate-300 font-medium">Team</span>
+              </div>
+              <span className="text-cyan-400 font-bold">{selectedTeam.name}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-yellow-400" />
+                <span className="text-slate-300">League Points</span>
+              </div>
+              <span className="text-yellow-400 font-bold text-lg">{selectedTeam.current_league_points}</span>
+            </div>
+          </div>
+        )}
+
         {/* Main stats */}
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -189,6 +218,16 @@ export function PlayerStats() {
             <div className="flex items-center gap-2 text-green-400 text-sm">
               <Heart className="w-4 h-4" />
               <span>Player ready! Use actions to train and progress.</span>
+            </div>
+          </div>
+        )}
+
+        {/* 🎯 NEW: Team points info */}
+        {selectedTeam && (
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-yellow-400 text-sm">
+              <Trophy className="w-4 h-4" />
+              <span>Win matches to earn team points! (Win: +3, Draw: +1, Loss: +0)</span>
             </div>
           </div>
         )}
